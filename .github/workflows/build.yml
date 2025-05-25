@@ -167,6 +167,9 @@ jobs:
                     product-version: '${{ env.KONCENTRO_VERSION }}'
                     include-module: |
                         logging.config
+                    nofollow-import-to: |
+                        sqlalchemy.dialects.oracle
+                    # causes compiler out of heap space errors in github actions
                     include-data-files: |
                         .\src\website_blocker\filter.py=.\website_blocker\filter.py
                         .\src\constants.py=.\constants.py
