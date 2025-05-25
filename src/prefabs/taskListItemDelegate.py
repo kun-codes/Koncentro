@@ -2,7 +2,8 @@ from loguru import logger
 from PySide6.QtCore import QModelIndex, QRect, Qt, Signal
 from PySide6.QtGui import QColor, QFontMetrics, QPainter
 from PySide6.QtWidgets import QListView, QStyledItemDelegate, QStyleOptionViewItem, QWidget
-from qfluentwidgets import FluentIcon, ListItemDelegate, TransparentToggleToolButton, isDarkTheme
+from qfluentwidgets import FluentIcon, ListItemDelegate, TransparentToggleToolButton, isDarkTheme, ToolTipFilter, \
+    ToolTipPosition
 
 from models.task_list_model import TaskListModel
 from utils.time_conversion import convert_ms_to_hh_mm_ss
@@ -45,7 +46,11 @@ class TaskListItemDelegate(ListItemDelegate):
         button.setIcon(model.data(index, TaskListModel.IconRole))
 
         button.setFixedSize(self.button_size, self.button_size)
-        button.setToolTip("Pause/Resume")
+        if self.parent().objectName() == "todoTasksList":
+            button.setToolTip("Pause/Resume")
+            button.installEventFilter(
+                ToolTipFilter(button, showDelay=300, position=ToolTipPosition.BOTTOM)
+            )
 
         button.clicked.connect(lambda checked, tid=task_id: self.onButtonClicked(checked, tid))
 
