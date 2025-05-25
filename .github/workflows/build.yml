@@ -146,7 +146,7 @@ jobs:
                 if: matrix.os == 'ubuntu-22.04'
                 uses: actions/upload-artifact@v4
                 with:
-                    name: '${{ matrix.os }}_${{ env.ARCHITECTURE }}-build'
+                    name: 'linux_${{ env.ARCHITECTURE }}-build'
                     path: 'build/__main__.dist/'
                     include-hidden-files: 'true'
 
