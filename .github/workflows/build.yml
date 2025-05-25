@@ -121,6 +121,7 @@ jobs:
                     mode: ${{ (matrix.os == 'macos-latest' || matrix.os == 'macos-13') && 'app' || 'standalone' }}
                     enable-plugins: 'pyside6'
                     macos-app-icon: 'assets/logo.icns'
+                    macos-app-name: 'Koncentro'
                     linux-icon: 'assets/logo.ico'
                     output-file: 'koncentro'
                     include-module: |
@@ -185,7 +186,7 @@ jobs:
                 uses: actions/upload-artifact@v4
                 with:
                     name: '${{ matrix.os }}_${{ env.ARCHITECTURE }}-build'
-                    path: 'build/__main__.app/Contents/MacOS/'
+                    path: 'build/Koncentro.app/Contents/MacOS/'
                     include-hidden-files: 'true'
 
             -   name: Upload artifacts Windows
