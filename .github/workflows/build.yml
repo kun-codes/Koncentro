@@ -33,6 +33,35 @@ jobs:
               run: |
                   echo "ARCHITECTURE=x86_64" >> $env:GITHUB_ENV
 
+            - name: Get latest mitmproxy release
+              id: get_latest_release
+              uses: octokit/request-action@v2.x
+              with:
+                route: GET /repos/{owner}/{repo}/releases/latest
+                owner: mitmproxy
+                repo: mitmproxy
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Set latest version as env variable (Linux and MacOS)
+              if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+              run: |
+                # Parse the JSON response to get just the tag_name and remove the 'v' prefix
+                MITMPROXY_LATEST_VERSION=$(echo '${{ steps.get_latest_release.outputs.data }}' | jq -r '.tag_name' | sed 's/^v//')
+                echo "MITMPROXY_LATEST_VERSION=$MITMPROXY_LATEST_VERSION" >> $GITHUB_ENV
+                # Echo it for visibility in workflow logs
+                echo "Latest mitmproxy version: $MITMPROXY_LATEST_VERSION"
+
+            - name: Set latest version as env variable (Windows)
+              if: matrix.os == 'windows-latest'
+              run: |
+                # Parse the JSON response to get just the tag_name and remove the 'v' prefix
+                $jsonData = '${{ steps.get_latest_release.outputs.data }}'
+                $version = (ConvertFrom-Json $jsonData).tag_name -replace '^v', ''
+                echo "MITMPROXY_LATEST_VERSION=$version" >> $env:GITHUB_ENV
+                # Echo it for visibility in workflow logs
+                Write-Output "Latest mitmproxy version: $version"
+
             -   name: Install dependencies
                 env:
                     POETRY_VIRTUALENVS_CREATE: false
@@ -51,16 +80,16 @@ jobs:
                 run: |
                     cd ..
                     if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
-                        wget https://downloads.mitmproxy.org/11.0.2/mitmproxy-11.0.2-linux-x86_64.tar.gz
-                        tar -xvf mitmproxy-11.0.2-linux-x86_64.tar.gz
+                        wget https://downloads.mitmproxy.org/${{ env.MITMPROXY_LATEST_VERSION }}/mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-linux-x86_64.tar.gz
+                        tar -xvf mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-linux-x86_64.tar.gz
                         cp mitmdump Koncentro/mitmdump
                     elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-                        curl -LO https://downloads.mitmproxy.org/11.0.2/mitmproxy-11.0.2-macos-arm64.tar.gz
-                        tar -xvf mitmproxy-11.0.2-macos-arm64.tar.gz
+                        curl -LO https://downloads.mitmproxy.org/${{ env.MITMPROXY_LATEST_VERSION }}/mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-macos-arm64.tar.gz
+                        tar -xvf mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-macos-arm64.tar.gz
                         cp mitmproxy.app/Contents/MacOS/mitmdump Koncentro/mitmdump
                     elif [[ "${{ matrix.os }}" == "macos-13" ]]; then
-                        curl -LO https://downloads.mitmproxy.org/11.0.2/mitmproxy-11.0.2-macos-x86_64.tar.gz
-                        tar -xvf mitmproxy-11.0.2-macos-x86_64.tar.gz
+                        curl -LO https://downloads.mitmproxy.org/${{ env.MITMPROXY_LATEST_VERSION }}/mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-macos-x86_64.tar.gz
+                        tar -xvf mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-macos-x86_64.tar.gz
                         cp mitmproxy.app/Contents/MacOS/mitmdump Koncentro/mitmdump
                     fi
                     cd Koncentro
@@ -69,8 +98,8 @@ jobs:
                 if: matrix.os == 'windows-latest'
                 run: |
                     cd ..
-                    Invoke-WebRequest -Uri "https://downloads.mitmproxy.org/11.0.2/mitmproxy-11.0.2-windows-x86_64.zip" -OutFile "mitmproxy-11.0.2-windows-x86_64.zip"
-                    Expand-Archive -Path "mitmproxy-11.0.2-windows-x86_64.zip" -DestinationPath .
+                    Invoke-WebRequest -Uri "https://downloads.mitmproxy.org/${{ env.MITMPROXY_LATEST_VERSION }}/mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-windows-x86_64.zip" -OutFile "mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-windows-x86_64.zip"
+                    Expand-Archive -Path "mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-windows-x86_64.zip" -DestinationPath .
                     Copy-Item -Path "mitmdump.exe" -Destination "Koncentro\mitmdump.exe"
                     cd "Koncentro"
                     
