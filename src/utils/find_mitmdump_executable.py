@@ -14,10 +14,10 @@ def get_mitmdump_path():
         # from: https://nuitka.net/user-documentation/common-issue-solutions.html#onefile-finding-files
         mitmdump_path = os.path.join(os.path.dirname(sys.argv[0]), "mitmdump")
 
+        mitmdump_path = Path(mitmdump_path)
+
         if platform.system() == "Windows":
             mitmdump_path = mitmdump_path.with_suffix(".exe")
-
-        mitmdump_path = Path(mitmdump_path)
 
         if mitmdump_path.exists():
             logger.debug(f"mitmdump path: {mitmdump_path}")
