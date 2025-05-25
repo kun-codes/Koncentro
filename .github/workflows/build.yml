@@ -9,9 +9,9 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                os: [ubuntu-22.04, macos-latest, macos-13, windows-latest]  # using older ubuntu version for compatibility
+                os: [ ubuntu-22.04, macos-latest, macos-13, windows-latest ]  # using older ubuntu version for compatibility
                 # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
-                python-version: [3.12]
+                python-version: [ 3.12 ]
 
         steps:
             -   name: Checkout
@@ -28,39 +28,39 @@ jobs:
                     ARCHITECTURE=$(uname -m)
                     echo "ARCHITECTURE=$ARCHITECTURE" >> $GITHUB_ENV
 
-            - name: Store Architecture (Windows)
-              if: matrix.os == 'windows-latest'
-              run: |
-                  echo "ARCHITECTURE=x86_64" >> $env:GITHUB_ENV
+            -   name: Store Architecture (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    echo "ARCHITECTURE=x86_64" >> $env:GITHUB_ENV
 
-            - name: Get latest mitmproxy release
-              id: get_latest_release
-              uses: octokit/request-action@v2.x
-              with:
-                route: GET /repos/{owner}/{repo}/releases/latest
-                owner: mitmproxy
-                repo: mitmproxy
-              env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            -   name: Get latest mitmproxy release
+                id: get_latest_release
+                uses: octokit/request-action@v2.x
+                with:
+                    route: GET /repos/{owner}/{repo}/releases/latest
+                    owner: mitmproxy
+                    repo: mitmproxy
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Set latest version as env variable (Linux and MacOS)
-              if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
-              run: |
-                # Parse the JSON response to get just the tag_name and remove the 'v' prefix
-                MITMPROXY_LATEST_VERSION=$(echo '${{ steps.get_latest_release.outputs.data }}' | jq -r '.tag_name' | sed 's/^v//')
-                echo "MITMPROXY_LATEST_VERSION=$MITMPROXY_LATEST_VERSION" >> $GITHUB_ENV
-                # Echo it for visibility in workflow logs
-                echo "Latest mitmproxy version: $MITMPROXY_LATEST_VERSION"
+            -   name: Set latest version as env variable (Linux and MacOS)
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                run: |
+                    # Parse the JSON response to get just the tag_name and remove the 'v' prefix
+                    MITMPROXY_LATEST_VERSION=$(echo '${{ steps.get_latest_release.outputs.data }}' | jq -r '.tag_name' | sed 's/^v//')
+                    echo "MITMPROXY_LATEST_VERSION=$MITMPROXY_LATEST_VERSION" >> $GITHUB_ENV
+                    # Echo it for visibility in workflow logs
+                    echo "Latest mitmproxy version: $MITMPROXY_LATEST_VERSION"
 
-            - name: Set latest version as env variable (Windows)
-              if: matrix.os == 'windows-latest'
-              run: |
-                # Parse the JSON response to get just the tag_name and remove the 'v' prefix
-                $jsonData = '${{ steps.get_latest_release.outputs.data }}'
-                $version = (ConvertFrom-Json $jsonData).tag_name -replace '^v', ''
-                echo "MITMPROXY_LATEST_VERSION=$version" >> $env:GITHUB_ENV
-                # Echo it for visibility in workflow logs
-                Write-Output "Latest mitmproxy version: $version"
+            -   name: Set latest version as env variable (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    # Parse the JSON response to get just the tag_name and remove the 'v' prefix
+                    $jsonData = '${{ steps.get_latest_release.outputs.data }}'
+                    $version = (ConvertFrom-Json $jsonData).tag_name -replace '^v', ''
+                    echo "MITMPROXY_LATEST_VERSION=$version" >> $env:GITHUB_ENV
+                    # Echo it for visibility in workflow logs
+                    Write-Output "Latest mitmproxy version: $version"
 
             -   name: Install dependencies
                 env:
@@ -102,14 +102,14 @@ jobs:
                     Expand-Archive -Path "mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-windows-x86_64.zip" -DestinationPath .
                     Copy-Item -Path "mitmdump.exe" -Destination "Koncentro\mitmdump.exe"
                     cd "Koncentro"
-                    
+
             # Remove problematic brew libs if Intel Mac
             # https://github.com/Nuitka/Nuitka/issues/2853#issuecomment-2119520735
-            - name: Remove problematic brew libs
-              if: matrix.os == 'macos-13'
-              run: |
-                  brew remove --force --ignore-dependencies openssl@3
-                  brew cleanup openssl@3
+            -   name: Remove problematic brew libs
+                if: matrix.os == 'macos-13'
+                run: |
+                    brew remove --force --ignore-dependencies openssl@3
+                    brew cleanup openssl@3
 
             -   name: Build Executable (Linux and MacOS)
                 if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
