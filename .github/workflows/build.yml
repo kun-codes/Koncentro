@@ -9,7 +9,8 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                os: [ubuntu-latest, macos-latest, macos-13, windows-latest]
+                os: [ubuntu-22.04, macos-latest, macos-13, windows-latest]  # using older ubuntu version for compatibility
+                # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
                 python-version: [3.12]
 
         steps:
@@ -22,7 +23,7 @@ jobs:
                     python-version: ${{ matrix.python-version }}
 
             -   name: Store Architecture (Linux and MacOS)
-                if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                 run: |
                     ARCHITECTURE=$(uname -m)
                     echo "ARCHITECTURE=$ARCHITECTURE" >> $GITHUB_ENV
@@ -46,10 +47,10 @@ jobs:
                     poetry show
 
             -   name: Download latest version of mitmproxy (Linux and MacOS)
-                if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                 run: |
                     cd ..
-                    if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+                    if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
                         wget https://downloads.mitmproxy.org/11.0.2/mitmproxy-11.0.2-linux-x86_64.tar.gz
                         tar -xvf mitmproxy-11.0.2-linux-x86_64.tar.gz
                         cp mitmdump Koncentro/mitmdump
@@ -82,7 +83,7 @@ jobs:
                   brew cleanup openssl@3
 
             -   name: Build Executable (Linux and MacOS)
-                if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                 uses: Nuitka/Nuitka-Action@main
                 with:
                     nuitka-version: 'main'
@@ -132,7 +133,7 @@ jobs:
                 run: brew install tree
 
             -   name: tree command (Linux and MacOS)
-                if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                 run: |
                     tree build/
 
@@ -142,10 +143,10 @@ jobs:
                     Get-ChildItem -Recurse "build\"
 
             -   name: Upload artifacts Linux
-                if: matrix.os == 'ubuntu-latest'
+                if: matrix.os == 'ubuntu-22.04'
                 uses: actions/upload-artifact@v4
                 with:
-                    name: '${{ matrix.os }}_${{ env.ARCHITECTURE }}-build'
+                    name: 'linux_${{ env.ARCHITECTURE }}-build'
                     path: 'build/__main__.dist/'
                     include-hidden-files: 'true'
 
