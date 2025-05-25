@@ -144,6 +144,7 @@ jobs:
                     mode: standalone
                     windows-icon-from-ico: 'assets/logo.ico'
                     msvc: 'latest'  # use msvc to avoid false positives in antivirus scans
+                    windows-console-mode: 'disable'
                     enable-plugins: 'pyside6'
                     output-file: 'koncentro'
                     include-module: |
