@@ -203,7 +203,7 @@ jobs:
                 uses: actions/upload-artifact@v4
                 with:
                     name: '${{ matrix.os }}_${{ env.ARCHITECTURE }}-build'
-                    path: 'build/Koncentro.app/Contents/MacOS/'
+                    path: 'build/__main__.app/Contents/MacOS/'
                     include-hidden-files: 'true'
 
             -   name: Upload artifacts Windows
