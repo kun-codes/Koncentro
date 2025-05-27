@@ -16,7 +16,7 @@ from website_blocker.utils import kill_process
 # Windows-specific constant for hiding console windows
 # https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
 # https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
-CREATE_NO_WINDOW = 0x08000000 if os.name == "nt" else 0
+CREATE_NO_WINDOW = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
 
 class FilterWorker(QThread):
     """Worker thread for filtering operations"""
