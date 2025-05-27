@@ -13,6 +13,10 @@ from constants import MITMDUMP_COMMAND_LINUX, MITMDUMP_COMMAND_WINDOWS, MITMDUMP
 from utils.noHTTPClientError import NoHTTPClientError
 from website_blocker.utils import kill_process
 
+# Windows-specific constant for hiding console windows
+# https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
+# https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
+CREATE_NO_WINDOW = 0x08000000 if os.name == "nt" else 0
 
 class FilterWorker(QThread):
     """Worker thread for filtering operations"""
@@ -95,7 +99,7 @@ class WebsiteBlockerManager(QObject):
             )
 
         # Start the process
-        subprocess.Popen(args)
+        subprocess.Popen(args, creationflags=CREATE_NO_WINDOW)
         return True
 
     def _on_start_completed(self, success, message):
@@ -135,7 +139,8 @@ class WebsiteBlockerManager(QObject):
                     [curl_path, "-s", "--proxy", f"127.0.0.1:{ConfigValues.PROXY_PORT}", MITMDUMP_SHUTDOWN_URL],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
-                    timeout=5  # Prevent hanging indefinitely
+                    timeout=5,  # Prevent hanging indefinitely
+                    creationflags=CREATE_NO_WINDOW
                 )
                 logger.debug(f"curl command return code: {result.returncode}")
                 if result.returncode == 7:
@@ -152,7 +157,8 @@ class WebsiteBlockerManager(QObject):
                 ],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
-                    timeout=5)  # Prevent hanging indefinitely
+                    timeout=5,
+                    creationflags=CREATE_NO_WINDOW)  # Prevent hanging indefinitely
                 logger.debug(f"wget command return code: {result.returncode}")
                 if result.returncode == 4:
                     logger.debug("wget return code 4: Most likely mitmproxy/mitmdump isn't running")
