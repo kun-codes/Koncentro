@@ -4105,13 +4105,14 @@ files = [
 
 [[package]]
 name = "uniproxy"
-version = "1.0.0"
+version = "1.1.0"
 description = "Cross platform python library to set system-wide proxy and bypass domains for proxy."
 optional = false
 python-versions = "<4.0,>=3.8"
 groups = ["main"]
 files = [
-    {file = "uniproxy-1.0.0-py3-none-any.whl", hash = "sha256:b6b8db3dcab9e164dc7c5f03764d74652c3bfeca08e676db4cb0efe636ce4567"},
+    {file = "uniproxy-1.1.0-py3-none-any.whl", hash = "sha256:58c646542e8401492730627f6743c38db05c72efadac12489de83e2e5c39e2ea"},
+    {file = "uniproxy-1.1.0.tar.gz", hash = "sha256:7524ca6cd9233647088c2d5cb0398f733cfd8447005a3f760dec7d12335a1ba3"},
 ]
 
 [package.dependencies]
