@@ -133,6 +133,8 @@ class WebsiteBlockerManager(QObject):
             if curl_path:
                 result = subprocess.run(
                     [curl_path, "-s", "--proxy", f"127.0.0.1:{ConfigValues.PROXY_PORT}", MITMDUMP_SHUTDOWN_URL],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
                     timeout=5  # Prevent hanging indefinitely
                 )
                 logger.debug(f"curl command return code: {result.returncode}")
@@ -147,7 +149,10 @@ class WebsiteBlockerManager(QObject):
                     "-e", "use_proxy=yes",
                     "-e", f"http_proxy=http://127.0.0.1:{ConfigValues.PROXY_PORT}",
                     MITMDUMP_SHUTDOWN_URL
-                ], timeout=5)  # Prevent hanging indefinitely
+                ],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    timeout=5)  # Prevent hanging indefinitely
                 logger.debug(f"wget command return code: {result.returncode}")
                 if result.returncode == 4:
                     logger.debug("wget return code 4: Most likely mitmproxy/mitmdump isn't running")
