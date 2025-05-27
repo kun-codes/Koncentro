@@ -20,7 +20,7 @@ ENABLE_WEBSITE_FILTER = True
 FIRST_RUN_DOTFILE_NAME = ".first_run"
 
 MITMDUMP_COMMAND_LINUX = (
-    '{} --set allow_remote=true -p {} --showhost -s {} --set "addresses_str={}" --set "block_type={}"'.format(
+    '{} --quiet --set allow_remote=true -p {} --showhost -s {} --set "addresses_str={}" --set "block_type={}"'.format(
         "{}",
         "{}",
         os.path.join(getattr(sys, "_MEIPASS", Path(__file__).parent), "website_blocker", "filter.py"),
@@ -31,7 +31,7 @@ MITMDUMP_COMMAND_LINUX = (
 # the os.path.join returns the location of filter.py
 
 MITMDUMP_COMMAND_WINDOWS = (
-    r"{} --set allow_remote=true -p {} --showhost -s {} --set addresses_str={} --set block_type={}".format(
+    r"{} --quiet --set allow_remote=true -p {} --showhost -s {} --set addresses_str={} --set block_type={}".format(
         "{}",
         "{}",
         os.path.join(getattr(sys, "_MEIPASS", Path(__file__).parent), "website_blocker", "filter.py"),
