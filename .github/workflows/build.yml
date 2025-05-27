@@ -8,6 +8,7 @@ jobs:
     build:
         runs-on: ${{ matrix.os }}
         strategy:
+            fail-fast: false
             matrix:
                 os: [ ubuntu-22.04, macos-latest, macos-13, windows-latest ]  # using older ubuntu version for compatibility
                 # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
