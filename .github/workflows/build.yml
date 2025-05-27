@@ -135,6 +135,8 @@ jobs:
                         src/__main__.py
                     mode: ${{ (matrix.os == 'macos-latest' || matrix.os == 'macos-13') && 'app' || 'standalone' }}
                     enable-plugins: 'pyside6'
+                    product-name: 'Koncentro'
+                    file-description: 'Koncentro'
                     macos-app-icon: 'assets/logo.icns'
                     macos-app-name: 'Koncentro'
                     linux-icon: 'assets/logo.ico'
@@ -164,6 +166,8 @@ jobs:
                     msvc: 'latest'  # use msvc to avoid false positives in antivirus scans
                     windows-console-mode: 'disable'
                     enable-plugins: 'pyside6'
+                    product-name: 'Koncentro'
+                    file-description: 'Koncentro'
                     output-file: 'koncentro'
                     product-version: '${{ env.KONCENTRO_VERSION }}'
                     include-module: |
