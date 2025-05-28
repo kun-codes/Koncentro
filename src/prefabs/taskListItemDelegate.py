@@ -2,8 +2,14 @@ from loguru import logger
 from PySide6.QtCore import QModelIndex, QRect, Qt, Signal
 from PySide6.QtGui import QColor, QFontMetrics, QPainter
 from PySide6.QtWidgets import QListView, QStyledItemDelegate, QStyleOptionViewItem, QWidget
-from qfluentwidgets import FluentIcon, ListItemDelegate, TransparentToggleToolButton, isDarkTheme, ToolTipFilter, \
-    ToolTipPosition
+from qfluentwidgets import (
+    FluentIcon,
+    ListItemDelegate,
+    ToolTipFilter,
+    ToolTipPosition,
+    TransparentToggleToolButton,
+    isDarkTheme,
+)
 
 from models.task_list_model import TaskListModel
 from utils.time_conversion import convert_ms_to_hh_mm_ss

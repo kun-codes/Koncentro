@@ -1,8 +1,7 @@
 import os
 import sys
-from pathlib import Path
-
 import tomllib
+from pathlib import Path
 
 from utils.is_nuitka import is_nuitka
 

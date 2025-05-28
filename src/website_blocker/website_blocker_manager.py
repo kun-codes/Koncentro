@@ -2,10 +2,9 @@ import os
 import shlex
 import shutil
 import subprocess
-import threading
 
 from loguru import logger
-from PySide6.QtCore import QObject, Signal, QThread
+from PySide6.QtCore import QObject, QThread, Signal
 from uniproxy import Uniproxy
 
 from config_values import ConfigValues
@@ -28,7 +27,7 @@ class FilterWorker(QThread):
 
     def run(self):
         try:
-            result = self.operation(*self.args, **self.kwargs)
+            _result = self.operation(*self.args, **self.kwargs)
             self.operationCompleted.emit(True, "Operation completed successfully")
         except Exception as e:
             logger.error(f"Error in FilterWorker: {e}")

@@ -1,12 +1,11 @@
 import ssl
+import tomllib
 from http.client import HTTPSConnection
 from urllib.parse import urlparse
-from typing import Callable, Optional
-from PySide6.QtCore import QThread, Signal, QObject
 
 import certifi
-import tomllib
 from loguru import logger
+from PySide6.QtCore import QObject, QThread, Signal
 from semver import Version
 
 from constants import UPDATE_CHECK_URL, UpdateCheckResult

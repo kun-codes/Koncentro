@@ -1,5 +1,4 @@
 import os.path
-from loguru import logger
 import signal
 import sys
 from pathlib import Path
@@ -8,10 +7,10 @@ from alembic import command
 from alembic.config import Config
 from PySide6.QtWidgets import QApplication
 
+from constants import APPLICATION_NAME, ORGANIZATION_NAME
 from main_window import MainWindow
 from utils.check_valid_db import checkValidDB
 from utils.is_nuitka import is_nuitka
-from constants import APPLICATION_NAME, ORGANIZATION_NAME
 
 
 def handle_signal(signal, frame):
