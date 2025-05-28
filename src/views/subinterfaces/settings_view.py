@@ -26,8 +26,8 @@ from prefabs.setting_cards.SpinBoxSettingCardSQL import SpinBoxSettingCardSQL
 from prefabs.setting_cards.SwitchSettingCardSQL import SwitchSettingCardSQL
 from ui_py.ui_settings_view import Ui_SettingsView
 from utils.check_for_updates import UpdateChecker
-from utils.get_app_version import get_app_version
 from utils.detect_windows_version import isWin11
+from utils.get_app_version import get_app_version
 
 
 class SettingsView(QWidget, Ui_SettingsView):

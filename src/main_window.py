@@ -1,11 +1,10 @@
-import platform
 from pathlib import Path
 
 import darkdetect
 from loguru import logger
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QMenu, QSystemTrayIcon, QApplication
+from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 from qfluentwidgets import (
     FluentIcon,
     InfoBar,
@@ -19,13 +18,13 @@ from qfluentwidgets import (
 from config_paths import settings_dir
 from config_values import ConfigValues
 from constants import (
+    APPLICATION_NAME,
     FIRST_RUN_DOTFILE_NAME,
     InterfaceType,
     TimerState,
     UpdateCheckResult,
     URLListType,
     WebsiteFilterType,
-    APPLICATION_NAME,
 )
 from models.config import app_settings, load_workspace_settings, workspace_specific_settings
 from models.db_tables import TaskType
@@ -38,8 +37,8 @@ from tutorial.pomodoroInterfaceTutorial import PomodoroInterfaceTutorial
 from tutorial.taskInterfaceTutorial import TaskInterfaceTutorial
 from tutorial.websiteFilterInterfaceTutorial import WebsiteFilterInterfaceTutorial
 from tutorial.workspaceManagerDialogTutorial import WorkspaceManagerDialogTutorial
-from utils.detect_windows_version import isWin10OrEarlier
 from utils.check_for_updates import UpdateChecker
+from utils.detect_windows_version import isWin10OrEarlier
 from utils.find_mitmdump_executable import get_mitmdump_path
 from utils.time_conversion import convert_ms_to_hh_mm_ss
 from views.dialogs.preSetupConfirmationDialog import PreSetupConfirmationDialog
