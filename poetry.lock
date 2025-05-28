@@ -323,13 +323,13 @@ files = [
 
 [[package]]
 name = "nuitka"
-version = "2.7.3"
+version = "2.7.4"
 description = "Python compiler with full language support and CPython compatibility"
 optional = false
 python-versions = "*"
 groups = ["build"]
 files = [
-    {file = "Nuitka-2.7.3.tar.gz", hash = "sha256:bd3dd12c5f0dfec0208f88c14ef3bbfc4ba3495eafc62c31b4e1f71171536e47"},
+    {file = "Nuitka-2.7.4.tar.gz", hash = "sha256:2886cc97797354db86ce1edba0a301f858527835567b91d620e9df4213e4c1e7"},
 ]
 
 [package.dependencies]
@@ -4105,14 +4105,14 @@ files = [
 
 [[package]]
 name = "uniproxy"
-version = "0.1.5"
+version = "1.1.0"
 description = "Cross platform python library to set system-wide proxy and bypass domains for proxy."
 optional = false
 python-versions = "<4.0,>=3.8"
 groups = ["main"]
 files = [
-    {file = "uniproxy-0.1.5-py3-none-any.whl", hash = "sha256:cb5f492a5bf4d8bdd9785097fb76dd1a43fbb8c2e5a284373c708faa047fcc2d"},
-    {file = "uniproxy-0.1.5.tar.gz", hash = "sha256:f2635fdfaa76501883aeddea356b719f2476c34f130718a999fede774b4a2df6"},
+    {file = "uniproxy-1.1.0-py3-none-any.whl", hash = "sha256:58c646542e8401492730627f6743c38db05c72efadac12489de83e2e5c39e2ea"},
+    {file = "uniproxy-1.1.0.tar.gz", hash = "sha256:7524ca6cd9233647088c2d5cb0398f733cfd8447005a3f760dec7d12335a1ba3"},
 ]
 
 [package.dependencies]
@@ -4277,4 +4277,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.13"
-content-hash = "42ee8797ccfda019552a044a01c399feecd33deb760b863d5288a58e45da768d"
+content-hash = "c379614d9000aadefb3b9886cbaa4cea9b191027005f1478c1de4b0a4553bfae"
