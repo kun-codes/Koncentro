@@ -1,3 +1,5 @@
+# Don't add any 3rd party imports here, as this file is used by mitmdump directly through filter.py
+
 import os
 import sys
 from pathlib import Path
