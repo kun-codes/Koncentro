@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from mitmproxy import ctx, http
 
-from constants import BLOCK_HTML_MESSAGE, MITMDUMP_SHUTDOWN_URL
+from website_blocker.constants import BLOCK_HTML_MESSAGE, MITMDUMP_SHUTDOWN_URL
 
 
 def load(loader):

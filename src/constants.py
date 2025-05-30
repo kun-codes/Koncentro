@@ -1,7 +1,4 @@
-import os
-import sys
 from enum import Enum
-from pathlib import Path
 
 # Application
 ORGANIZATION_NAME = "Koncentro"
@@ -19,33 +16,8 @@ ENABLE_WEBSITE_FILTER = True
 # for dotfile to detect if its the first time the app is run
 FIRST_RUN_DOTFILE_NAME = ".first_run"
 
-MITMDUMP_COMMAND_LINUX = (
-    '{} --set allow_remote=true -p {} --showhost -s {} --set "addresses_str={}" --set "block_type={}"'.format(
-        "{}",
-        "{}",
-        os.path.join(getattr(sys, "_MEIPASS", Path(__file__).parent), "website_blocker", "filter.py"),
-        "{}",
-        "{}",
-    )
-)  # using _MEIPASS to make it compatible with pyinstaller
-# the os.path.join returns the location of filter.py
-
-MITMDUMP_COMMAND_WINDOWS = (
-    r"{} --set allow_remote=true -p {} --showhost -s {} --set addresses_str={} --set block_type={}".format(
-        "{}",
-        "{}",
-        os.path.join(getattr(sys, "_MEIPASS", Path(__file__).parent), "website_blocker", "filter.py"),
-        "{}",
-        "{}",
-    )
-)  # using _MEIPASS to make it compatible with pyinstaller
-# the os.path.join returns the location of filter.py
-
-BLOCK_HTML_MESSAGE = f"<h1>Website blocked by {APPLICATION_NAME}!</h1>"
-
 UPDATE_CHECK_URL = "https://raw.githubusercontent.com/kun-codes/koncentro/refs/heads/main/pyproject.toml"
 NEW_RELEASE_URL = "https://github.com/kun-codes/koncentro/releases/latest"
-MITMDUMP_SHUTDOWN_URL = f"http://shutdown.{APPLICATION_NAME.lower()}.internal/"
 
 
 class WebsiteFilterType(Enum):

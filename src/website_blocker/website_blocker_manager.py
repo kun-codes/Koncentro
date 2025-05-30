@@ -8,8 +8,8 @@ from PySide6.QtCore import QObject, QThread, Signal
 from uniproxy import Uniproxy
 
 from config_values import ConfigValues
-from constants import MITMDUMP_COMMAND_LINUX, MITMDUMP_COMMAND_WINDOWS, MITMDUMP_SHUTDOWN_URL
 from utils.noHTTPClientError import NoHTTPClientError
+from website_blocker.constants import MITMDUMP_COMMAND_LINUX, MITMDUMP_COMMAND_WINDOWS, MITMDUMP_SHUTDOWN_URL
 from website_blocker.utils import kill_process
 
 # Windows-specific constant for hiding console windows
