@@ -41,11 +41,8 @@ MITMDUMP_COMMAND_WINDOWS = (
 )  # using _MEIPASS to make it compatible with pyinstaller
 # the os.path.join returns the location of filter.py
 
-BLOCK_HTML_MESSAGE = f"<h1>Website blocked by {APPLICATION_NAME}!</h1>"
-
 UPDATE_CHECK_URL = "https://raw.githubusercontent.com/kun-codes/koncentro/refs/heads/main/pyproject.toml"
 NEW_RELEASE_URL = "https://github.com/kun-codes/koncentro/releases/latest"
-MITMDUMP_SHUTDOWN_URL = f"http://shutdown.{APPLICATION_NAME.lower()}.internal/"
 
 
 class WebsiteFilterType(Enum):
