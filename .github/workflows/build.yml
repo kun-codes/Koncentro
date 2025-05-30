@@ -147,7 +147,7 @@ jobs:
                         logging.config
                     include-data-files: |
                         ./src/website_blocker/filter.py=./website_blocker/filter.py
-                        ./src/constants.py=./constants.py
+                        ./src/website_blocker/constants.py=./website_blocker/constants.py
                         ./pyproject.toml=./pyproject.toml
                         ./mitmdump=./mitmdump
                         ./alembic.ini=./alembic.ini
@@ -177,7 +177,7 @@ jobs:
                     # causes compiler out of heap space errors in github actions
                     include-data-files: |
                         .\src\website_blocker\filter.py=.\website_blocker\filter.py
-                        .\src\constants.py=.\constants.py
+                        .\src\website_blocker\constants.py=.\website_blocker\constants.py
                         .\pyproject.toml=.\pyproject.toml
                         .\mitmdump.exe=.\mitmdump.exe
                         .\alembic.ini=.\alembic.ini
