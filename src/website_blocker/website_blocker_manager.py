@@ -59,6 +59,7 @@ class WebsiteBlockerManager(QObject):
         super().__init__()
         self.proxy = Uniproxy("127.0.0.1", ConfigValues.PROXY_PORT)
         self.workers = []  # Keep references to prevent garbage collection
+        self.pending_start_params = None  # Store parameters for pending start operation
 
     def start_filtering(
         self,
@@ -70,17 +71,24 @@ class WebsiteBlockerManager(QObject):
         """Function which starts filtering in a separate thread."""
         logger.debug("Inside WebsiteBLockerManager.start_filtering().")
 
+        # Store parameters for later use after stop_filtering completes
+        # would be cleared in _start_after_stop to emulate the memory management of method parameters
+        # to prevent memory leaks
+        self.pending_start_params = {
+            "listening_port": listening_port,
+            "joined_addresses": joined_addresses,
+            "block_type": block_type,
+            "mitmdump_bin_path": mitmdump_bin_path
+        }
+
+        # Not connecting in __init__ because sometimes we want to stop mitmdump without starting it afterwards
+        self.filteringStopped.connect(self._start_after_stop)
+
         self.stop_filtering(delete_proxy=False)
 
-        # Replace threading.Thread with ProxyWorker
         proxy_worker = ProxyWorker(self.proxy.join)
         self.workers.append(proxy_worker)
         proxy_worker.start()
-
-        worker = FilterWorker(self._start_mitmdump, listening_port, joined_addresses, block_type, mitmdump_bin_path)
-        worker.operationCompleted.connect(self._on_start_completed)
-        self.workers.append(worker)
-        worker.start()
 
     def _start_mitmdump(self, listening_port, joined_addresses, block_type, mitmdump_bin_path):
         """Helper method to start mitmdump in a worker thread"""
@@ -95,7 +103,7 @@ class WebsiteBlockerManager(QObject):
                 MITMDUMP_COMMAND_LINUX.format(mitmdump_bin_path, listening_port, joined_addresses, block_type)
             )
 
-        # Start the process
+        logger.debug(f"Starting mitmdump with args: {args}")
         subprocess.Popen(args, creationflags=CREATE_NO_WINDOW)
         return True
 
@@ -111,7 +119,6 @@ class WebsiteBlockerManager(QObject):
         logger.debug("Inside WebsiteBlockerManager.stop_filtering().")
 
         if delete_proxy:
-            # Replace threading.Thread with ProxyWorker
             proxy_worker = ProxyWorker(self.proxy.delete_proxy)
             self.workers.append(proxy_worker)
             proxy_worker.start()
@@ -171,7 +178,6 @@ class WebsiteBlockerManager(QObject):
 
     def _force_kill_process(self):
         """Run kill_process in a thread to prevent GUI blocking"""
-        # Replace threading.Thread with ProxyWorker
         kill_worker = ProxyWorker(kill_process)
         self.workers.append(kill_worker)
         kill_worker.start()
@@ -179,9 +185,32 @@ class WebsiteBlockerManager(QObject):
 
     def _on_stop_completed(self, success, message):
         """Handle completion of stop_filtering operation"""
-        self.filteringStopped.emit()
         if not success:
             self.operationError.emit(f"Warning during filtering shutdown: {message}")
+
+        self.filteringStopped.emit()
+
+    def _start_after_stop(self):
+        """Start mitmdump after stop_filtering has completed"""
+        # disconnect the signal to prevent multiple connections as it would be reconnected in start_filtering
+        self.filteringStopped.disconnect(self._start_after_stop)
+
+        if self.pending_start_params:
+            worker = FilterWorker(
+                self._start_mitmdump,
+                self.pending_start_params["listening_port"],
+                self.pending_start_params["joined_addresses"],
+                self.pending_start_params["block_type"],
+                self.pending_start_params["mitmdump_bin_path"]
+            )
+            worker.operationCompleted.connect(self._on_start_completed)
+            self.workers.append(worker)
+            worker.start()
+
+            # clear the pending parameters to mimic the memory management of method parameters and prevent memory leaks
+            self.pending_start_params = None
+        else:
+            logger.warning("No pending parameters for starting mitmdump")
 
     def cleanup(self):
         """Clean up resources and terminate threads"""
