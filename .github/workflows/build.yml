@@ -155,6 +155,7 @@ jobs:
                     gh release download --repo kun-codes/mitmproxy-nuitka-binaries --pattern "mitmdump-macos-${{ env.ARCHITECTURE }}*.zip" --dir .
                     unzip mitmdump-macos*.zip
                     cp mitmdump-macos*/mitmdump Koncentro/mitmdump
+                    chmod +x Koncentro/mitmdump
                     cd Koncentro
 
             -   name: Download latest version of mitmproxy (Windows)
