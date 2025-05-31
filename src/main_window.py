@@ -832,6 +832,7 @@ class MainWindow(KoncentroFluentWindow):
     def _cleanup_background_tasks(self):
         logger.debug("Running cleanup tasks in background thread...")
         try:
+            self.updateTaskTimeDB()
             self.website_blocker_manager.stop_filtering(delete_proxy=True)
             self.website_blocker_manager.cleanup()
             self.themeListener.terminate()
