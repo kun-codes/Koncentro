@@ -1,4 +1,5 @@
 from pathlib import Path
+import threading
 
 import darkdetect
 from loguru import logger
@@ -818,9 +819,25 @@ class MainWindow(KoncentroFluentWindow):
         app_instance.quit()
 
     def closeEvent(self, event):
-        self.website_blocker_manager.stop_filtering(delete_proxy=True)
-        self.website_blocker_manager.cleanup()
-        self.themeListener.terminate()
-        self.themeListener.deleteLater()
-        logger.debug("Quitting....")
+        # Accept the event immediately to close the window
         event.accept()
+        logger.debug("Closing window immediately...")
+
+        # Run cleanup tasks in a background thread
+        cleanup_thread = threading.Thread(
+            target=self._cleanup_background_tasks,
+        )
+        cleanup_thread.start()
+
+    def _cleanup_background_tasks(self):
+        logger.debug("Running cleanup tasks in background thread...")
+        try:
+            self.updateTaskTimeDB()
+            self.website_blocker_manager.stop_filtering(delete_proxy=True)
+            self.website_blocker_manager.cleanup()
+            self.themeListener.terminate()
+            self.themeListener.deleteLater()
+            logger.debug("Cleanup tasks completed successfully.")
+            logger.debug("Quitting application...")
+        except Exception as e:
+            logger.error(f"Error during cleanup: {str(e)}")
