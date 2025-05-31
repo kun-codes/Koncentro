@@ -5,8 +5,55 @@ on:
     pull_request:
 
 jobs:
+    check-mitmproxy-nuitka-binary-release:
+        name: "Check if mitmproxy nuitka release is on latest version"
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Get latest mitmproxy release
+                id: get_latest_release
+                uses: octokit/request-action@v2.x
+                with:
+                    route: GET /repos/{owner}/{repo}/releases/latest
+                    owner: mitmproxy
+                    repo: mitmproxy
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            -   name: Store latest mitmproxy version
+                run: |
+                    # Parse the JSON response to get just the tag_name and remove the 'v' prefix
+                    MITMPROXY_LATEST_VERSION=$(echo '${{ steps.get_latest_release.outputs.data }}' | jq -r '.tag_name' | sed 's/^v//')
+                    echo "MITMPROXY_LATEST_VERSION=$MITMPROXY_LATEST_VERSION" >> $GITHUB_ENV
+
+            -   name: Get latest mitmproxy nuitka binary version
+                id: get_nuitka_release
+                uses: octokit/request-action@v2.x
+                with:
+                    route: GET /repos/{owner}/{repo}/releases/latest
+                    owner: kun-codes
+                    repo: mitmproxy-nuitka-binaries
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            -   name: Store latest mitmproxy nuitka binary version
+                run: |
+                    # Parse the JSON response to get just the tag_name and remove the 'v' prefix
+                    MITMPROXY_NUITKA_LATEST_VERSION=$(echo '${{ steps.get_nuitka_release.outputs.data }}' | jq -r '.tag_name' | sed 's/^v//')
+                    echo "MITMPROXY_NUITKA_LATEST_VERSION=$MITMPROXY_NUITKA_LATEST_VERSION" >> $GITHUB_ENV
+
+            -   name: Check if mitmproxy nuitka release is on latest version
+                run: |
+                    if [ "${{ env.MITMPROXY_LATEST_VERSION }}" != "${{ env.MITMPROXY_NUITKA_LATEST_VERSION }}" ]; then
+                        echo "The latest mitmproxy nuitka binary release (${MITMPROXY_NUITKA_LATEST_VERSION}) is not on the latest mitmproxy version (${MITMPROXY_LATEST_VERSION})";
+                        echo "Rerun this workflow after an hour";
+                        exit 1;
+                    else
+                        echo "The latest mitmproxy nuitka release is up to date with the latest mitmproxy version.";
+                    fi
+
     build:
         runs-on: ${{ matrix.os }}
+        needs: check-mitmproxy-nuitka-binary-release
         strategy:
             fail-fast: false
             matrix:
