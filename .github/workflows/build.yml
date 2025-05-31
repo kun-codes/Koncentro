@@ -198,6 +198,9 @@ jobs:
                         logging.config
                     nofollow-import-to: |
                         sqlalchemy.dialects.oracle
+                        sqlalchemy.dialects.mssql
+                        sqlalchemy.dialects.mysql
+                        sqlalchemy.dialects.postgresql
                     include-data-files: |
                         ./src/website_blocker/filter.py=./website_blocker/filter.py
                         ./src/website_blocker/constants.py=./website_blocker/constants.py
