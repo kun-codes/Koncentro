@@ -137,23 +137,24 @@ jobs:
                     pip list
                     poetry show
 
-            -   name: Download latest version of mitmproxy (Linux and MacOS)
-                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+            -   name: Download latest version of mitmproxy (Linux)
+                if: matrix.os == 'ubuntu-22.04'
                 run: |
                     cd ..
-                    if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
-                        wget https://downloads.mitmproxy.org/${{ env.MITMPROXY_LATEST_VERSION }}/mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-linux-x86_64.tar.gz
-                        tar -xvf mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-linux-x86_64.tar.gz
-                        cp mitmdump Koncentro/mitmdump
-                    elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-                        curl -LO https://downloads.mitmproxy.org/${{ env.MITMPROXY_LATEST_VERSION }}/mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-macos-arm64.tar.gz
-                        tar -xvf mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-macos-arm64.tar.gz
-                        cp mitmproxy.app/Contents/MacOS/mitmdump Koncentro/mitmdump
-                    elif [[ "${{ matrix.os }}" == "macos-13" ]]; then
-                        curl -LO https://downloads.mitmproxy.org/${{ env.MITMPROXY_LATEST_VERSION }}/mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-macos-x86_64.tar.gz
-                        tar -xvf mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-macos-x86_64.tar.gz
-                        cp mitmproxy.app/Contents/MacOS/mitmdump Koncentro/mitmdump
-                    fi
+                    wget https://downloads.mitmproxy.org/${{ env.MITMPROXY_LATEST_VERSION }}/mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-linux-x86_64.tar.gz
+                    tar -xvf mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-linux-x86_64.tar.gz
+                    cp mitmdump Koncentro/mitmdump
+                    cd Koncentro
+
+            -   name: Download latest version of mitmproxy (MacOS)
+                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    cd ..
+                    gh release download --repo kun-codes/mitmproxy-nuitka-binaries --pattern "mitmdump-macos-${{ env.ARCHITECTURE }}*.zip" --dir .
+                    unzip mitmdump-macos*.zip
+                    cp mitmdump-macos*/mitmdump Koncentro/mitmdump
                     cd Koncentro
 
             -   name: Download latest version of mitmproxy (Windows)
