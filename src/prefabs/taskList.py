@@ -112,27 +112,6 @@ class TaskList(ListView):
         # Force a repaint to update the indicator
         self.viewport().update()
 
-    def edit(self, index, trigger, event):
-        """
-        Override the edit method to show lineedit which is pre-filled with the task name
-        """
-        if trigger == QAbstractItemView.DoubleClicked:
-            task_name = self.model().data(index, Qt.DisplayRole)
-
-            editor = LineEdit(self)
-            editor.setProperty("transparent", False)
-            editor.setText(task_name)
-            # editor.setFixedWidth(self.viewport().width() - self.editor_width_reduction)
-            editor.editingFinished.connect(lambda: self.commitData(editor))
-            editor.setCursorPosition(0)
-            editor.setObjectName("editor")
-            self.setIndexWidget(index, editor)
-            editor.setFocus()
-
-            self.current_editor = editor
-            return True
-        return super().edit(index, trigger, event)
-
     def resizeEvent(self, event):
         """
         Instead of just resizing editor using itemDelegate's updateEditorGeometry method, I am resizing the editor here
@@ -142,12 +121,6 @@ class TaskList(ListView):
         super().resizeEvent(event)
         if self.current_editor:
             self.current_editor.setFixedWidth(self.viewport().width() - self.editor_width_reduction)
-
-    def commitData(self, editor):
-        index = self.currentIndex()
-        self.model().setData(index, editor.text(), Qt.DisplayRole)
-        self.current_editor = None
-        self.setIndexWidget(index, None)
 
     def mousePressEvent(self, e):
         """

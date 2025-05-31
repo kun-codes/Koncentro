@@ -1,7 +1,7 @@
 from loguru import logger
 from PySide6.QtCore import QModelIndex, QRect, Qt, Signal
 from PySide6.QtGui import QColor, QFontMetrics, QPainter
-from PySide6.QtWidgets import QListView, QStyledItemDelegate, QStyleOptionViewItem, QWidget
+from PySide6.QtWidgets import QListView, QStyledItemDelegate, QStyleOptionViewItem, QWidget, QApplication
 from qfluentwidgets import (
     FluentIcon,
     ListItemDelegate,
@@ -9,6 +9,7 @@ from qfluentwidgets import (
     ToolTipPosition,
     TransparentToggleToolButton,
     isDarkTheme,
+    LineEdit,
 )
 
 from models.task_list_model import TaskListModel
@@ -264,4 +265,22 @@ class TaskListItemDelegate(ListItemDelegate):
         if size.height() < min_height:
             size.setHeight(min_height)
         return size
+
+    def createEditor(self, parent: QWidget, option: QStyleOptionViewItem, index: QModelIndex) -> QWidget:
+        lineEdit = LineEdit(parent.parent())
+        lineEdit.setProperty("transparent", False)
+        lineEdit.setStyle(QApplication.style())
+        lineEdit.setText(option.text)
+        return lineEdit
+
+    def setEditorData(self, editor, index):
+        text = self.parent().model().data(index, Qt.ItemDataRole.DisplayRole)
+        editor.setText(text)
+
+    def setModelData(self, editor, model, index):
+        text = editor.text()
+        if text:
+            model.setData(index, text, Qt.ItemDataRole.DisplayRole)
+        # else:
+        #     model.setData(index, "", Qt.ItemDataRole.DisplayRole)
 
