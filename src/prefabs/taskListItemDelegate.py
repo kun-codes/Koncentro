@@ -1,15 +1,15 @@
 from loguru import logger
 from PySide6.QtCore import QModelIndex, QRect, Qt, Signal
 from PySide6.QtGui import QColor, QFontMetrics, QPainter
-from PySide6.QtWidgets import QListView, QStyledItemDelegate, QStyleOptionViewItem, QWidget, QApplication
+from PySide6.QtWidgets import QApplication, QListView, QStyledItemDelegate, QStyleOptionViewItem, QWidget
 from qfluentwidgets import (
     FluentIcon,
+    LineEdit,
     ListItemDelegate,
     ToolTipFilter,
     ToolTipPosition,
     TransparentToggleToolButton,
     isDarkTheme,
-    LineEdit,
 )
 
 from models.task_list_model import TaskListModel
