@@ -38,7 +38,7 @@ def substitute_fonts():
     # Windows already has Segoe UI, so no need to substitute fonts
     if not os.name == "nt":
         fonts = [
-            ":fontsPrefix/fonts/selawk.ttf",
+            ":/fontsPrefix/fonts/selawk.ttf",
             ":/fontsPrefix/fonts/selawkb.ttf",
             ":/fontsPrefix/fonts/selawkl.ttf",
             ":/fontsPrefix/fonts/selawksb.ttf",
