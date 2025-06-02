@@ -14,7 +14,10 @@ from qfluentwidgets import (
     SwitchSettingCard,
     setTheme,
     setThemeColor,
+    setCustomStyleSheet,
+    SettingCard,
 )
+import time
 
 from config_values import ConfigValues
 from constants import NEW_RELEASE_URL, UpdateCheckResult
@@ -45,7 +48,7 @@ class SettingsView(QWidget, Ui_SettingsView):
 
         self.initSettings()
         self.initLayout()
-        # self.initQss()
+        self.initQss()
         self.onValueChanged()
 
     def initSettings(self):
@@ -196,26 +199,22 @@ class SettingsView(QWidget, Ui_SettingsView):
 
     # todo: change colour of Labels when in disabled state
     # https://github.com/zhiyiYo/PyQt-Fluent-Widgets/issues/314#issuecomment-1614427404
-    # def initQss(self):
-    #     qss_light = """
-    #     FluentLabelBase:disabled {
-    #         color: lightgray;
-    #     }
-    #     """
-    #     qss_dark = """
-    #     FluentLabelBase:disabled {
-    #         color: darkgray;
-    #     }
-    #
-    #
-    #     # from: https://github.com/zhiyiYo/PyQt-Fluent-Widgets/issues/707
-    #     self.style().unpolish(self)
-    #     self.style().polish(self)
-    #
-    #     setCustomStyleSheet(self, qss_light, qss_dark)
-    #
-    #     self.TitleLabel.setDisabled(True)
-    #
+    def initQss(self):
+        qss_light = """
+        QLabel#contentLabel {
+            font: 12px 'Segoe UI', 'Microsoft YaHei', 'PingFang SC';
+        }
+        """
+        qss_dark = qss_light
+
+        # from: https://github.com/zhiyiYo/PyQt-Fluent-Widgets/issues/707
+        # self.style().unpolish(self)
+        # self.style().polish(self)
+
+        settingCards = self.scrollArea.findChildren(SettingCard)
+        for card in settingCards:
+            setCustomStyleSheet(card, qss_light, qss_dark)
+
 
     def onValueChanged(self):
         workspace_specific_settings.work_duration.valueChanged.connect(self.updateWorkDuration)
