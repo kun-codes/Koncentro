@@ -2,6 +2,8 @@ import os
 import shlex
 import shutil
 import subprocess
+import sys
+from pathlib import Path
 
 from loguru import logger
 from PySide6.QtCore import QObject, QThread, Signal
@@ -92,19 +94,20 @@ class WebsiteBlockerManager(QObject):
 
     def _start_mitmdump(self, listening_port, joined_addresses, block_type, mitmdump_bin_path):
         """Helper method to start mitmdump in a worker thread"""
-        # Prepare command arguments
         if os.name == "nt":
-            args = shlex.split(
-                MITMDUMP_COMMAND_WINDOWS.format(mitmdump_bin_path, listening_port, joined_addresses, block_type),
-                posix=False,
+            command_str = MITMDUMP_COMMAND_WINDOWS.format(
+                mitmdump_bin_path, listening_port,
+                joined_addresses, block_type
             )
+            logger.debug(f"Starting mitmdump with command: {command_str}")
+            subprocess.Popen(command_str, creationflags=CREATE_NO_WINDOW)
         else:
-            args = shlex.split(
-                MITMDUMP_COMMAND_LINUX.format(mitmdump_bin_path, listening_port, joined_addresses, block_type)
+            command_str = MITMDUMP_COMMAND_LINUX.format(
+                mitmdump_bin_path, listening_port,
+                joined_addresses, block_type
             )
-
-        logger.debug(f"Starting mitmdump with args: {args}")
-        subprocess.Popen(args, creationflags=CREATE_NO_WINDOW)
+            logger.debug(f"Starting mitmdump with command: {command_str}")
+            subprocess.Popen(command_str)
         return True
 
     def _on_start_completed(self, success, message):
