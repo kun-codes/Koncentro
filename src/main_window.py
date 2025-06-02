@@ -3,7 +3,7 @@ import threading
 
 import darkdetect
 from loguru import logger
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QIcon, QFont
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 from qfluentwidgets import (
@@ -27,8 +27,9 @@ from constants import (
     UpdateCheckResult,
     URLListType,
     WebsiteFilterType,
+    WindowGeometryKeys,
 )
-from models.config import app_settings, load_workspace_settings, workspace_specific_settings
+from models.config import app_settings, load_workspace_settings, workspace_specific_settings, settings
 from models.db_tables import TaskType
 from models.task_list_model import TaskListModel
 from models.workspace_list_model import WorkspaceListModel
@@ -111,6 +112,8 @@ class MainWindow(KoncentroFluentWindow):
             if ConfigValues.CHECK_FOR_UPDATES_ON_START:
                 self.handleUpdates()
 
+            self.restoreWindowGeometry()
+
         self.remainingFontSubstitutions()
 
     def initNavigation(self):
@@ -132,8 +135,6 @@ class MainWindow(KoncentroFluentWindow):
         self.addSubInterface(self.settings_interface, FluentIcon.SETTING, "Settings", NavigationItemPosition.BOTTOM)
 
     def initWindow(self):
-        self.resize(1000, 800)
-        # self.resize(715, 650)
         self.setMinimumWidth(715)
         self.setWindowTitle(APPLICATION_NAME)
         self.setWindowIcon(QIcon(":/logosPrefix/logos/logo.svg"))
@@ -827,6 +828,8 @@ class MainWindow(KoncentroFluentWindow):
         app_instance.quit()
 
     def closeEvent(self, event):
+        self.saveWindowGeometry()
+
         # Accept the event immediately to close the window
         event.accept()
         logger.debug("Closing window immediately...")
@@ -849,3 +852,22 @@ class MainWindow(KoncentroFluentWindow):
             logger.debug("Quitting application...")
         except Exception as e:
             logger.error(f"Error during cleanup: {str(e)}")
+
+    def saveWindowGeometry(self):
+        settings.setValue(WindowGeometryKeys.GEOMETRY.value, self.saveGeometry())
+        settings.setValue(WindowGeometryKeys.IS_MAXIMIZED.value, self.isMaximized())
+        settings.sync()
+
+    def restoreWindowGeometry(self):
+        default_size = QSize(1000, 800)
+
+        if settings.contains(WindowGeometryKeys.GEOMETRY.value):
+            geometry = settings.value(WindowGeometryKeys.GEOMETRY.value)
+            is_maximized = settings.value(WindowGeometryKeys.IS_MAXIMIZED.value, False, type=bool)
+
+            if geometry:
+                self.restoreGeometry(geometry)
+            if is_maximized:
+                self.showMaximized()
+        else:
+            self.resize(default_size)

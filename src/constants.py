@@ -72,3 +72,10 @@ class NavPanelButtonPosition(Enum):
     # 2 = Bottom Layout of Panel of Navigation Panel
     WORKSPACE_MANAGER_DIALOG = (2, 0)
     SETTINGS_INTERFACE = (2, 1)
+
+
+class WindowGeometryKeys(Enum):
+    """Keys used for storing window geometry information in QSettings"""
+    GEOMETRY = "MainWindow/geometry"
+    IS_MAXIMIZED = "MainWindow/isMaximized"
+
