@@ -4,7 +4,7 @@ import threading
 import darkdetect
 from loguru import logger
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QFont
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 from qfluentwidgets import (
     FluentIcon,
@@ -14,6 +14,7 @@ from qfluentwidgets import (
     PushButton,
     SystemThemeListener,
     Theme,
+    setCustomStyleSheet,
 )
 
 from config_paths import settings_dir
@@ -109,6 +110,8 @@ class MainWindow(KoncentroFluentWindow):
         else:
             if ConfigValues.CHECK_FOR_UPDATES_ON_START:
                 self.handleUpdates()
+
+        self.remainingFontSubstitutions()
 
     def initNavigation(self):
         # Add sub interface
@@ -207,6 +210,11 @@ class MainWindow(KoncentroFluentWindow):
 
         self.tray.setIcon(initial_icon)
         self.tray.setVisible(True)
+
+    def remainingFontSubstitutions(self):
+        # This was unaffected by font substitution in __main__.py
+        font = QFont("Selawik", 14)
+        self.pomodoro_interface.ProgressRing.setFont(font)
 
     def updateSystemTrayIcon(self):
         logger.debug("Updating system tray icon")
