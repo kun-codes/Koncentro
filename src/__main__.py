@@ -34,13 +34,7 @@ def run_alembic_upgrade():
     # alembic_cfg.set_main_option("script_location", str(Path(__file__).parent.parent / "migrations"))
     command.upgrade(alembic_cfg, "head")
 
-
-if __name__ == "__main__":
-    run_alembic_upgrade()  # create db if it doesn't exist and run migrations
-    checkValidDB()  # Check if the database is valid, if it doesn't have required sample data, add it
-
-    app = QApplication(sys.argv)
-
+def substitute_fonts():
     if not os.name == "nt":
         fonts = [
             ":fontsPrefix/fonts/selawk.ttf",
@@ -57,6 +51,15 @@ if __name__ == "__main__":
 
         QFont.insertSubstitutions(
             "Segoe UI", ["Selawik", "Selawik Light", "Selawik Semibold", "Selawik Semilight"])
+
+
+if __name__ == "__main__":
+    run_alembic_upgrade()  # create db if it doesn't exist and run migrations
+    checkValidDB()  # Check if the database is valid, if it doesn't have required sample data, add it
+
+    app = QApplication(sys.argv)
+
+    substitute_fonts()
 
     # Set application information for notifications
     app.setApplicationName(APPLICATION_NAME)
