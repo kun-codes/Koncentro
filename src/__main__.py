@@ -35,6 +35,7 @@ def run_alembic_upgrade():
     command.upgrade(alembic_cfg, "head")
 
 def substitute_fonts():
+    # Windows already has Segoe UI, so no need to substitute fonts
     if not os.name == "nt":
         fonts = [
             ":fontsPrefix/fonts/selawk.ttf",
