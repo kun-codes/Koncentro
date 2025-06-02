@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="fontsPrefix">
+    <file>fonts/selawk.ttf</file>
+    <file>fonts/selawkb.ttf</file>
+    <file>fonts/selawkl.ttf</file>
+    <file>fonts/selawksb.ttf</file>
+    <file>fonts/selawksl.ttf</file>
+  </qresource>
+</RCC>
