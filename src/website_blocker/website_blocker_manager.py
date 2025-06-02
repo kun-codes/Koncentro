@@ -11,7 +11,7 @@ from uniproxy import Uniproxy
 
 from config_values import ConfigValues
 from utils.noHTTPClientError import NoHTTPClientError
-from website_blocker.constants import MITMDUMP_COMMAND_LINUX, MITMDUMP_COMMAND_WINDOWS, MITMDUMP_SHUTDOWN_URL
+from website_blocker.constants import MITMDUMP_SHUTDOWN_URL
 from website_blocker.utils import kill_process
 
 # Windows-specific constant for hiding console windows
@@ -95,19 +95,33 @@ class WebsiteBlockerManager(QObject):
     def _start_mitmdump(self, listening_port, joined_addresses, block_type, mitmdump_bin_path):
         """Helper method to start mitmdump in a worker thread"""
         if os.name == "nt":
-            command_str = MITMDUMP_COMMAND_WINDOWS.format(
-                mitmdump_bin_path, listening_port,
-                joined_addresses, block_type
-            )
-            logger.debug(f"Starting mitmdump with command: {command_str}")
-            subprocess.Popen(command_str, creationflags=CREATE_NO_WINDOW)
+            args = [mitmdump_bin_path,
+                    "--set", "allow_remote=true",
+                    "-p", str(listening_port),
+                    "--showhost",
+                    "-s", os.path.join(getattr(sys, "_MEIPASS", Path(__file__).parent), "filter.py"),
+                    "--set", f"addresses_str={joined_addresses}",
+                    "--set", f"block_type={block_type}"]
+            # using _MEIPASS to make it compatible with pyinstaller
+            # the os.path.join returns the location of filter.py
+
+            logger.debug(f"Starting mitmdump with command: {' '.join(args)}")
+
+            subprocess.Popen(args, creationflags=CREATE_NO_WINDOW)
         else:
-            command_str = MITMDUMP_COMMAND_LINUX.format(
-                mitmdump_bin_path, listening_port,
-                joined_addresses, block_type
-            )
-            logger.debug(f"Starting mitmdump with command: {command_str}")
-            subprocess.Popen(command_str)
+            args = [mitmdump_bin_path,
+                    "--set", "allow_remote=true",
+                    "-p", str(listening_port),
+                    "--showhost",
+                    "-s", os.path.join(getattr(sys, "_MEIPASS", Path(__file__).parent), "filter.py"),
+                    "--set", f"addresses_str={joined_addresses}",
+                    "--set", f"block_type={block_type}"]
+            # using _MEIPASS to make it compatible with pyinstaller
+            # the os.path.join returns the location of filter.py
+
+            logger.debug(f"Starting mitmdump with command: {' '.join(args)}")
+
+            subprocess.Popen(args)
         return True
 
     def _on_start_completed(self, success, message):
