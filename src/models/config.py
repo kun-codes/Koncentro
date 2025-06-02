@@ -1,3 +1,5 @@
+from PySide6.QtCore import QSettings
+from loguru import logger
 from qfluentwidgets import BoolValidator, ConfigItem, QConfig, RangeConfigItem, RangeValidator, Theme, qconfig
 
 from config_paths import settings_file_path
@@ -9,6 +11,8 @@ from constants import (
     LONG_BREAK_DURATION,
     WORK_DURATION,
     WORK_INTERVALS,
+    APPLICATION_NAME,
+    ORGANIZATION_NAME
 )
 from models.db_tables import Workspace
 from prefabs.config.config_item_sql import ConfigItemSQL, RangeConfigItemSQL
@@ -58,6 +62,7 @@ class AppSettings(QConfig):
 
 workspace_specific_settings = WorkspaceSettings()
 app_settings = AppSettings()
+settings = QSettings(QSettings.Format.NativeFormat, QSettings.Scope.UserScope, ORGANIZATION_NAME, APPLICATION_NAME)
 
 app_settings.themeMode.value = Theme.AUTO
 
