@@ -1,10 +1,10 @@
-from pathlib import Path
 import threading
+from pathlib import Path
 
 import darkdetect
 from loguru import logger
-from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QIcon, QFont
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QFont, QIcon
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 from qfluentwidgets import (
     FluentIcon,
@@ -14,7 +14,6 @@ from qfluentwidgets import (
     PushButton,
     SystemThemeListener,
     Theme,
-    setCustomStyleSheet,
 )
 
 from config_paths import settings_dir
@@ -29,7 +28,7 @@ from constants import (
     WebsiteFilterType,
     WindowGeometryKeys,
 )
-from models.config import app_settings, load_workspace_settings, workspace_specific_settings, settings
+from models.config import app_settings, load_workspace_settings, settings, workspace_specific_settings
 from models.db_tables import TaskType
 from models.task_list_model import TaskListModel
 from models.workspace_list_model import WorkspaceListModel

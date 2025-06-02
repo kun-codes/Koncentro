@@ -1,3 +1,4 @@
+
 from loguru import logger
 from PySide6.QtCore import Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
@@ -10,14 +11,13 @@ from qfluentwidgets import (
     OptionsSettingCard,
     PrimaryPushButton,
     PrimaryPushSettingCard,
+    SettingCard,
     SettingCardGroup,
     SwitchSettingCard,
+    setCustomStyleSheet,
     setTheme,
     setThemeColor,
-    setCustomStyleSheet,
-    SettingCard,
 )
-import time
 
 from config_values import ConfigValues
 from constants import NEW_RELEASE_URL, UpdateCheckResult
