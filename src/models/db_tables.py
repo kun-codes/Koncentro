@@ -154,3 +154,8 @@ class AllowlistExceptionURL(Base):
     url = Column(String, nullable=False)
 
     workspace = relationship("Workspace", back_populates="allowlist_exception_urls")
+
+class SampleTable(Base):
+    __tablename__ = "sample_table"
+    sample_id = Column(Integer, primary_key=True)
+
