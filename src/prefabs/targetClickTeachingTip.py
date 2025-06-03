@@ -9,7 +9,6 @@ class TargetClickTeachingTip(TeachingTip):
     """Teaching tip that only closes when the target widget is clicked."""
 
     def __init__(self, view, target, tailPosition=TeachingTipTailPosition.BOTTOM, parent=None, isDeleteOnClose=True):
-        # Initialize with negative duration so it never auto-closes
         super().__init__(view, target, duration=-1, tailPosition=tailPosition,
                          parent=parent, isDeleteOnClose=isDeleteOnClose)
         # Fix to ensure TargetClickTeachingTip is positioned correctly on wayland
@@ -17,7 +16,7 @@ class TargetClickTeachingTip(TeachingTip):
         # however TOP, BOTTOM and LEFT work fine
         self.setWindowFlags(Qt.ToolTip | Qt.FramelessWindowHint)
 
-        # Install event filter on target to detect clicks
+        # installing event filter on target to detect clicks
         self.target.installEventFilter(self)
 
         self.mainWindow: FluentWindow = None
@@ -81,31 +80,30 @@ class TargetClickTeachingTip(TeachingTip):
     def temporaryHide(self):
         """Hide the teaching tip with fade animation without closing it"""
         logger.debug(f"Temporary hide {self.__class__.__name__}")
-        # Only animate if visible
+        # only animate if visible
         if self.isVisible():
-            # Create a new opacity animation
             self.hideAni = QPropertyAnimation(self, b'windowOpacity', self)
             duration = 84
             self.hideAni.setDuration(duration)
             self.hideAni.setStartValue(1)
             self.hideAni.setEndValue(0)
-            # When animation finishes, hide the widget but don't close it
+            # when animation finishes, hide the widget but don't close it
             self.hideAni.finished.connect(self.hide)
             self.hideAni.start()
 
     def temporaryShow(self):
         """Show the teaching tip with fade animation"""
-        # Only proceed if it's hidden
+        # only proceed if it's hidden
         if not self.isVisible():
-            # Make sure we start with opacity 0
+            # make sure we start with opacity 0
             self.setWindowOpacity(0)
             self.show()
-            # Create a new opacity animation
+            # create a new opacity animation
             self.showAni = QPropertyAnimation(self, b'windowOpacity', self)
             duration = 84
             self.showAni.setDuration(duration)
             self.showAni.setStartValue(0)
             self.showAni.setEndValue(1)
             self.showAni.start()
-            # Make sure we're properly positioned
+            # make sure we're properly positioned
             self.move(self.manager.position(self))
