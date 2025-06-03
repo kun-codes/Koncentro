@@ -1,7 +1,7 @@
 from PySide6.QtCore import QRect, Qt
 from PySide6.QtGui import QBrush, QColor, QPainter, QPen
 from PySide6.QtWidgets import QAbstractItemView, QListView, QWidget
-from qfluentwidgets import LineEdit, ListItemDelegate, ListView, isDarkTheme
+from qfluentwidgets import ListItemDelegate, ListView, isDarkTheme
 
 from prefabs.taskListItemDelegate import TaskListItemDelegate
 from ui_py.ui_tasks_list_view import Ui_TaskView

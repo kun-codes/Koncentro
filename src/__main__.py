@@ -5,15 +5,15 @@ from pathlib import Path
 
 from alembic import command
 from alembic.config import Config
-from PySide6.QtWidgets import QApplication
-from PySide6.QtGui import QFont, QFontDatabase
 from loguru import logger
+from PySide6.QtGui import QFont, QFontDatabase
+from PySide6.QtWidgets import QApplication
 
+import resources.fonts_rc
 from constants import APPLICATION_NAME, ORGANIZATION_NAME
 from main_window import MainWindow
 from utils.check_valid_db import checkValidDB
 from utils.is_nuitka import is_nuitka
-import resources.fonts_rc
 
 
 def handle_signal(signal, frame):
