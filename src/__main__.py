@@ -14,6 +14,7 @@ from constants import APPLICATION_NAME, ORGANIZATION_NAME
 from main_window import MainWindow
 from utils.check_valid_db import checkValidDB
 from utils.is_nuitka import is_nuitka
+from utils.update_app_version_in_db import updateAppVersionInDB
 
 
 def handle_signal(signal, frame):
@@ -57,6 +58,7 @@ def substitute_fonts():
 if __name__ == "__main__":
     run_alembic_upgrade()  # create db if it doesn't exist and run migrations
     checkValidDB()  # Check if the database is valid, if it doesn't have required sample data, add it
+    updateAppVersionInDB()
 
     app = QApplication(sys.argv)
 
