@@ -21,24 +21,24 @@ def checkValidDB():
 
             # add some tasks too
             sample_tasks = [
-                Task(workspace_id=workspace.id, task_name="Sample Task 1", task_type=TaskType.TODO, task_position=0),
-                Task(workspace_id=workspace.id, task_name="Sample Task 2", task_type=TaskType.TODO, task_position=1),
-                Task(workspace_id=workspace.id, task_name="Sample Task 3", task_type=TaskType.TODO, task_position=2),
+                Task(workspace_id=workspace.id, task_name="🛍️ Create shopping list for the week", task_type=TaskType.TODO, task_position=0),
+                Task(workspace_id=workspace.id, task_name="☎️ Call family this weekend", task_type=TaskType.TODO, task_position=1),
+                Task(workspace_id=workspace.id, task_name="🏞️ Go for a nature walk", task_type=TaskType.TODO, task_position=2),
                 Task(
                     workspace_id=workspace.id,
-                    task_name="Sample Task 4",
+                    task_name="🍽️ Prepare dinner for tonight",
                     task_type=TaskType.COMPLETED,
                     task_position=0,
                 ),
                 Task(
                     workspace_id=workspace.id,
-                    task_name="Sample Task 5",
+                    task_name="💌 Send thank you notes",
                     task_type=TaskType.COMPLETED,
                     task_position=1,
                 ),
                 Task(
                     workspace_id=workspace.id,
-                    task_name="Sample Task 6",
+                    task_name="📚 Finish reading current book",
                     task_type=TaskType.COMPLETED,
                     task_position=2,
                 ),
