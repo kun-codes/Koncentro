@@ -1,4 +1,9 @@
+import os
+import sys
 from logging.config import fileConfig
+
+# add the parent directory (src) to the Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from alembic import context
 from loguru import logger
