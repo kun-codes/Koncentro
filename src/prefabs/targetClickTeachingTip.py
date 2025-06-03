@@ -12,6 +12,10 @@ class TargetClickTeachingTip(TeachingTip):
         # Initialize with negative duration so it never auto-closes
         super().__init__(view, target, duration=-1, tailPosition=tailPosition,
                          parent=parent, isDeleteOnClose=isDeleteOnClose)
+        # Fix to ensure TargetClickTeachingTip is positioned correctly on wayland
+        # After this fix, TeachingTipTailPosition.RIGHT doesn't position correctly on wayland
+        # however TOP, BOTTOM and LEFT work fine
+        self.setWindowFlags(Qt.ToolTip | Qt.FramelessWindowHint)
 
         # Install event filter on target to detect clicks
         self.target.installEventFilter(self)
