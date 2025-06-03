@@ -28,19 +28,19 @@ def checkValidDB():
                     workspace_id=workspace.id,
                     task_name="Sample Task 4",
                     task_type=TaskType.COMPLETED,
-                    task_position=3,
+                    task_position=0,
                 ),
                 Task(
                     workspace_id=workspace.id,
                     task_name="Sample Task 5",
                     task_type=TaskType.COMPLETED,
-                    task_position=4,
+                    task_position=1,
                 ),
                 Task(
                     workspace_id=workspace.id,
                     task_name="Sample Task 6",
                     task_type=TaskType.COMPLETED,
-                    task_position=5,
+                    task_position=2,
                 ),
             ]
             session.add_all(sample_tasks)
