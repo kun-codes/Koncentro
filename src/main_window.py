@@ -728,7 +728,7 @@ class MainWindow(KoncentroFluentWindow):
             hh, mm, ss = 0, 0, 0
             t_hh, t_mm, t_ss = 0, 0, 0
 
-            timer_text = f"Timer is not running\n{hh:02d}:{mm:02d}:{ss:02d} / {t_hh:02d}:{t_mm:02d}:{t_ss:02d}"
+            timer_text = f"Idle\n{hh:02d}:{mm:02d}:{ss:02d} / {t_hh:02d}:{t_mm:02d}:{t_ss:02d}"
             self.bottomBar.timerLabel.setText(timer_text)
             self.tray_menu_timer_status_action.setText(timer_text)
 
