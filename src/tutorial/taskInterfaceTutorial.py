@@ -152,7 +152,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
             mainWindow=self.main_window,
             interface_type=InterfaceType.TASK_INTERFACE,
             icon=CustomFluentIcon.CLICK,
-            tailPosition=TeachingTipTailPosition.RIGHT,
+            tailPosition=TeachingTipTailPosition.LEFT,
             parent=self.main_window,
             customSignalToDestroy=edit_task_time_dialog.elapsedTimePicker.timeChanged,
         )
@@ -169,7 +169,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
             mainWindow=self.main_window,
             interface_type=InterfaceType.TASK_INTERFACE,
             icon=CustomFluentIcon.CLICK,
-            tailPosition=TeachingTipTailPosition.RIGHT,
+            tailPosition=TeachingTipTailPosition.LEFT,
             parent=self.main_window,
             customSignalToDestroy=edit_task_time_dialog.estimateTimePicker.timeChanged,
         )
@@ -302,7 +302,8 @@ class TaskInterfaceTutorial(InterfaceTutorial):
                 content="Click on it's play button to start the task",
                 mainWindow=self.main_window,
                 interface_type=InterfaceType.TASK_INTERFACE,
-                tailPosition=TeachingTipTailPosition.TOP,
+                tailPosition=TeachingTipTailPosition.TOP,  # on wayland it doesn't point at the play button
+                # instead points at task name
                 icon=CustomFluentIcon.CLICK,
                 parent=self.main_window,
             )
