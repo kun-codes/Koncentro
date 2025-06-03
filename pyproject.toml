@@ -3,7 +3,7 @@ name = "Koncentro"
 version = "0.1.0"
 description = ""
 authors = [
-    { name = "kun-codes", email = "77796630+throwaway69420-69420@users.noreply.github.com" }
+    { name = "kun-codes", email = "77796630+kun-codes@users.noreply.github.com" }
 ]
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
