@@ -7,11 +7,14 @@
 > [!IMPORTANT]
 > Koncentro assumes that you aren't using a proxy server already since it runs a local proxy server to block websites.
 
-## Features
+## 🚀 Features 
 
 - **Cross Platform:** Koncentro is cross-platform and can be used on Windows, macOS and Linux.
-- **Website Filter:** Websites can be filtered using either a blocklist or an allowlist.
-- **Timeboxing:** Koncentro has integrated [timeboxing](https://en.wikipedia.org/wiki/Timeboxing) features.
+- **Website Filtering:** Websites can be filtered using either a blocklist or an allowlist.
+- **Timeboxing:** Koncentro has integrated [timeboxing](https://en.wikipedia.org/wiki/Timeboxing) features. Timeboxing is a time management technique where you allocate a fixed unit of time to an activity and complete it within that time frame.
+- **Workspaces:** You can create multiple workspaces, each with its own tasks, timer and website filter settings.
+- **Private and Open Source:** Koncentro is open source and does not collect any data. Your tasks, timer and website filter settings are stored locally on your machine.
+- **Fast**: Koncentro is built using native desktop technologies and is fast and responsive.
 
 ## Installation
 
