@@ -22,6 +22,11 @@ jobs:
             -   name: Checkout repository
                 uses: actions/checkout@v4
 
+            -   name: tree command (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    Get-ChildItem -Recurse "."
+
             -   name: Set artifact name
                 id: set-artifact
                 run: |
@@ -50,6 +55,11 @@ jobs:
                     echo "KONCENTRO_VERSION=$version" >> $env:GITHUB_ENV
                     Write-Output "Koncentro version: $version"
 
+            -   name: tree command (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    Get-ChildItem -Recurse "."
+
             -   name: Create Installer (Windows)
                 if: matrix.os == 'windows-latest'
                 run: |
@@ -58,6 +68,11 @@ jobs:
                     echo "Inno Setup installed successfully."
                     scripts/windows/create-installer.sh
                     mv dist/setup.exe dist/Koncentro-${{ env.KONCENTRO_VERSION }}-Installer.exe
+
+            -   name: tree command (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    Get-ChildItem -Recurse "."
 
             -   name: Upload Installer (Windows)
                 if: matrix.os == 'windows-latest'
