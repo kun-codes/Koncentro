@@ -1,8 +1,10 @@
-name: Build App
+name: Build and Release App
 
 on:
     push:
-    pull_request:
+        tags:
+            - 'v*.*.*'
+
 
 jobs:
     check-mitmproxy-version:
@@ -13,6 +15,6 @@ jobs:
         uses: ./.github/workflows/build-app.yml
         needs: check-mitmproxy-version
         with:
-            deployment: false
+            deployment: true
             mitmproxy-version: ${{ needs.check-mitmproxy-version.outputs.mitmproxy-version }}
         secrets: inherit
