@@ -186,7 +186,7 @@ jobs:
                 if: matrix.os == 'ubuntu-22.04'
                 uses: actions/upload-artifact@v4
                 with:
-                    name: 'linux_${{ env.ARCHITECTURE }}-build'
+                    name: 'Linux_${{ env.ARCHITECTURE }}-build'
                     path: 'build/__main__.dist/'
                     include-hidden-files: 'true'
 
@@ -194,7 +194,7 @@ jobs:
                 if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                 uses: actions/upload-artifact@v4
                 with:
-                    name: '${{ matrix.os }}_${{ env.ARCHITECTURE }}-build'
+                    name: 'MacOS_${{ env.ARCHITECTURE }}-build'
                     path: 'dist'
                     include-hidden-files: 'true'
 
@@ -202,6 +202,6 @@ jobs:
                 if: matrix.os == 'windows-latest'
                 uses: actions/upload-artifact@v4
                 with:
-                    name: '${{ matrix.os }}_${{ env.ARCHITECTURE }}-build'
+                    name: 'Windows_${{ env.ARCHITECTURE }}-build'
                     path: 'build\__main__.dist\'
                     include-hidden-files: 'true'
