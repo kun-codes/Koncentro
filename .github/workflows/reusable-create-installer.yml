@@ -22,15 +22,24 @@ jobs:
             -   name: Checkout repository
                 uses: actions/checkout@v4
 
+            -   name: Set artifact name
+                id: set-artifact
+                run: |
+                    if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+                        echo "artifact_name=MacOS_arm64-build" >> $GITHUB_OUTPUT
+                    elif [[ "${{ matrix.os }}" == "macos-13" ]]; then
+                        echo "artifact_name=MacOS_x86_64-build" >> $GITHUB_OUTPUT
+                    elif [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
+                        echo "artifact_name=Linux_x86_64-build" >> $GITHUB_OUTPUT
+                    elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+                        echo "artifact_name=Windows_x86_64-build" >> $GITHUB_OUTPUT
+                    fi
+                shell: bash
+
             -   name: Download Artifacts
                 uses: actions/download-artifact@v4
                 with:
-                    name: ${{ 
-                        matrix.os == 'macos-latest' && 'MacOS_arm64-build' ||
-                        matrix.os == 'macos-13' && 'MacOS_x86_64-build' ||
-                        matrix.os == 'ubuntu-22.04' && 'Linux_x86_64-build' ||
-                        matrix.os == 'windows-latest' && 'Windows_x86_64-build'
-                    }}
+                    name: ${{ steps.set-artifact.outputs.artifact_name }}
                     path: artifacts
 
             -   name: Get app version (Windows)
@@ -56,7 +65,3 @@ jobs:
                 with:
                     name: Koncentro-${{ env.KONCENTRO_VERSION }}-Windows-x86_64-Installer
                     path: dist/Koncentro-${{ env.KONCENTRO_VERSION }}-Installer.exe
-                    
-                    
-
-
