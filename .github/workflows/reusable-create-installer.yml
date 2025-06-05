@@ -71,8 +71,9 @@ jobs:
                     # install Inno Setup
                     choco install innosetup -y
                     echo "Inno Setup installed successfully."
-                    scripts/windows/create-installer.sh
+                    bash ./scripts/windows/create-installer.sh
                     mv dist/setup.exe dist/Koncentro-${{ env.KONCENTRO_VERSION }}-Installer.exe
+                shell: bash
 
             -   name: tree command (Windows)
                 if: matrix.os == 'windows-latest'
