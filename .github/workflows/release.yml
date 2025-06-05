@@ -8,11 +8,11 @@ on:
 
 jobs:
     check-mitmproxy-version:
-        uses: ./.github/workflows/check-mitmproxy-version.yml
+        uses: ./.github/workflows/reusable-check-mitmproxy-version.yml
         secrets: inherit
 
     build:
-        uses: ./.github/workflows/build-app.yml
+        uses: ./.github/workflows/reusable-build-app.yml
         needs: check-mitmproxy-version
         with:
             deployment: true
