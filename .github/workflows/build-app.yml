@@ -177,6 +177,11 @@ jobs:
                     mkdir -p dist/
                     mv build/__main__.app dist/Koncentro.app
 
+            -   name: tree command (MacOS)
+                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                run: |
+                    tree dist/
+
             -   name: Upload artifacts Linux
                 if: matrix.os == 'ubuntu-22.04'
                 uses: actions/upload-artifact@v4
