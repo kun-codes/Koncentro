@@ -171,6 +171,12 @@ jobs:
                 run: |
                     Get-ChildItem -Recurse "build\"
 
+            -   name: Move .app to dist folder with correct name (MacOS)
+                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                run: |
+                    mkdir -p dist/
+                    mv build/__main__.app dist/Koncentro.app
+
             -   name: Upload artifacts Linux
                 if: matrix.os == 'ubuntu-22.04'
                 uses: actions/upload-artifact@v4
@@ -184,7 +190,7 @@ jobs:
                 uses: actions/upload-artifact@v4
                 with:
                     name: '${{ matrix.os }}_${{ env.ARCHITECTURE }}-build'
-                    path: 'build/__main__.app/'
+                    path: 'dist'
                     include-hidden-files: 'true'
 
             -   name: Upload artifacts Windows
