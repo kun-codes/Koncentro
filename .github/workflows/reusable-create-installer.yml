@@ -1,0 +1,62 @@
+name: Create Installer
+
+on:
+    workflow_call:
+
+jobs:
+    create-installer:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [ ubuntu-22.04, macos-latest, macos-13, windows-latest ]  # using older ubuntu version for compatibility
+                # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
+                python-version: [ 3.12 ]
+        steps:
+            -   name: Store Architecture (Linux and MacOS)
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                run: |
+                    ARCHITECTURE=$(uname -m)
+                    echo "ARCHITECTURE=$ARCHITECTURE" >> $GITHUB_ENV
+
+            -   name: Checkout repository
+                uses: actions/checkout@v4
+
+            -   name: Download Artifacts
+                uses: actions/download-artifact@v4
+                with:
+                    name: ${{ 
+                        matrix.os == 'macos-latest' && 'MacOS_arm64-build' ||
+                        matrix.os == 'macos-13' && 'MacOS_x86_64-build' ||
+                        matrix.os == 'ubuntu-22.04' && 'Linux_x86_64-build' ||
+                        matrix.os == 'windows-latest' && 'Windows_x86_64-build'
+                    }}
+                    path: artifacts
+
+            -   name: Get app version (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    # Read version from pyproject.toml
+                    $version = python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])"
+                    echo "KONCENTRO_VERSION=$version" >> $env:GITHUB_ENV
+                    Write-Output "Koncentro version: $version"
+
+            -   name: Create Installer (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    # install Inno Setup
+                    choco install innosetup -y
+                    echo "Inno Setup installed successfully."
+                    scripts/windows/create-installer.sh
+                    mv dist/setup.exe dist/Koncentro-${{ env.KONCENTRO_VERSION }}-Installer.exe
+
+            -   name: Upload Installer (Windows)
+                if: matrix.os == 'windows-latest'
+                uses: actions/upload-artifact@v4
+                with:
+                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-Windows-x86_64-Installer
+                    path: dist/Koncentro-${{ env.KONCENTRO_VERSION }}-Installer.exe
+                    
+                    
+
+

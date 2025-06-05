@@ -18,3 +18,8 @@ jobs:
             deployment: true
             mitmproxy-version: ${{ needs.check-mitmproxy-version.outputs.mitmproxy-version }}
         secrets: inherit
+
+    release:
+        uses: ./.github/workflows/reusable-create-installer.yml
+        needs: build
+        secrets: inherit
