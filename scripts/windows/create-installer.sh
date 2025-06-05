@@ -25,5 +25,8 @@
 set -e
 
 mkdir dist
+echo "Made dist directory"
 "$HOME/AppData/Local/Programs/Inno Setup 6/ISCC.exe" scripts/windows/windows-installer.iss
+echo "Created installer using Inno Setup"
+ls -R .
 mv dist/mysetup.exe dist/setup.exe
