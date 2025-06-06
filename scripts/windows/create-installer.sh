@@ -26,6 +26,12 @@ set -e
 
 mkdir dist
 echo "Made dist directory"
+
+# to include license file in windows build, it needs to be in txt format
+# https://jrsoftware.org/ishelp/index.php?topic=setup_licensefile
+mv artifacts/LICENSE artifacts/LICENSE.txt
+echo "Renamed license file"
+
 "ISCC.exe" scripts/windows/windows-installer.iss
 echo "Created installer using Inno Setup"
 mv dist/mysetup.exe dist/setup.exe

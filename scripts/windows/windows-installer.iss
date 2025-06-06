@@ -35,6 +35,7 @@ DefaultGroupName=Koncentro
 SetupIconFile=assets\logo.ico
 UninstallDisplayIcon={app}\koncentro.exe
 PrivilegesRequired=lowest
+LicenseFile=.\artifacts\LICENSE.txt
 SourceDir=..\..
 OutputDir=dist
 WizardStyle=modern
