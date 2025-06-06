@@ -37,6 +37,7 @@ UninstallDisplayIcon={app}\koncentro.exe
 PrivilegesRequired=lowest
 SourceDir=..\..
 OutputDir=dist
+WizardStyle=modern
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "Additional icons:"
