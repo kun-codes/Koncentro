@@ -156,6 +156,7 @@ jobs:
                         ./alembic.ini=./alembic.ini
                         ./src/migrations/*.py=./src/migrations/
                         ./src/migrations/versions/*.py=./src/migrations/versions/
+                        ./LICENSE=./LICENSE
 
             -   name: Install tree (MacOS)
                 if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
