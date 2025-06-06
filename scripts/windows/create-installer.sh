@@ -27,6 +27,9 @@ set -e
 mkdir dist
 echo "Made dist directory"
 ls -R .
+# https://jrsoftware.org/ishelp/index.php?topic=setup_setupiconfile
+cp assets/logo.ico artifacts/logo.ico
+ls -R .
 "ISCC.exe" scripts/windows/windows-installer.iss
 echo "Created installer using Inno Setup"
 ls -R .
