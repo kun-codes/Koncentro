@@ -95,3 +95,11 @@ jobs:
                 with:
                     name: Koncentro-${{ env.KONCENTRO_VERSION }}-Windows-x86_64-Installer
                     path: dist/Koncentro-${{ env.KONCENTRO_VERSION }}-Installer.exe
+
+            -  name: Upload Installer (macOS)
+               if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+               uses: actions/upload-artifact@v4
+               with:
+                   name: Koncentro-${{ env.KONCENTRO_VERSION }}-${{ matrix.os == 'macos-latest' && 'arm64' || 'x86_64' }}-Installer
+                   path: dist/Koncentro-${{ env.KONCENTRO_VERSION }}-${{ matrix.os == 'macos-latest' && 'arm64' || 'x86_64' }}.dmg
+
