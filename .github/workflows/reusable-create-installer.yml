@@ -36,9 +36,9 @@ jobs:
                 id: set-artifact
                 run: |
                     if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-                        echo "artifact_name=MacOS_arm64-build" >> $GITHUB_OUTPUT
+                        echo "artifact_name=macOS_arm64-build" >> $GITHUB_OUTPUT
                     elif [[ "${{ matrix.os }}" == "macos-13" ]]; then
-                        echo "artifact_name=MacOS_x86_64-build" >> $GITHUB_OUTPUT
+                        echo "artifact_name=macOS_x86_64-build" >> $GITHUB_OUTPUT
                     elif [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
                         echo "artifact_name=Linux_x86_64-build" >> $GITHUB_OUTPUT
                     elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
