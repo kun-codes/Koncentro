@@ -137,7 +137,6 @@ jobs:
                     linux-icon: 'assets/logo.ico'
                     windows-icon-from-ico: 'assets/logo.ico'
                     msvc: ${{ matrix.os == 'windows-latest' && 'latest' || '' }}
-                    windows-console-mode: 'disable'
                     output-file: 'koncentro'
                     macos-app-version: '${{ env.KONCENTRO_VERSION }}'
                     product-version: '${{ env.KONCENTRO_VERSION }}'
