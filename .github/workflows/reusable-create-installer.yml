@@ -9,7 +9,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                os: [ windows-latest ]  # using older ubuntu version for compatibility
+                os: [ windows-latest, macos-13, macos-latest ]  # using older ubuntu version for compatibility
                 # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
                 python-version: [ 3.12 ]
         steps:
@@ -73,6 +73,13 @@ jobs:
                     echo "Inno Setup installed successfully."
                     bash ./scripts/windows/create-installer.sh
                     mv dist/setup.exe dist/Koncentro-${{ env.KONCENTRO_VERSION }}-Installer.exe
+                shell: bash
+
+            -   name: Create Installer (macOS)
+                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                run: |
+                    bash ./scripts/macos/create-dmg.sh
+                    mv dist/Koncentro.dmg dist/Koncentro-${{ env.KONCENTRO_VERSION }}-${{ matrix.os == 'macos-latest' && 'arm64' || 'x86_64' }}.dmg
                 shell: bash
 
             -   name: tree command (Windows)
