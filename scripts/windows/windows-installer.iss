@@ -33,7 +33,7 @@ DefaultDirName={userpf}\Koncentro
 DefaultGroupName=Koncentro
 SetupIconFile=assets\logo.ico
 PrivilegesRequired=lowest
-SourceDir=..\..\artifacts
+SourceDir=..\..
 OutputDir=dist
 
 [Tasks]
