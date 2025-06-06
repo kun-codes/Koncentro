@@ -78,6 +78,8 @@ jobs:
             -   name: Create Installer (macOS)
                 if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                 run: |
+                    brew install create-dmg
+                    echo "create-dmg installed successfully."
                     bash ./scripts/macos/create-dmg.sh
                     mv dist/Koncentro.dmg dist/Koncentro-${{ env.KONCENTRO_VERSION }}-${{ matrix.os == 'macos-latest' && 'arm64' || 'x86_64' }}.dmg
                 shell: bash

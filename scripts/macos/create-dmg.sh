@@ -25,16 +25,16 @@
 set -e
 
 echo "Creating DMG"
-mkdir -p ../../dist
+mkdir -p ./dist
 
 create-dmg \
   --volname "Koncentro Installer" \
-  --volicon "../../assets/logo.icns" \
+  --volicon "./assets/logo.icns" \
   --window-pos 200 120 \
   --window-size 800 400 \
   --icon-size 100 \
   --icon "Koncentro.app" 200 190 \
   --hide-extension "Koncentro.app" \
   --app-drop-link 600 185 \
-  "../../dist/Koncentro.dmg" \
-  "../../artifacts/"
+  "./dist/Koncentro.dmg" \
+  "./artifacts/"
