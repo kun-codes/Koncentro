@@ -32,6 +32,7 @@ AppUpdatesURL=https://github.com/kun-codes/Koncentro/releases
 DefaultDirName={userpf}\Koncentro
 DefaultGroupName=Koncentro
 SetupIconFile=assets\logo.ico
+UninstallDisplayIcon={app}\koncentro.exe
 PrivilegesRequired=lowest
 SourceDir=..\..
 OutputDir=dist
