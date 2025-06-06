@@ -31,9 +31,9 @@ AppSupportURL=https://github.com/kun-codes/Koncentro/discussions
 AppUpdatesURL=https://github.com/kun-codes/Koncentro/releases
 DefaultDirName={userpf}\Koncentro
 DefaultGroupName=Koncentro
-SetupIconFile=logo.ico
+SetupIconFile=assets\logo.ico
 PrivilegesRequired=lowest
-SourceDir=..\..\artifacts
+SourceDir=..\..
 OutputDir=dist
 
 [Tasks]
