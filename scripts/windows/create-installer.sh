@@ -26,6 +26,7 @@ set -e
 
 mkdir dist
 echo "Made dist directory"
+ls -R .
 "ISCC.exe" scripts/windows/windows-installer.iss
 echo "Created installer using Inno Setup"
 ls -R .
