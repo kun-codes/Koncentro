@@ -24,6 +24,7 @@
 
 [Setup]
 AppName=Koncentro
+UninstallDisplayName=Koncentro
 AppVersion={#GetEnv('KONCENTRO_VERSION')}
 AppPublisher=Bishwa Saha
 AppPublisherURL=https://github.com/kun-codes/Koncentro/
