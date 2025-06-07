@@ -52,6 +52,15 @@ jobs:
                     name: ${{ steps.set-artifact.outputs.artifact_name }}
                     path: artifacts
 
+            -   name: Get app version (macOS and Linux)
+                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13' || matrix.os == 'ubuntu-22.04'
+                run: |
+                    # Read version from pyproject.toml
+                    version=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+                    echo "KONCENTRO_VERSION=$version" >> $GITHUB_ENV
+                    echo "Koncentro version: $version"
+                shell: bash
+
             -   name: Get app version (Windows)
                 if: matrix.os == 'windows-latest'
                 run: |
@@ -78,10 +87,16 @@ jobs:
             -   name: Create Installer (macOS)
                 if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                 run: |
+                    # has to be done else the binaries in final dmg is not executable
+                    chmod +x ./artifacts/Koncentro.app/Contents/MacOS/mitmdump
+                    chmod +x ./artifacts/Koncentro.app/Contents/MacOS/koncentro
+                    
                     brew install create-dmg
                     echo "create-dmg installed successfully."
+                    
                     bash ./scripts/macos/create-dmg.sh
-                    mv dist/Koncentro.dmg dist/Koncentro-${{ env.KONCENTRO_VERSION }}-${{ matrix.os == 'macos-latest' && 'arm64' || 'x86_64' }}.dmg
+                    
+                    mv dist/Koncentro.dmg dist/Koncentro-${{ env.KONCENTRO_VERSION }}-macOS-${{ env.ARCHITECTURE }}.dmg
                 shell: bash
 
             -   name: tree command (Windows)
@@ -100,6 +115,5 @@ jobs:
                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                uses: actions/upload-artifact@v4
                with:
-                   name: Koncentro-${{ env.KONCENTRO_VERSION }}-${{ matrix.os == 'macos-latest' && 'arm64' || 'x86_64' }}-Installer
-                   path: dist/Koncentro-${{ env.KONCENTRO_VERSION }}-${{ matrix.os == 'macos-latest' && 'arm64' || 'x86_64' }}.dmg
-
+                   name: Koncentro-${{ env.KONCENTRO_VERSION }}-macOS-${{ env.ARCHITECTURE }}-Installer
+                   path: dist/*

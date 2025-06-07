@@ -38,3 +38,5 @@ create-dmg \
   --app-drop-link 600 185 \
   "./dist/Koncentro.dmg" \
   "./artifacts/"
+
+echo "DMG created successfully"
