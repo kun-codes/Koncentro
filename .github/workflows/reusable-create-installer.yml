@@ -52,6 +52,15 @@ jobs:
                     name: ${{ steps.set-artifact.outputs.artifact_name }}
                     path: artifacts
 
+            -   name: Get app version (macOS and Linux)
+                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13' || matrix.os == 'ubuntu-22.04'
+                run: |
+                    # Read version from pyproject.toml
+                    version=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+                    echo "KONCENTRO_VERSION=$version" >> $GITHUB_ENV
+                    echo "Koncentro version: $version"
+                shell: bash
+
             -   name: Get app version (Windows)
                 if: matrix.os == 'windows-latest'
                 run: |
@@ -102,4 +111,3 @@ jobs:
                with:
                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-${{ matrix.os == 'macos-latest' && 'arm64' || 'x86_64' }}-Installer
                    path: dist/Koncentro-${{ env.KONCENTRO_VERSION }}-${{ matrix.os == 'macos-latest' && 'arm64' || 'x86_64' }}.dmg
-
