@@ -87,6 +87,7 @@ jobs:
             -   name: Create Installer (macOS)
                 if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                 run: |
+                    # has to be done else the binaries in final dmg is not executable
                     chmod +x ./artifacts/Koncentro.app/Contents/MacOS/mitmdump
                     chmod +x ./artifacts/Koncentro.app/Contents/MacOS/koncentro
                     
