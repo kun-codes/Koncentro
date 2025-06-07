@@ -96,7 +96,7 @@ jobs:
                     
                     bash ./scripts/macos/create-dmg.sh
                     
-                    mv dist/Koncentro.dmg dist/Koncentro-${{ env.KONCENTRO_VERSION }}-${{ env.ARCHITECTURE }}.dmg
+                    mv dist/Koncentro.dmg dist/Koncentro-${{ env.KONCENTRO_VERSION }}-macOS-${{ env.ARCHITECTURE }}.dmg
                 shell: bash
 
             -   name: tree command (Windows)
@@ -116,4 +116,4 @@ jobs:
                uses: actions/upload-artifact@v4
                with:
                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-macOS-${{ env.ARCHITECTURE }}-Installer
-                   path: dist/Koncentro-${{ env.KONCENTRO_VERSION }}-macOS-${{ env.ARCHITECTURE }}.dmg
+                   path: dist/*
