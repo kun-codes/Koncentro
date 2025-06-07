@@ -96,7 +96,7 @@ jobs:
                     
                     bash ./scripts/macos/create-dmg.sh
                     
-                    mv dist/Koncentro.dmg dist/Koncentro-${{ env.KONCENTRO_VERSION }}-${{ matrix.os == 'macos-latest' && 'arm64' || 'x86_64' }}.dmg
+                    mv dist/Koncentro.dmg dist/Koncentro-${{ env.KONCENTRO_VERSION }}-${{ env.ARCHITECTURE }}.dmg
                 shell: bash
 
             -   name: tree command (Windows)
