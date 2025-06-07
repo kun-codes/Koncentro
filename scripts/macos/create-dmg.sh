@@ -39,23 +39,4 @@ create-dmg \
   "./dist/Koncentro.dmg" \
   "./artifacts/"
 
-# has to be done as the executables inside dmg are not preserved with executable permissions
-# after being uploaded to github artifacts
-echo "Setting executable permissions for mitmdump and koncentro inside the DMG"
-
-TEMP_DMG="./dist/Koncentro.dmg"
-MOUNT_PATH="/Volumes/Koncentro Installer"
-
-# mount the DMG
-hdiutil attach "$TEMP_DMG"
-
-echo "Setting executable permissions..."
-chmod +x "$MOUNT_PATH/Koncentro.app/Contents/MacOS/mitmdump"
-chmod +x "$MOUNT_PATH/Koncentro.app/Contents/MacOS/koncentro"
-echo "Permissions set successfully."
-
-echo "Unmounting DMG..."
-hdiutil detach "$MOUNT_PATH"
-echo "DMG unmounted successfully."
-
-echo "DMG created with executable permissions for mitmdump and koncentro"
+echo "DMG created successfully"
