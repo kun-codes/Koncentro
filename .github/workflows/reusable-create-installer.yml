@@ -115,5 +115,5 @@ jobs:
                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                uses: actions/upload-artifact@v4
                with:
-                   name: Koncentro-${{ env.KONCENTRO_VERSION }}-${{ matrix.os == 'macos-latest' && 'arm64' || 'x86_64' }}-Installer
-                   path: dist/Koncentro-${{ env.KONCENTRO_VERSION }}-${{ matrix.os == 'macos-latest' && 'arm64' || 'x86_64' }}.dmg
+                   name: Koncentro-${{ env.KONCENTRO_VERSION }}-${{ env.ARCHITECTURE }}-Installer
+                   path: dist/Koncentro-${{ env.KONCENTRO_VERSION }}-${{ env.ARCHITECTURE }}.dmg
