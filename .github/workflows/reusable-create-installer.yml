@@ -9,8 +9,9 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                os: [ ubuntu-22.04, windows-latest, macos-13, macos-latest ]  # using older ubuntu version for compatibility
-                # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
+#                os: [ ubuntu-22.04, windows-latest, macos-13, macos-latest ]  # using older ubuntu version for compatibility
+#                # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
+                os: [ ubuntu-22.04 ]
                 python-version: [ 3.12 ]
         steps:
             -   name: Store Architecture (Linux and MacOS)
