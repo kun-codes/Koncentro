@@ -143,11 +143,16 @@ jobs:
                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-macOS-${{ env.ARCHITECTURE }}-Installer
                    path: dist/*
 
-            -   name: Upload Installer (Linux)
+            -   name: Upload DEB Installer (Linux)
                 if: matrix.os == 'ubuntu-22.04'
                 uses: actions/upload-artifact@v4
                 with:
-                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-Installer
-                    path: |
-                      dist/*.deb
-                      dist/*.rpm
+                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-DEB
+                    path: dist/*.deb
+
+            -   name: Upload RPM Installer (Linux)
+                if: matrix.os == 'ubuntu-22.04'
+                uses: actions/upload-artifact@v4
+                with:
+                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-RPM
+                    path: dist/*.rpm
