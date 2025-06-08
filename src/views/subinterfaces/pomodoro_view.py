@@ -1,11 +1,12 @@
 from loguru import logger
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QSizePolicy, QSpacerItem, QWidget
-from qfluentwidgets import FluentIcon, ToolTipFilter, ToolTipPosition
+from qfluentwidgets import FluentIcon, ToolTipPosition
 
 from config_values import ConfigValues
 from constants import TimerState
 from models.timer import PomodoroTimer
+from prefabs.setting_cards.toolTip import WaylandToolTipFilter
 from ui_py.ui_pomodoro_view import Ui_PomodoroView
 
 
@@ -39,15 +40,15 @@ class PomodoroView(QWidget, Ui_PomodoroView):
 
         self.stopButton.setToolTip("Stop")
         self.stopButton.installEventFilter(
-            ToolTipFilter(self.stopButton, showDelay=300, position=ToolTipPosition.BOTTOM)
+            WaylandToolTipFilter(self.stopButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
         self.pauseResumeButton.setToolTip("Pause/Resume")
         self.pauseResumeButton.installEventFilter(
-            ToolTipFilter(self.pauseResumeButton, showDelay=300, position=ToolTipPosition.BOTTOM)
+            WaylandToolTipFilter(self.pauseResumeButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
         self.skipButton.setToolTip("Skip")
         self.skipButton.installEventFilter(
-            ToolTipFilter(self.skipButton, showDelay=300, position=ToolTipPosition.BOTTOM)
+            WaylandToolTipFilter(self.skipButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
 
         self.initProgressRingProperties()

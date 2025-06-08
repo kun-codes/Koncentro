@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon, ToolTipFilter, ToolTipPosition
+from qfluentwidgets import FluentIcon, ToolTipPosition
 
+from prefabs.setting_cards.toolTip import WaylandToolTipFilter
 from ui_py.ui_bottom_bar_widget import Ui_BottomBarWidget
 
 
@@ -22,10 +23,10 @@ class BottomBar(Ui_BottomBarWidget, QWidget):
         self.skipButton.setCheckable(False)
 
         self.stopButton.setToolTip("Stop")
-        self.stopButton.installEventFilter(ToolTipFilter(self.stopButton, showDelay=300, position=ToolTipPosition.TOP))
+        self.stopButton.installEventFilter(WaylandToolTipFilter(self.stopButton, showDelay=300, position=ToolTipPosition.TOP))
         self.pauseResumeButton.setToolTip("Pause/Resume")
         self.pauseResumeButton.installEventFilter(
-            ToolTipFilter(self.pauseResumeButton, showDelay=300, position=ToolTipPosition.TOP)
+            WaylandToolTipFilter(self.pauseResumeButton, showDelay=300, position=ToolTipPosition.TOP)
         )
         self.skipButton.setToolTip("Skip")
-        self.skipButton.installEventFilter(ToolTipFilter(self.skipButton, showDelay=300, position=ToolTipPosition.TOP))
+        self.skipButton.installEventFilter(WaylandToolTipFilter(self.skipButton, showDelay=300, position=ToolTipPosition.TOP))

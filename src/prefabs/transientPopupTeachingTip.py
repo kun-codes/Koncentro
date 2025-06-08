@@ -6,8 +6,6 @@ from constants import InterfaceType
 
 
 class TransientPopupTeachingTip(PopupTeachingTip):
-    """A PopupTeachingTip that can be temporarily hidden and shown with fade animations."""
-
     def __init__(self, view, target, duration=1000,
                  tailPosition=TeachingTipTailPosition.BOTTOM, parent=None, isDeleteOnClose=True):
         super().__init__(view, target, duration, tailPosition, parent, isDeleteOnClose)
