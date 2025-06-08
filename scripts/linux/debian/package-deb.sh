@@ -36,14 +36,34 @@ echo "2. Prepared temp folder"
 
 # 3. Copy application files
 mkdir -p deb/usr/lib/koncentro
+
+# Create directories for icon sizes
+mkdir -p deb/usr/share/icons/hicolor/16x16/apps
+mkdir -p deb/usr/share/icons/hicolor/24x24/apps
+mkdir -p deb/usr/share/icons/hicolor/32x32/apps
+mkdir -p deb/usr/share/icons/hicolor/48x48/apps
+mkdir -p deb/usr/share/icons/hicolor/64x64/apps
+mkdir -p deb/usr/share/icons/hicolor/128x128/apps
+mkdir -p deb/usr/share/icons/hicolor/256x256/apps
 mkdir -p deb/usr/share/icons/hicolor/512x512/apps
+mkdir -p deb/usr/share/icons/hicolor/1024x1024/apps
+
 # Copy the entire build directory content into the package structure
 cp -r ../artifacts/* deb/usr/lib/koncentro/
 # Make sure the binary is executable
 chmod +x deb/usr/lib/koncentro/koncentro
 chmod +x deb/usr/lib/koncentro/mitmdump
-# Copy icon - adjust path if needed
+
+# Copy icons of all sizes
+cp ../assets/logo_16x16.png deb/usr/share/icons/hicolor/16x16/apps/koncentro.png
+cp ../assets/logo_24x24.png deb/usr/share/icons/hicolor/24x24/apps/koncentro.png
+cp ../assets/logo_32x32.png deb/usr/share/icons/hicolor/32x32/apps/koncentro.png
+cp ../assets/logo_48x48.png deb/usr/share/icons/hicolor/48x48/apps/koncentro.png
+cp ../assets/logo_64x64.png deb/usr/share/icons/hicolor/64x64/apps/koncentro.png
+cp ../assets/logo_128x128.png deb/usr/share/icons/hicolor/128x128/apps/koncentro.png
+cp ../assets/logo_256x256.png deb/usr/share/icons/hicolor/256x256/apps/koncentro.png
 cp ../assets/logo_512x512.png deb/usr/share/icons/hicolor/512x512/apps/koncentro.png
+cp ../assets/logo_1024x1024.png deb/usr/share/icons/hicolor/1024x1024/apps/koncentro.png
 echo "3. Copied application files"
 
 # 4. Create a desktop shortcut

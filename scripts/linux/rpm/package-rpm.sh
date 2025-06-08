@@ -37,14 +37,33 @@ echo "2. Prepared temp folder"
 
 # 3. Copy application files
 mkdir -p rpm/usr/lib/koncentro
+
+# Create directories for icon sizes
+mkdir -p rpm/usr/share/icons/hicolor/16x16/apps
+mkdir -p rpm/usr/share/icons/hicolor/24x24/apps
+mkdir -p rpm/usr/share/icons/hicolor/32x32/apps
+mkdir -p rpm/usr/share/icons/hicolor/48x48/apps
+mkdir -p rpm/usr/share/icons/hicolor/64x64/apps
+mkdir -p rpm/usr/share/icons/hicolor/128x128/apps
+mkdir -p rpm/usr/share/icons/hicolor/256x256/apps
 mkdir -p rpm/usr/share/icons/hicolor/512x512/apps
+mkdir -p rpm/usr/share/icons/hicolor/1024x1024/apps
 
 cp -r ../artifacts/* rpm/usr/lib/koncentro/
 
 chmod +x rpm/usr/lib/koncentro/koncentro
 chmod +x rpm/usr/lib/koncentro/mitmdump
 
+# Copy icons
+cp ../assets/logo_16x16.png rpm/usr/share/icons/hicolor/16x16/apps/koncentro.png
+cp ../assets/logo_24x24.png rpm/usr/share/icons/hicolor/24x24/apps/koncentro.png
+cp ../assets/logo_32x32.png rpm/usr/share/icons/hicolor/32x32/apps/koncentro.png
+cp ../assets/logo_48x48.png rpm/usr/share/icons/hicolor/48x48/apps/koncentro.png
+cp ../assets/logo_64x64.png rpm/usr/share/icons/hicolor/64x64/apps/koncentro.png
+cp ../assets/logo_128x128.png rpm/usr/share/icons/hicolor/128x128/apps/koncentro.png
+cp ../assets/logo_256x256.png rpm/usr/share/icons/hicolor/256x256/apps/koncentro.png
 cp ../assets/logo_512x512.png rpm/usr/share/icons/hicolor/512x512/apps/koncentro.png
+cp ../assets/logo_1024x1024.png rpm/usr/share/icons/hicolor/1024x1024/apps/koncentro.png
 echo "3. Copied application files"
 
 # 4. Create the wrapper script for /usr/bin
