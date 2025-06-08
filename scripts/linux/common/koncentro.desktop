@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Koncentro
-Comment=Focus manager and website blocker
+Comment=Task manager with Pomodoro, website blocking, and timeboxing
 Exec=/usr/bin/koncentro $KONCENTRO_AUTOSTART_ARGS
 Icon=koncentro
 Terminal=false
