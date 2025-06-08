@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+#
+# rpm package creation script for Koncentro
+# Based on original script from Flowkeeper by Constantine Kulak
+# https://github.com/kulakowka/flowkeeper
+#
+# Copyright (c) 2023 Constantine Kulak
+# Modifications Copyright (c) 2025 Bishwa Saha
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+
+
+set -e
+
+# 1. Get the version
+echo "1. Version = $KONCENTRO_VERSION"
+
+# 2. Prepare temp folder
+mkdir -p build/rpm
+cd build
+rm -rf rpm
+mkdir -p rpm
+echo "2. Prepared temp folder"
+
+# 3. Copy application files
+mkdir -p rpm/usr/lib/koncentro
+mkdir -p rpm/usr/share/icons/hicolor/512x512/apps
+
+cp -r ../artifacts/* rpm/usr/lib/koncentro/
+
+chmod +x rpm/usr/lib/koncentro/koncentro
+chmod +x rpm/usr/lib/koncentro/mitmdump
+
+cp ../assets/logo_512x512.png rpm/usr/share/icons/hicolor/512x512/apps/koncentro.png
+echo "3. Copied application files"
+
+# 4. Create the wrapper script for /usr/bin
+mkdir -p rpm/usr/bin
+cat > rpm/usr/bin/koncentro << EOF
+#!/bin/bash
+
+#
+# Koncentro - Focus manager and website blocker
+# Copyright (c) 2025 Kunal
+#
+
+PYTHONPATH=/usr/lib/koncentro /usr/lib/koncentro/koncentro \$@
+EOF
+chmod +x rpm/usr/bin/koncentro
+echo "4. Created a wrapper script in /usr/bin"
+
+# 5. Create a desktop shortcut
+mkdir -p rpm/usr/share/applications
+export KONCENTRO_AUTOSTART_ARGS=""
+< ../scripts/linux/common/koncentro.desktop envsubst > rpm/usr/share/applications/org.koncentro.Koncentro.desktop
+echo "5. Created a desktop shortcut"
+
+# 6. Build RPM file
+mkdir -p ../dist
+cd ..
+fpm -s dir -t rpm \
+    -C build/rpm \
+    -n koncentro \
+    -v $KONCENTRO_VERSION \
+    --license "GPL-3.0" \
+    --vendor "Bishwa Saha" \
+    --url "https://github.com/kun-codes/Koncentro" \
+    --description "Koncentro - Focus manager and website blocker" \
+    --category "Productivity" \
+    --maintainer "Bishwa Saha" \
+    --rpm-summary "Focus manager and website blocker" \
+    -p dist/koncentro-${KONCENTRO_VERSION}-Linux.${ARCHITECTURE}.rpm \
+    usr
+
+echo "6. Built RPM file"

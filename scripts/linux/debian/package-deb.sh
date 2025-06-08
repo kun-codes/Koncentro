@@ -43,7 +43,7 @@ cp -r ../artifacts/* deb/usr/lib/koncentro/
 chmod +x deb/usr/lib/koncentro/koncentro
 chmod +x deb/usr/lib/koncentro/mitmdump
 # Copy icon - adjust path if needed
-cp ../assets/logo.png deb/usr/share/icons/hicolor/512x512/apps/koncentro.png
+cp ../assets/logo_512x512.png deb/usr/share/icons/hicolor/512x512/apps/koncentro.png
 echo "3. Copied application files"
 
 # 4. Create a desktop shortcut
