@@ -1,3 +1,4 @@
+import platform
 import os.path
 import signal
 import sys
@@ -7,7 +8,7 @@ from alembic import command
 from alembic.config import Config
 from loguru import logger
 from PySide6.QtGui import QFont, QFontDatabase
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QMessageBox
 
 import resources.fonts_rc
 from constants import APPLICATION_NAME, ORGANIZATION_NAME
@@ -54,8 +55,26 @@ def substitute_fonts():
         QFont.insertSubstitutions(
             "Segoe UI", ["Selawik", "Selawik Light", "Selawik Semibold", "Selawik Semilight"])
 
+def check_desktop_environment():
+    desktop_env = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
+    if "gnome" in desktop_env or "kde" in desktop_env:
+        logger.info("Detected GNOME or KDE desktop environment, proceeding with application launch.")
+        return True
+    else:
+        _app = QApplication(sys.argv)  # temporary application for the message box
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText("Unsupported Desktop Environment")
+        msg.setInformativeText("This application is not supported on your current desktop environment. Please use GNOME or KDE.")
+        msg.setWindowTitle("Unsupported Desktop Environment")
+        msg.exec()
+        sys.exit(1)  # Exit the application after showing the message
+
 
 if __name__ == "__main__":
+    if platform.system().lower() == "linux":
+        check_desktop_environment()
+
     run_alembic_upgrade()  # create db if it doesn't exist and run migrations
     checkValidDB()  # Check if the database is valid, if it doesn't have required sample data, add it
     updateAppVersionInDB()
