@@ -103,15 +103,12 @@ jobs:
             -   name: Create Installer (Linux)
                 if: matrix.os == 'ubuntu-22.04'
                 run: |
-                    # Install required packages
                     sudo apt-get update
                     sudo apt-get install -y dpkg fakeroot rpm ruby ruby-dev
                     sudo gem install fpm
                     
-                    # Create required directories
                     mkdir -p dist
                     
-                    # Display the artifacts
                     ls -la artifacts/
                     
                     # Create Debian package
@@ -121,10 +118,8 @@ jobs:
                     # Create RPM packages for Fedora and openSUSE
                     chmod +x ./scripts/linux/rpm/package-rpm.sh
                     
-                    # Create Fedora RPM package
                     ./scripts/linux/rpm/package-rpm.sh fedora
                     
-                    # Create openSUSE RPM package
                     ./scripts/linux/rpm/package-rpm.sh opensuse
                 shell: bash
 
