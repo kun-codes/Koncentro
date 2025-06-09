@@ -118,9 +118,14 @@ jobs:
                     chmod +x ./scripts/linux/debian/package-deb.sh
                     ./scripts/linux/debian/package-deb.sh
                     
-                    # Create RPM package
+                    # Create RPM packages for Fedora and openSUSE
                     chmod +x ./scripts/linux/rpm/package-rpm.sh
-                    ./scripts/linux/rpm/package-rpm.sh
+                    
+                    # Create Fedora RPM package
+                    ./scripts/linux/rpm/package-rpm.sh fedora
+                    
+                    # Create openSUSE RPM package
+                    ./scripts/linux/rpm/package-rpm.sh opensuse
                 shell: bash
 
 
@@ -150,9 +155,16 @@ jobs:
                     name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-DEB
                     path: dist/*.deb
 
-            -   name: Upload RPM Installer (Linux)
+            -   name: Upload Fedora RPM Installer (Linux)
                 if: matrix.os == 'ubuntu-22.04'
                 uses: actions/upload-artifact@v4
                 with:
-                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-RPM
-                    path: dist/*.rpm
+                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-Fedora-RPM
+                    path: dist/*Fedora.rpm
+
+            -   name: Upload openSUSE RPM Installer (Linux)
+                if: matrix.os == 'ubuntu-22.04'
+                uses: actions/upload-artifact@v4
+                with:
+                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-openSUSE-RPM
+                    path: dist/*openSUSE.rpm

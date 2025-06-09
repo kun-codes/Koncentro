@@ -25,6 +25,10 @@
 
 set -e
 
+# Check for distro parameter (fedora or opensuse)
+DISTRO=${1:-fedora}
+echo "Building RPM for distribution: $DISTRO"
+
 # 1. Get the version
 echo "1. Version = $KONCENTRO_VERSION"
 
@@ -87,21 +91,52 @@ export KONCENTRO_AUTOSTART_ARGS=""
 < ../scripts/linux/common/koncentro.desktop envsubst > rpm/usr/share/applications/org.koncentro.Koncentro.desktop
 echo "5. Created a desktop shortcut"
 
-# 6. Build RPM file
+# 6. Build RPM file based on distribution
 mkdir -p ../dist
 cd ..
-fpm -s dir -t rpm \
-    -C build/rpm \
-    -n koncentro \
-    -v $KONCENTRO_VERSION \
-    --license "GPL-3.0" \
-    --vendor "Bishwa Saha" \
-    --url "https://github.com/kun-codes/Koncentro" \
-    --description "Koncentro - Focus manager and website blocker" \
-    --category "Productivity" \
-    --maintainer "Bishwa Saha" \
-    --rpm-summary "Focus manager and website blocker" \
-    -p dist/koncentro-${KONCENTRO_VERSION}-Linux.${ARCHITECTURE}.rpm \
-    usr
 
-echo "6. Built RPM file"
+case "$DISTRO" in
+  fedora)
+    echo "Building Fedora RPM package..."
+    fpm -s dir -t rpm \
+        -C build/rpm \
+        -n koncentro \
+        -v $KONCENTRO_VERSION \
+        --license "GPL-3.0" \
+        --vendor "Bishwa Saha" \
+        --url "https://github.com/kun-codes/Koncentro" \
+        --description "Koncentro - Focus manager and website blocker" \
+        --category "Productivity" \
+        --maintainer "Bishwa Saha" \
+        --rpm-summary "Focus manager and website blocker" \
+        --depends "xcb-util-cursor" \
+        --depends "xcb-util-keysyms" \
+        --depends "xcb-util-wm" \
+        -p dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}-Fedora.rpm \
+        usr
+    echo "Built Fedora RPM package"
+    ;;
+
+  opensuse|*)
+    echo "Building openSUSE RPM package..."
+    fpm -s dir -t rpm \
+        -C build/rpm \
+        -n koncentro \
+        -v $KONCENTRO_VERSION \
+        --license "GPL-3.0" \
+        --vendor "Bishwa Saha" \
+        --url "https://github.com/kun-codes/Koncentro" \
+        --description "Koncentro - Focus manager and website blocker" \
+        --category "Productivity" \
+        --maintainer "Bishwa Saha" \
+        --rpm-summary "Focus manager and website blocker" \
+        --depends "libxcb-cursor0" \
+        --depends "libxcb-keysyms1" \
+        --depends "libxcb-icccm4" \
+        -p dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}-openSUSE.rpm \
+        usr
+    echo "Built openSUSE RPM package"
+    ;;
+esac
+
+echo "6. RPM packages built successfully"
