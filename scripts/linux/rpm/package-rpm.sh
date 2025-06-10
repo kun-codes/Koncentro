@@ -31,6 +31,7 @@ echo "Building RPM for distribution: $DISTRO"
 
 # 1. Get the version
 echo "1. Version = $KONCENTRO_VERSION"
+echo "Architecture: $ARCHITECTURE"
 
 # 2. Prepare temp folder
 mkdir -p build/rpm
@@ -109,6 +110,7 @@ case "$DISTRO" in
         --category "Productivity" \
         --maintainer "Bishwa Saha" \
         --rpm-summary "Focus manager and website blocker" \
+        --architecture "$ARCHITECTURE" \
         --depends "xcb-util-cursor" \
         --depends "xcb-util-keysyms" \
         --depends "xcb-util-wm" \
@@ -130,6 +132,7 @@ case "$DISTRO" in
         --category "Productivity" \
         --maintainer "Bishwa Saha" \
         --rpm-summary "Focus manager and website blocker" \
+        --architecture "$ARCHITECTURE" \
         --depends "libxcb-cursor0" \
         --depends "libxcb-keysyms1" \
         --depends "libxcb-icccm4" \
