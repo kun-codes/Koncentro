@@ -858,7 +858,12 @@ class MainWindow(KoncentroFluentWindow):
         settings.sync()
 
     def restoreWindowGeometry(self):
-        default_size = QSize(1000, 800)
+        # set default size depending on the screen size
+        screen = QApplication.primaryScreen()
+        screen_geometry = screen.availableGeometry()
+        default_width = int(screen_geometry.width() * 0.60)
+        default_height = int(screen_geometry.height() * 0.80)
+        default_size = QSize(default_width, default_height)
 
         if settings.contains(WindowGeometryKeys.GEOMETRY.value):
             geometry = settings.value(WindowGeometryKeys.GEOMETRY.value)
