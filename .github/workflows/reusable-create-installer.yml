@@ -9,8 +9,9 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                os: [ windows-latest, macos-13, macos-latest ]  # using older ubuntu version for compatibility
-                # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
+#                os: [ ubuntu-22.04, windows-latest, macos-13, macos-latest ]  # using older ubuntu version for compatibility
+#                # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
+                os: [ ubuntu-22.04 ]
                 python-version: [ 3.12 ]
         steps:
             -   name: Store Architecture (Linux and MacOS)
@@ -99,6 +100,30 @@ jobs:
                     mv dist/Koncentro.dmg dist/Koncentro-${{ env.KONCENTRO_VERSION }}-macOS-${{ env.ARCHITECTURE }}.dmg
                 shell: bash
 
+            -   name: Create Installer (Linux)
+                if: matrix.os == 'ubuntu-22.04'
+                run: |
+                    sudo apt-get update
+                    sudo apt-get install -y dpkg fakeroot rpm ruby ruby-dev
+                    sudo gem install fpm
+                    
+                    mkdir -p dist
+                    
+                    ls -la artifacts/
+                    
+                    # Create Debian package
+                    chmod +x ./scripts/linux/debian/package-deb.sh
+                    ./scripts/linux/debian/package-deb.sh
+                    
+                    # Create RPM packages for Fedora and openSUSE
+                    chmod +x ./scripts/linux/rpm/package-rpm.sh
+                    
+                    ./scripts/linux/rpm/package-rpm.sh fedora
+                    
+                    ./scripts/linux/rpm/package-rpm.sh opensuse
+                shell: bash
+
+
             -   name: tree command (Windows)
                 if: matrix.os == 'windows-latest'
                 run: |
@@ -117,3 +142,24 @@ jobs:
                with:
                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-macOS-${{ env.ARCHITECTURE }}-Installer
                    path: dist/*
+
+            -   name: Upload DEB Installer (Linux)
+                if: matrix.os == 'ubuntu-22.04'
+                uses: actions/upload-artifact@v4
+                with:
+                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-DEB
+                    path: dist/*.deb
+
+            -   name: Upload Fedora RPM Installer (Linux)
+                if: matrix.os == 'ubuntu-22.04'
+                uses: actions/upload-artifact@v4
+                with:
+                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-Fedora-RPM
+                    path: dist/*Fedora.rpm
+
+            -   name: Upload openSUSE RPM Installer (Linux)
+                if: matrix.os == 'ubuntu-22.04'
+                uses: actions/upload-artifact@v4
+                with:
+                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-openSUSE-RPM
+                    path: dist/*openSUSE.rpm

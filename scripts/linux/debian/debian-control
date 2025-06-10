@@ -1,0 +1,10 @@
+Package: koncentro
+Version: $KONCENTRO_VERSION
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Bishwa Saha
+Depends: libxcb-cursor0, libxcb-keysyms1, libxcb-icccm4
+Description: Koncentro - Focus manager and website blocker
+ Koncentro helps you stay focused by blocking distracting websites
+ and managing your work sessions.
