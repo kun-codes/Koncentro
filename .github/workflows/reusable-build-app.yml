@@ -19,10 +19,8 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-#                os: [ ubuntu-22.04, macos-latest, macos-13, windows-latest ]  # using older ubuntu version for compatibility
-#                # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
-                os: [ ubuntu-22.04 ]
-                python-version: [ 3.12 ]
+                os: [ ubuntu-22.04, macos-latest, macos-13, windows-latest ]  # using older ubuntu version for compatibility
+                # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
 
         steps:
             -   name: Checkout
