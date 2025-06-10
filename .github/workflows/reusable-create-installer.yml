@@ -9,7 +9,8 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                os: [ ubuntu-22.04, ubuntu-24.04-arm, windows-latest, macos-13, macos-latest ]
+                os: [ ubuntu-22.04, ubuntu-24.04-arm, windows-latest, macos-13, macos-latest ]  # using older x86
+                # ubuntu for compatibility with older linux distros
                 # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
                 python-version: [ 3.12 ]
                 include:
