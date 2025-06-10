@@ -27,6 +27,19 @@ set -e
 # 1. Get the version
 echo "1. Version = $KONCENTRO_VERSION"
 
+# Map architecture names from CI to Debian format
+if [ "$ARCHITECTURE" = "x86_64" ]; then
+    DEB_ARCHITECTURE="amd64"
+elif [ "$ARCHITECTURE" = "aarch64" ]; then
+    DEB_ARCHITECTURE="arm64"
+else
+    DEB_ARCHITECTURE="$ARCHITECTURE"
+fi
+echo "Detected architecture: $ARCHITECTURE, Debian architecture: $DEB_ARCHITECTURE"
+
+# Export DEB_ARCHITECTURE for debian control file substitution
+export DEB_ARCHITECTURE="$DEB_ARCHITECTURE"
+
 # 2. Prepare temp folder
 mkdir -p build/deb
 cd build
