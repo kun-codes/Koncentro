@@ -1,0 +1,217 @@
+name: Build Application
+
+on:
+    workflow_call:
+        inputs:
+            deployment:
+                description: "Enable deployment mode for Nuitka build"
+                required: true
+                type: boolean
+                default: false
+            mitmproxy-version:
+                description: "Mitmproxy version to use"
+                required: true
+                type: string
+
+jobs:
+    build:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [ ubuntu-22.04, ubuntu-24.04-arm, macos-latest, macos-13, windows-latest ]
+                # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
+                python-version: [ 3.12 ]
+                include:
+                    - os: ubuntu-22.04
+                      architecture: x86_64
+                    - os: ubuntu-24.04-arm
+                      architecture: aarch64
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+
+            -   name: Set up Python ${{ matrix.python-version }}
+                uses: actions/setup-python@v5
+                with:
+                    python-version: ${{ matrix.python-version }}
+
+            -   name: Store Architecture (Linux and MacOS)
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                run: |
+                    if [ "${{ matrix.architecture }}" != "" ]; then
+                        echo "ARCHITECTURE=${{ matrix.architecture }}" >> $GITHUB_ENV
+                    else
+                        ARCHITECTURE=$(uname -m)
+                        echo "ARCHITECTURE=$ARCHITECTURE" >> $GITHUB_ENV
+                    fi
+
+            -   name: Store Architecture (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    echo "ARCHITECTURE=x86_64" >> $env:GITHUB_ENV
+
+            -   name: Set mitmproxy version as env variable (Linux and MacOS)
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                run: |
+                    echo "MITMPROXY_LATEST_VERSION=${{ inputs.mitmproxy-version }}" >> $GITHUB_ENV
+                    echo "Latest mitmproxy version: ${{ inputs.mitmproxy-version }}"
+
+            -   name: Set mitmproxy version as env variable (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    echo "MITMPROXY_LATEST_VERSION=${{ inputs.mitmproxy-version }}" >> $env:GITHUB_ENV
+                    Write-Output "Latest mitmproxy version: ${{ inputs.mitmproxy-version }}"
+
+            -   name: Get app version (Linux and MacOS)
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                run: |
+                    # Read version from pyproject.toml
+                    KONCENTRO_VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+                    echo "KONCENTRO_VERSION=$KONCENTRO_VERSION" >> $GITHUB_ENV
+                    echo "Koncentro version: $KONCENTRO_VERSION"
+
+            -   name: Get app version (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    # Read version from pyproject.toml
+                    $version = python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])"
+                    echo "KONCENTRO_VERSION=$version" >> $env:GITHUB_ENV
+                    Write-Output "Koncentro version: $version"
+
+            -   name: Install dependencies
+                env:
+                    POETRY_VIRTUALENVS_CREATE: false
+                run: |
+                    python -m pip install --upgrade pip
+                    python -m pip install poetry
+                    poetry install --no-cache --no-interaction --no-root
+
+            -   name: Debug Packages
+                run: |
+                    pip list
+                    poetry show
+
+            -   name: Download latest version of mitmproxy (Linux)
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
+                run: |
+                    cd ..
+                    wget https://downloads.mitmproxy.org/${{ env.MITMPROXY_LATEST_VERSION }}/mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-linux-${{ env.ARCHITECTURE }}.tar.gz
+                    tar -xvf mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-linux-${{ env.ARCHITECTURE }}.tar.gz
+                    cp mitmdump Koncentro/mitmdump
+                    cd Koncentro
+
+            -   name: Download latest version of mitmproxy (MacOS)
+                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    cd ..
+                    gh release download --repo kun-codes/mitmproxy-nuitka-binaries --pattern "mitmdump-macos-${{ env.ARCHITECTURE }}*.zip" --dir .
+                    unzip mitmdump-macos*.zip
+                    cp mitmdump-macos*/mitmdump Koncentro/mitmdump
+                    chmod +x Koncentro/mitmdump
+                    cd Koncentro
+
+            -   name: Download latest version of mitmproxy (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    cd ..
+                    Invoke-WebRequest -Uri "https://downloads.mitmproxy.org/${{ env.MITMPROXY_LATEST_VERSION }}/mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-windows-x86_64.zip" -OutFile "mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-windows-x86_64.zip"
+                    Expand-Archive -Path "mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-windows-x86_64.zip" -DestinationPath .
+                    Copy-Item -Path "mitmdump.exe" -Destination "Koncentro\mitmdump.exe"
+                    cd "Koncentro"
+
+            # Remove problematic brew libs if Intel Mac
+            # https://github.com/Nuitka/Nuitka/issues/2853#issuecomment-2119520735
+            -   name: Remove problematic brew libs
+                if: matrix.os == 'macos-13'
+                run: |
+                    brew remove --force --ignore-dependencies openssl@3
+                    brew cleanup openssl@3
+
+            -   name: Build Executable (All Platforms)
+                uses: Nuitka/Nuitka-Action@main
+                with:
+                    nuitka-version: 'main'
+                    script-name: |
+                        src/__main__.py
+                    mode: ${{ (matrix.os == 'macos-latest' || matrix.os == 'macos-13') && 'app' || 'standalone' }}
+                    enable-plugins: 'pyside6'
+                    product-name: 'Koncentro'
+                    file-description: 'Koncentro'
+                    macos-app-icon: 'assets/logo.icns'
+                    macos-app-name: 'Koncentro'
+                    linux-icon: 'assets/logo.ico'
+                    windows-icon-from-ico: 'assets/logo.ico'
+                    msvc: ${{ matrix.os == 'windows-latest' && 'latest' || '' }}
+                    windows-console-mode: 'disable'
+                    output-file: 'koncentro'
+                    macos-app-version: '${{ env.KONCENTRO_VERSION }}'
+                    product-version: '${{ env.KONCENTRO_VERSION }}'
+                    deployment: ${{ inputs.deployment }}
+                    include-module: |
+                        logging.config
+                    nofollow-import-to: |
+                        sqlalchemy.dialects.oracle
+                        sqlalchemy.dialects.mssql
+                        sqlalchemy.dialects.mysql
+                    include-data-files: |
+                        ./src/website_blocker/filter.py=./website_blocker/filter.py
+                        ./src/website_blocker/constants.py=./website_blocker/constants.py
+                        ./pyproject.toml=./pyproject.toml
+                        ${{ (matrix.os == 'windows-latest') && './mitmdump.exe=./mitmdump.exe' || './mitmdump=./mitmdump' }}
+                        ./alembic.ini=./alembic.ini
+                        ./src/migrations/*.py=./src/migrations/
+                        ./src/migrations/versions/*.py=./src/migrations/versions/
+                        ./LICENSE=./LICENSE
+
+            -   name: Install tree (MacOS)
+                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                run: brew install tree
+
+            -   name: tree command (Linux and MacOS)
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                run: |
+                    tree build/
+
+            -   name: tree command (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    Get-ChildItem -Recurse "build\"
+
+            -   name: Move .app to dist folder with correct name (MacOS)
+                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                run: |
+                    mkdir -p dist/
+                    mv build/__main__.app dist/Koncentro.app
+
+            -   name: tree command (MacOS)
+                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                run: |
+                    tree dist/
+
+            -   name: Upload artifacts Linux
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
+                uses: actions/upload-artifact@v4
+                with:
+                    name: 'Linux_${{ env.ARCHITECTURE }}-build'
+                    path: 'build/__main__.dist/'
+                    include-hidden-files: 'true'
+
+            -   name: Upload artifacts MacOS
+                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                uses: actions/upload-artifact@v4
+                with:
+                    name: 'macOS_${{ env.ARCHITECTURE }}-build'
+                    path: 'dist'
+                    include-hidden-files: 'true'
+
+            -   name: Upload artifacts Windows
+                if: matrix.os == 'windows-latest'
+                uses: actions/upload-artifact@v4
+                with:
+                    name: 'Windows_${{ env.ARCHITECTURE }}-build'
+                    path: 'build\__main__.dist\'
+                    include-hidden-files: 'true'

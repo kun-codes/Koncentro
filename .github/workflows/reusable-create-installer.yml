@@ -1,0 +1,174 @@
+name: Create Installer
+
+on:
+    workflow_call:
+
+jobs:
+    create-installer:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [ ubuntu-22.04, ubuntu-24.04-arm, windows-latest, macos-13, macos-latest ]
+                # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
+                python-version: [ 3.12 ]
+                include:
+                    - os: ubuntu-22.04
+                      architecture: x86_64
+                    - os: ubuntu-24.04-arm
+                      architecture: aarch64
+
+        steps:
+            -   name: Store Architecture
+                run: |
+                    if [ "${{ matrix.architecture }}" != "" ]; then
+                        echo "ARCHITECTURE=${{ matrix.architecture }}" >> $GITHUB_ENV
+                    else
+                        ARCHITECTURE=$(uname -m)
+                        echo "ARCHITECTURE=$ARCHITECTURE" >> $GITHUB_ENV
+                    fi
+                shell: bash
+
+            -   name: Set up Python ${{ matrix.python-version }}
+                uses: actions/setup-python@v5
+                with:
+                    python-version: ${{ matrix.python-version }}
+
+            -   name: Checkout repository
+                uses: actions/checkout@v4
+
+            -   name: tree command (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    Get-ChildItem -Recurse "."
+
+            -   name: Set artifact name
+                id: set-artifact
+                run: |
+                    if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+                        echo "artifact_name=macOS_arm64-build" >> $GITHUB_OUTPUT
+                    elif [[ "${{ matrix.os }}" == "macos-13" ]]; then
+                        echo "artifact_name=macOS_x86_64-build" >> $GITHUB_OUTPUT
+                    elif [[ "${{ matrix.os }}" == "ubuntu-22.04" || "${{ matrix.os }}" == "ubuntu-24.04-arm" ]]; then
+                        echo "artifact_name=Linux_${{ env.ARCHITECTURE }}-build" >> $GITHUB_OUTPUT
+                    elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+                        echo "artifact_name=Windows_x86_64-build" >> $GITHUB_OUTPUT
+                    fi
+                shell: bash
+
+            -   name: Download Artifacts
+                uses: actions/download-artifact@v4
+                with:
+                    name: ${{ steps.set-artifact.outputs.artifact_name }}
+                    path: artifacts
+
+            -   name: Get app version (macOS and Linux)
+                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13' || matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
+                run: |
+                    # Read version from pyproject.toml
+                    version=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+                    echo "KONCENTRO_VERSION=$version" >> $GITHUB_ENV
+                    echo "Koncentro version: $version"
+                shell: bash
+
+            -   name: Get app version (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    # Read version from pyproject.toml
+                    $version = python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])"
+                    echo "KONCENTRO_VERSION=$version" >> $env:GITHUB_ENV
+                    Write-Output "Koncentro version: $version"
+
+            -   name: tree command (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    Get-ChildItem -Recurse "."
+
+            -   name: Create Installer (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    # install Inno Setup
+                    choco install innosetup -y
+                    echo "Inno Setup installed successfully."
+                    bash ./scripts/windows/create-installer.sh
+                    mv dist/setup.exe dist/Koncentro-${{ env.KONCENTRO_VERSION }}-Installer.exe
+                shell: bash
+
+            -   name: Create Installer (macOS)
+                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                run: |
+                    # has to be done else the binaries in final dmg is not executable
+                    chmod +x ./artifacts/Koncentro.app/Contents/MacOS/mitmdump
+                    chmod +x ./artifacts/Koncentro.app/Contents/MacOS/koncentro
+                    
+                    brew install create-dmg
+                    echo "create-dmg installed successfully."
+                    
+                    bash ./scripts/macos/create-dmg.sh
+                    
+                    mv dist/Koncentro.dmg dist/Koncentro-${{ env.KONCENTRO_VERSION }}-macOS-${{ env.ARCHITECTURE }}.dmg
+                shell: bash
+
+            -   name: Create Installer (Linux)
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
+                run: |
+                    sudo apt-get update
+                    sudo apt-get install -y dpkg fakeroot rpm ruby ruby-dev
+                    sudo gem install fpm
+                    
+                    mkdir -p dist
+                    
+                    ls -la artifacts/
+                    
+                    # Create Debian package
+                    chmod +x ./scripts/linux/debian/package-deb.sh
+                    ./scripts/linux/debian/package-deb.sh
+                    
+                    # Create RPM packages for Fedora and openSUSE
+                    chmod +x ./scripts/linux/rpm/package-rpm.sh
+                    
+                    ./scripts/linux/rpm/package-rpm.sh fedora
+                    
+                    ./scripts/linux/rpm/package-rpm.sh opensuse
+                shell: bash
+
+
+            -   name: tree command (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    Get-ChildItem -Recurse "."
+
+            -   name: Upload Installer (Windows)
+                if: matrix.os == 'windows-latest'
+                uses: actions/upload-artifact@v4
+                with:
+                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-Windows-x86_64-Installer
+                    path: dist/Koncentro-${{ env.KONCENTRO_VERSION }}-Installer.exe
+
+            -  name: Upload Installer (macOS)
+               if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+               uses: actions/upload-artifact@v4
+               with:
+                   name: Koncentro-${{ env.KONCENTRO_VERSION }}-macOS-${{ env.ARCHITECTURE }}-Installer
+                   path: dist/*
+
+            -   name: Upload DEB Installer (Linux)
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
+                uses: actions/upload-artifact@v4
+                with:
+                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-DEB
+                    path: dist/*.deb
+
+            -   name: Upload Fedora RPM Installer (Linux)
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
+                uses: actions/upload-artifact@v4
+                with:
+                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-Fedora-RPM
+                    path: dist/*Fedora.rpm
+
+            -   name: Upload openSUSE RPM Installer (Linux)
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
+                uses: actions/upload-artifact@v4
+                with:
+                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-openSUSE-RPM
+                    path: dist/*openSUSE.rpm
