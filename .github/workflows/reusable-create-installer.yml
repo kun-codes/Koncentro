@@ -9,13 +9,13 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                os: [ ubuntu-22.04, ubuntu-22.04-arm, windows-latest, macos-13, macos-latest ]
+                os: [ ubuntu-22.04, ubuntu-24.04-arm, windows-latest, macos-13, macos-latest ]
                 # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
                 python-version: [ 3.12 ]
                 include:
                     - os: ubuntu-22.04
                       architecture: x86_64
-                    - os: ubuntu-22.04-arm
+                    - os: ubuntu-24.04-arm
                       architecture: aarch64
 
         steps:
@@ -49,7 +49,7 @@ jobs:
                         echo "artifact_name=macOS_arm64-build" >> $GITHUB_OUTPUT
                     elif [[ "${{ matrix.os }}" == "macos-13" ]]; then
                         echo "artifact_name=macOS_x86_64-build" >> $GITHUB_OUTPUT
-                    elif [[ "${{ matrix.os }}" == "ubuntu-22.04" || "${{ matrix.os }}" == "ubuntu-22.04-arm" ]]; then
+                    elif [[ "${{ matrix.os }}" == "ubuntu-22.04" || "${{ matrix.os }}" == "ubuntu-24.04-arm" ]]; then
                         echo "artifact_name=Linux_${{ env.ARCHITECTURE }}-build" >> $GITHUB_OUTPUT
                     elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
                         echo "artifact_name=Windows_x86_64-build" >> $GITHUB_OUTPUT
@@ -63,7 +63,7 @@ jobs:
                     path: artifacts
 
             -   name: Get app version (macOS and Linux)
-                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13' || matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm'
+                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13' || matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
                 run: |
                     # Read version from pyproject.toml
                     version=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
@@ -110,7 +110,7 @@ jobs:
                 shell: bash
 
             -   name: Create Installer (Linux)
-                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm'
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
                 run: |
                     sudo apt-get update
                     sudo apt-get install -y dpkg fakeroot rpm ruby ruby-dev
@@ -153,21 +153,21 @@ jobs:
                    path: dist/*
 
             -   name: Upload DEB Installer (Linux)
-                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm'
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
                 uses: actions/upload-artifact@v4
                 with:
                     name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-DEB
                     path: dist/*.deb
 
             -   name: Upload Fedora RPM Installer (Linux)
-                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm'
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
                 uses: actions/upload-artifact@v4
                 with:
                     name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-Fedora-RPM
                     path: dist/*Fedora.rpm
 
             -   name: Upload openSUSE RPM Installer (Linux)
-                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm'
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
                 uses: actions/upload-artifact@v4
                 with:
                     name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-openSUSE-RPM

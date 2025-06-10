@@ -19,13 +19,13 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                os: [ ubuntu-22.04, ubuntu-22.04-arm, macos-latest, macos-13, windows-latest ]
+                os: [ ubuntu-22.04, ubuntu-24.04-arm, macos-latest, macos-13, windows-latest ]
                 # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
                 python-version: [ 3.12 ]
                 include:
                     - os: ubuntu-22.04
                       architecture: x86_64
-                    - os: ubuntu-22.04-arm
+                    - os: ubuntu-24.04-arm
                       architecture: aarch64
 
         steps:
@@ -38,7 +38,7 @@ jobs:
                     python-version: ${{ matrix.python-version }}
 
             -   name: Store Architecture (Linux and MacOS)
-                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                 run: |
                     if [ "${{ matrix.architecture }}" != "" ]; then
                         echo "ARCHITECTURE=${{ matrix.architecture }}" >> $GITHUB_ENV
@@ -53,7 +53,7 @@ jobs:
                     echo "ARCHITECTURE=x86_64" >> $env:GITHUB_ENV
 
             -   name: Set mitmproxy version as env variable (Linux and MacOS)
-                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                 run: |
                     echo "MITMPROXY_LATEST_VERSION=${{ inputs.mitmproxy-version }}" >> $GITHUB_ENV
                     echo "Latest mitmproxy version: ${{ inputs.mitmproxy-version }}"
@@ -65,7 +65,7 @@ jobs:
                     Write-Output "Latest mitmproxy version: ${{ inputs.mitmproxy-version }}"
 
             -   name: Get app version (Linux and MacOS)
-                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                 run: |
                     # Read version from pyproject.toml
                     KONCENTRO_VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
@@ -94,7 +94,7 @@ jobs:
                     poetry show
 
             -   name: Download latest version of mitmproxy (Linux)
-                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm'
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
                 run: |
                     cd ..
                     wget https://downloads.mitmproxy.org/${{ env.MITMPROXY_LATEST_VERSION }}/mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-linux-${{ env.ARCHITECTURE }}.tar.gz
@@ -172,7 +172,7 @@ jobs:
                 run: brew install tree
 
             -   name: tree command (Linux and MacOS)
-                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                 run: |
                     tree build/
 
@@ -193,7 +193,7 @@ jobs:
                     tree dist/
 
             -   name: Upload artifacts Linux
-                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm'
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
                 uses: actions/upload-artifact@v4
                 with:
                     name: 'Linux_${{ env.ARCHITECTURE }}-build'
