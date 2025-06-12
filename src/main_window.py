@@ -105,13 +105,14 @@ class MainWindow(KoncentroFluentWindow):
 
         self.updateDialog = None
 
+        self.restoreWindowGeometry()
+
         if self.is_first_run:
             self.setupMitmproxy()  # self.checkForUpdates() is eventually called later due to this method call
         else:
             if ConfigValues.CHECK_FOR_UPDATES_ON_START:
                 self.handleUpdates()
 
-            self.restoreWindowGeometry()
 
         self.remainingFontSubstitutions()
 
