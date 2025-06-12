@@ -57,8 +57,8 @@ def substitute_fonts():
 
 def check_desktop_environment():
     desktop_env = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
-    if "gnome" in desktop_env or "kde" in desktop_env:
-        logger.info("Detected GNOME or KDE desktop environment, proceeding with application launch.")
+    if any(env in desktop_env for env in ["gnome", "kde", "cinnamon"]):
+        logger.info("Detected GNOME,KDE or Cinnamon desktop environment, proceeding with application launch.")
         return True
     else:
         _app = QApplication(sys.argv)  # temporary application for the message box
