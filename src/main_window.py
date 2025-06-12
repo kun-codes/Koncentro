@@ -1,3 +1,4 @@
+import socket
 import threading
 from pathlib import Path
 
@@ -14,6 +15,7 @@ from qfluentwidgets import (
     PushButton,
     SystemThemeListener,
     Theme,
+    MessageBox,
 )
 
 from config_paths import settings_dir
@@ -749,8 +751,37 @@ class MainWindow(KoncentroFluentWindow):
 
         return False
 
+    def hasInternet(self):
+        try:
+            socket.setdefaulttimeout(2)
+            socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(("194.242.2.2", 53))  # using mullvad dns service
+            # to maintain privacy
+            # https://mullvad.net/en/help/dns-over-https-and-dns-over-tls#specifications
+            return True
+        except OSError:
+            return False
+
+
     def setupMitmproxy(self):
         logger.debug("Setting up mitmproxy")
+
+        has_internet = self.hasInternet()
+        if not has_internet:
+            logger.info("No internet connection detected")
+            self.notHasInternetDialog = MessageBox(
+                "No Internet Connection Detected",
+                f"Internet connection is required to set up {APPLICATION_NAME} for the first time.\n\n"
+                f"{APPLICATION_NAME}'s website filtering needs internet to setup and verify it.\n"
+                f"You can use {APPLICATION_NAME} without internet after setup.",
+                self.window()
+            )
+            self.notHasInternetDialog.cancelButton.hide()
+            self.notHasInternetDialog.yesButton.clicked.connect(self.onSetupAppConfirmationDialogRejected) # this is
+            # equivalent to clicking the cancel button to setting up mitmproxy
+            return
+
+        logger.info("Internet connection detected. Proceeding with setup")
+
         self.setupAppConfirmationDialog = PreSetupConfirmationDialog(parent=self.window())
 
         # setupAppDialog is a modal dialog, so it will block the main window until it is closed
