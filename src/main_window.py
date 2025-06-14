@@ -42,6 +42,7 @@ from tutorial.taskInterfaceTutorial import TaskInterfaceTutorial
 from tutorial.websiteFilterInterfaceTutorial import WebsiteFilterInterfaceTutorial
 from tutorial.workspaceManagerDialogTutorial import WorkspaceManagerDialogTutorial
 from utils.check_for_updates import UpdateChecker
+from utils.check_internet_worker import CheckInternetWorker
 from utils.detect_windows_version import isWin10OrEarlier
 from utils.find_mitmdump_executable import get_mitmdump_path
 from utils.time_conversion import convert_ms_to_hh_mm_ss
@@ -110,7 +111,7 @@ class MainWindow(KoncentroFluentWindow):
         self.restoreWindowGeometry()
 
         if self.is_first_run:
-            self.setupMitmproxy()  # self.checkForUpdates() is eventually called later due to this method call
+            self.preSetupMitmproxy()  # self.checkForUpdates() is eventually called later due to this method call
         else:
             if ConfigValues.CHECK_FOR_UPDATES_ON_START:
                 self.handleUpdates()
@@ -761,11 +762,14 @@ class MainWindow(KoncentroFluentWindow):
         except OSError:
             return False
 
+    def preSetupMitmproxy(self):
+        self.checkInternetWorker = CheckInternetWorker()
+        self.checkInternetWorker.internetCheckCompleted.connect(self.setupMitmproxy)
+        self.checkInternetWorker.start()
 
-    def setupMitmproxy(self):
+    def setupMitmproxy(self, has_internet: bool):
         logger.debug("Setting up mitmproxy")
 
-        has_internet = self.hasInternet()
         if not has_internet:
             logger.info("No internet connection detected")
             self.notHasInternetDialog = MessageBox(
@@ -777,6 +781,7 @@ class MainWindow(KoncentroFluentWindow):
             )
             self.notHasInternetDialog.cancelButton.hide()
             self.notHasInternetDialog.yesButton.clicked.connect(self.onSetupAppConfirmationDialogRejected) # this is
+            self.notHasInternetDialog.show()
             # equivalent to clicking the cancel button to setting up mitmproxy
             return
 
@@ -789,6 +794,7 @@ class MainWindow(KoncentroFluentWindow):
             lambda: self.handleUpdates() if ConfigValues.CHECK_FOR_UPDATES_ON_START else None
         )
         self.setupAppConfirmationDialog.rejected.connect(self.onSetupAppConfirmationDialogRejected)
+        self.setupAppConfirmationDialog.show()
 
     def onSetupAppConfirmationDialogRejected(self):
         # delete the first run file so that the setup dialog is shown again when the app is started next time
