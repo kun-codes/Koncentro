@@ -1,3 +1,4 @@
+import socket
 import threading
 from pathlib import Path
 
@@ -14,6 +15,7 @@ from qfluentwidgets import (
     PushButton,
     SystemThemeListener,
     Theme,
+    MessageBox,
 )
 
 from config_paths import settings_dir
@@ -40,6 +42,7 @@ from tutorial.taskInterfaceTutorial import TaskInterfaceTutorial
 from tutorial.websiteFilterInterfaceTutorial import WebsiteFilterInterfaceTutorial
 from tutorial.workspaceManagerDialogTutorial import WorkspaceManagerDialogTutorial
 from utils.check_for_updates import UpdateChecker
+from utils.check_internet_worker import CheckInternetWorker
 from utils.detect_windows_version import isWin10OrEarlier
 from utils.find_mitmdump_executable import get_mitmdump_path
 from utils.time_conversion import convert_ms_to_hh_mm_ss
@@ -108,7 +111,7 @@ class MainWindow(KoncentroFluentWindow):
         self.restoreWindowGeometry()
 
         if self.is_first_run:
-            self.setupMitmproxy()  # self.checkForUpdates() is eventually called later due to this method call
+            self.preSetupMitmproxy()  # self.checkForUpdates() is eventually called later due to this method call
         else:
             if ConfigValues.CHECK_FOR_UPDATES_ON_START:
                 self.handleUpdates()
@@ -749,8 +752,41 @@ class MainWindow(KoncentroFluentWindow):
 
         return False
 
-    def setupMitmproxy(self):
+    def hasInternet(self):
+        try:
+            socket.setdefaulttimeout(2)
+            socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(("194.242.2.2", 53))  # using mullvad dns service
+            # to maintain privacy
+            # https://mullvad.net/en/help/dns-over-https-and-dns-over-tls#specifications
+            return True
+        except OSError:
+            return False
+
+    def preSetupMitmproxy(self):
+        self.checkInternetWorker = CheckInternetWorker()
+        self.checkInternetWorker.internetCheckCompleted.connect(self.setupMitmproxy)
+        self.checkInternetWorker.start()
+
+    def setupMitmproxy(self, has_internet: bool):
         logger.debug("Setting up mitmproxy")
+
+        if not has_internet:
+            logger.info("No internet connection detected")
+            self.notHasInternetDialog = MessageBox(
+                "No Internet Connection Detected",
+                f"Internet connection is required to set up {APPLICATION_NAME} for the first time.\n\n"
+                f"{APPLICATION_NAME}'s website filtering needs internet to setup and verify it.\n"
+                f"You can use {APPLICATION_NAME} without internet after setup.",
+                self.window()
+            )
+            self.notHasInternetDialog.cancelButton.hide()
+            self.notHasInternetDialog.yesButton.clicked.connect(self.onSetupAppConfirmationDialogRejected) # this is
+            self.notHasInternetDialog.show()
+            # equivalent to clicking the cancel button to setting up mitmproxy
+            return
+
+        logger.info("Internet connection detected. Proceeding with setup")
+
         self.setupAppConfirmationDialog = PreSetupConfirmationDialog(parent=self.window())
 
         # setupAppDialog is a modal dialog, so it will block the main window until it is closed
@@ -758,6 +794,7 @@ class MainWindow(KoncentroFluentWindow):
             lambda: self.handleUpdates() if ConfigValues.CHECK_FOR_UPDATES_ON_START else None
         )
         self.setupAppConfirmationDialog.rejected.connect(self.onSetupAppConfirmationDialogRejected)
+        self.setupAppConfirmationDialog.show()
 
     def onSetupAppConfirmationDialogRejected(self):
         # delete the first run file so that the setup dialog is shown again when the app is started next time
