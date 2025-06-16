@@ -61,7 +61,7 @@ class SetupAppDialog(MessageBoxBase):
         self.cancelButton.clicked.connect(self.onCloseButtonClicked)
 
     def onWebsiteFilterSetupButtonClicked(self):
-        url = QUrl("https://mitm.it/")
+        url = QUrl("http://mitm.it/")
         QDesktopServices.openUrl(url)
 
     def onCloseButtonClicked(self):
