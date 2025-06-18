@@ -37,17 +37,17 @@ class SetupAppDialog(MessageBoxBase):
         self.viewLayout.addWidget(self.bodyLabel)
         self.viewLayout.addWidget(self.bodyLabel2)
 
-        self.yesButton.setText("Open Website Filter Setup")
+        self.yesButton.setText("Open Setup")
         self.yesButton.setIcon(FluentIcon.LINK)
-        self.cancelButton.setText("Close")
+        self.cancelButton.setText("Setup Completed")
 
-        self.backButton = PushButton("Take me back", self.buttonGroup)
+        self.backButton = PushButton("Cancel Setup", self.buttonGroup)
 
         # to make all buttons have the same size
-        self.buttonLayout.addWidget(self.backButton, 1, Qt.AlignmentFlag.AlignVCenter)
+        self.buttonLayout.insertWidget(0, self.backButton, 1, Qt.AlignmentFlag.AlignVCenter)
         for button in [self.yesButton, self.cancelButton, self.backButton]:
             button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            button.setMinimumWidth(100)
+            button.setMinimumWidth(150)
 
         self.initWidget()
         self.initTemporaryWebsiteBlockerManager()
