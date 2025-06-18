@@ -1,3 +1,5 @@
+from encodings.punycode import selective_find
+
 from PySide6.QtCore import Qt
 from qfluentwidgets import (
     BodyLabel,
@@ -9,7 +11,7 @@ from constants import APPLICATION_NAME
 
 
 class PostSetupVerificationDialog(MessageBoxBase):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, is_setup_first_time: bool = True):
         super().__init__(parent=parent)
         self.titleLabel = SubtitleLabel("Are you sure you have set up website filtering correctly?", parent=self)
         self.bodyLabel = BodyLabel(
@@ -25,10 +27,27 @@ class PostSetupVerificationDialog(MessageBoxBase):
             parent=self
         )
 
+        if is_setup_first_time:
+            bodyLabel4Text = ("If you still face issues with website filtering, or if you want "
+                              "to set up any other \n")
+            bodyLabel4Text += ("Firefox-based browser, you can manually run the setup again "
+                               "the anytime from the \nSettings page.")
+        else:
+            bodyLabel4Text = ("If you want to set up any other Firefox-based browser, you can "
+                              "manually run the setup \n")
+            bodyLabel4Text += "again anytime from the Settings page."
+
+        self.bodyLabel4 = BodyLabel(
+            bodyLabel4Text,
+            parent=self
+        )
+
+
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.bodyLabel)
         self.viewLayout.addWidget(self.bodyLabel2)
         self.viewLayout.addWidget(self.bodyLabel3)
+        self.viewLayout.addWidget(self.bodyLabel4)
 
         self.yesButton.setText("Yes")
         self.cancelButton.setText("No, Take me back")

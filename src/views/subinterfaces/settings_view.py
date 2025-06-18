@@ -158,7 +158,7 @@ class SettingsView(QWidget, Ui_SettingsView):
             f"Setup {APPLICATION_NAME} again",
             f"Click to setup {APPLICATION_NAME} again",
             self.setup_group,
-        )
+        )  # connected in main_window.py
 
         # About Group
         self.about_group = SettingCardGroup("About", self.scrollArea)
