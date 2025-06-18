@@ -72,15 +72,11 @@ class SetupAppDialog(MessageBoxBase):
         self.cancelButton.clicked.disconnect()
         self.yesButton.clicked.connect(self.onWebsiteFilterSetupButtonClicked)
         self.cancelButton.clicked.connect(self.onCloseButtonClicked)
-        self.backButton.clicked.connect(self.onBackButtonClicked)
+        self.backButton.clicked.connect(self.reject)
 
     def onWebsiteFilterSetupButtonClicked(self):
         url = QUrl("http://mitm.it/")
         QDesktopServices.openUrl(url)
-
-    def onBackButtonClicked(self):
-        # Implement the back button functionality here
-        pass
 
     def onCloseButtonClicked(self):
         confirmation_dialog = PostSetupVerificationDialog(self)
