@@ -349,12 +349,14 @@ class MainWindow(KoncentroFluentWindow):
             self.settings_interface.pomodoro_settings_group.setDisabled(True)
             workspace_selector_button.setDisabled(True)
             self.settings_interface.proxy_port_card.setDisabled(True)
+            self.settings_interface.setup_app_card.setDisabled(True)
             self.pomodoro_interface.skipButton.setEnabled(True)
             self.bottomBar.skipButton.setEnabled(True)
         else:
             self.settings_interface.pomodoro_settings_group.setDisabled(False)
             workspace_selector_button.setDisabled(False)
             self.settings_interface.proxy_port_card.setDisabled(False)
+            self.settings_interface.setup_app_card.setDisabled(False)
             self.pomodoro_interface.skipButton.setEnabled(False)
             self.bottomBar.skipButton.setEnabled(False)
 
