@@ -72,7 +72,7 @@ class SetupAppDialog(MessageBoxBase):
         self.cancelButton.clicked.disconnect()
         self.yesButton.clicked.connect(self.onWebsiteFilterSetupButtonClicked)
         self.cancelButton.clicked.connect(self.onCloseButtonClicked)
-        self.backButton.clicked.connect(self.reject)
+        self.backButton.clicked.connect(self.onBackButtonClicked)
 
     def onWebsiteFilterSetupButtonClicked(self):
         url = QUrl("http://mitm.it/")
@@ -85,6 +85,10 @@ class SetupAppDialog(MessageBoxBase):
             self.temporary_website_blocker_manager.stop_filtering(delete_proxy=True)  # stopping website filtering here
             # because this function will only be triggered after confirmation_dialog is accepted
             self.accept()
+
+    def onBackButtonClicked(self):
+        self.temporary_website_blocker_manager.stop_filtering(delete_proxy=True)
+        self.reject()
 
     def initTemporaryWebsiteBlockerManager(self):
         self.temporary_website_blocker_manager = WebsiteBlockerManager()
