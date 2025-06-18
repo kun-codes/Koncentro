@@ -9,11 +9,11 @@ from alembic.config import Config
 from loguru import logger
 from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtWidgets import QApplication, QMessageBox
-import psutil
 
 import resources.fonts_rc
 from constants import APPLICATION_NAME, ORGANIZATION_NAME
 from main_window import MainWindow
+from src.utils.check_init_service import check_init_service
 from utils.check_valid_db import checkValidDB
 from utils.is_nuitka import is_nuitka
 from utils.update_app_version_in_db import updateAppVersionInDB
@@ -68,34 +68,6 @@ def check_desktop_environment():
         msg.setText("Unsupported Desktop Environment")
         msg.setInformativeText("This application is not supported on your current desktop environment. Please use GNOME or KDE.")
         msg.setWindowTitle("Unsupported Desktop Environment")
-        msg.exec()
-        sys.exit(1)  # Exit the application after showing the message
-
-def check_init_service():
-    try:
-        init_process = psutil.Process(1)
-        if "systemd" in init_process.name().lower():
-            logger.info("Detected systemd init service, proceeding with application launch.")
-            return True
-        else:
-            _app = QApplication(sys.argv)
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("Unsupported Init Service")
-            msg.setInformativeText("This application is only supported on systems using systemd.")
-            msg.setWindowTitle("Unsupported Init Service")
-            msg.exec()
-            sys.exit(1)
-    except Exception as e:
-        logger.error(f"Error checking init service: {e}")
-        # If we can't determine the init system, assume it's not systemd
-        _app = QApplication(sys.argv)
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Warning)
-        msg.setText("Unsupported Init Service")
-        msg.setInformativeText("Could not determine init service."
-                               " This application is only supported on systems using systemd.")
-        msg.setWindowTitle("Unsupported Init Service")
         msg.exec()
         sys.exit(1)  # Exit the application after showing the message
 
