@@ -9,6 +9,7 @@ from alembic.config import Config
 from loguru import logger
 from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtWidgets import QApplication, QMessageBox
+import psutil
 
 import resources.fonts_rc
 from constants import APPLICATION_NAME, ORGANIZATION_NAME
@@ -70,10 +71,39 @@ def check_desktop_environment():
         msg.exec()
         sys.exit(1)  # Exit the application after showing the message
 
+def check_init_service():
+    try:
+        init_process = psutil.Process(1)
+        if "systemd" in init_process.name().lower():
+            logger.info("Detected systemd init service, proceeding with application launch.")
+            return True
+        else:
+            _app = QApplication(sys.argv)
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Unsupported Init Service")
+            msg.setInformativeText("This application is only supported on systems using systemd.")
+            msg.setWindowTitle("Unsupported Init Service")
+            msg.exec()
+            sys.exit(1)
+    except Exception as e:
+        logger.error(f"Error checking init service: {e}")
+        # If we can't determine the init system, assume it's not systemd
+        _app = QApplication(sys.argv)
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText("Unsupported Init Service")
+        msg.setInformativeText("Could not determine init service."
+                               " This application is only supported on systems using systemd.")
+        msg.setWindowTitle("Unsupported Init Service")
+        msg.exec()
+        sys.exit(1)  # Exit the application after showing the message
+
 
 if __name__ == "__main__":
     if platform.system().lower() == "linux":
         check_desktop_environment()
+        check_init_service()
 
     run_alembic_upgrade()  # create db if it doesn't exist and run migrations
     checkValidDB()  # Check if the database is valid, if it doesn't have required sample data, add it
