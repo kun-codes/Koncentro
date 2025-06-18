@@ -197,9 +197,8 @@ class SettingsView(QWidget, Ui_SettingsView):
 
         self.scrollAreaWidgetContents.layout().addWidget(self.about_group)
 
-    # todo: change colour of Labels when in disabled state
-    # https://github.com/zhiyiYo/PyQt-Fluent-Widgets/issues/314#issuecomment-1614427404
     def initQss(self):
+        # increase size of contentLabel to improve readability
         qss_light = """
         QLabel#contentLabel {
             font: 12px 'Segoe UI', 'Microsoft YaHei', 'PingFang SC';
