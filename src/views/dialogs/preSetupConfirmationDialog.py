@@ -6,6 +6,9 @@ from views.dialogs.setupAppDialog import SetupAppDialog
 
 
 class PreSetupConfirmationDialog(MessageBoxBase):
+    """
+    Only called when the app is run for the first time.
+    """
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.titleLabel = SubtitleLabel(f"Do you want to setup {APPLICATION_NAME} now?", parent=self)
@@ -48,7 +51,7 @@ class PreSetupConfirmationDialog(MessageBoxBase):
         self.cancelButton.clicked.connect(self.onCancelButtonClicked)
 
     def onYesButtonClicked(self):
-        setup_app_dialog = SetupAppDialog(self)
+        setup_app_dialog = SetupAppDialog(self, True)
         if setup_app_dialog.exec():
             self.accept()
 

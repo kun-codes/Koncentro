@@ -47,6 +47,7 @@ from utils.detect_windows_version import isWin10OrEarlier
 from utils.find_mitmdump_executable import get_mitmdump_path
 from utils.time_conversion import convert_ms_to_hh_mm_ss
 from views.dialogs.preSetupConfirmationDialog import PreSetupConfirmationDialog
+from views.dialogs.setupAppDialog import SetupAppDialog
 from views.dialogs.updateDialog import UpdateDialog
 from views.dialogs.workspaceManagerDialog import ManageWorkspaceDialog
 from views.subinterfaces.pomodoro_view import PomodoroView
@@ -349,12 +350,14 @@ class MainWindow(KoncentroFluentWindow):
             self.settings_interface.pomodoro_settings_group.setDisabled(True)
             workspace_selector_button.setDisabled(True)
             self.settings_interface.proxy_port_card.setDisabled(True)
+            self.settings_interface.setup_app_card.setDisabled(True)
             self.pomodoro_interface.skipButton.setEnabled(True)
             self.bottomBar.skipButton.setEnabled(True)
         else:
             self.settings_interface.pomodoro_settings_group.setDisabled(False)
             workspace_selector_button.setDisabled(False)
             self.settings_interface.proxy_port_card.setDisabled(False)
+            self.settings_interface.setup_app_card.setDisabled(False)
             self.pomodoro_interface.skipButton.setEnabled(False)
             self.bottomBar.skipButton.setEnabled(False)
 
@@ -617,6 +620,8 @@ class MainWindow(KoncentroFluentWindow):
             self.setPauseResumeButtonsToPauseIcon(True) if checked else self.setPauseResumeButtonsToPlayIcon(True)
         )
 
+        self.settings_interface.setup_app_card.clicked.connect(lambda: self.preSetupMitmproxy(False))
+
     def setPauseResumeButtonsToPauseIcon(self, skip_delegate_button=False):
         self.pomodoro_interface.pauseResumeButton.setIcon(FluentIcon.PAUSE)
         self.pomodoro_interface.pauseResumeButton.setChecked(True)
@@ -762,39 +767,56 @@ class MainWindow(KoncentroFluentWindow):
         except OSError:
             return False
 
-    def preSetupMitmproxy(self):
+    def preSetupMitmproxy(self, setup_first_time: bool  = True):
         self.checkInternetWorker = CheckInternetWorker()
-        self.checkInternetWorker.internetCheckCompleted.connect(self.setupMitmproxy)
+        self.checkInternetWorker.internetCheckCompleted.connect(
+            lambda has_internet: self.setupMitmproxy(has_internet, setup_first_time)
+        )
         self.checkInternetWorker.start()
 
-    def setupMitmproxy(self, has_internet: bool):
+    def setupMitmproxy(self, has_internet: bool, setup_first_time: bool = True):
         logger.debug("Setting up mitmproxy")
+
+        logger.debug(f"has_internet: {has_internet}")
+        logger.debug(f"setup_first_time: {setup_first_time}")
 
         if not has_internet:
             logger.info("No internet connection detected")
+            contentText = f"Internet connection is reqired to set up {APPLICATION_NAME}"
+            contentText += " for the first time.\n\n" if setup_first_time else "\n\n"
+            contentText += f"{APPLICATION_NAME}'s website filtering needs internet to setup and verify it.\n"
+            contentText += f"You can use {APPLICATION_NAME} without internet after setup." if setup_first_time else ""
             self.notHasInternetDialog = MessageBox(
                 "No Internet Connection Detected",
-                f"Internet connection is required to set up {APPLICATION_NAME} for the first time.\n\n"
-                f"{APPLICATION_NAME}'s website filtering needs internet to setup and verify it.\n"
-                f"You can use {APPLICATION_NAME} without internet after setup.",
+                contentText,
                 self.window()
             )
             self.notHasInternetDialog.cancelButton.hide()
-            self.notHasInternetDialog.yesButton.clicked.connect(self.onSetupAppConfirmationDialogRejected) # this is
-            self.notHasInternetDialog.show()
+            if setup_first_time:
+                self.notHasInternetDialog.yesButton.clicked.connect(self.onSetupAppConfirmationDialogRejected) # this is
             # equivalent to clicking the cancel button to setting up mitmproxy
+            else:
+                self.notHasInternetDialog.yesButton.clicked.connect(self.notHasInternetDialog.close)  # close the dialog
+                # when activated from settings interface, will not delete first run dotfile used to check if app
+                # is running for the first time
+
+            self.notHasInternetDialog.show()
             return
 
         logger.info("Internet connection detected. Proceeding with setup")
+        if setup_first_time:
+            self.setupAppConfirmationDialog = PreSetupConfirmationDialog(parent=self.window())
 
-        self.setupAppConfirmationDialog = PreSetupConfirmationDialog(parent=self.window())
-
-        # setupAppDialog is a modal dialog, so it will block the main window until it is closed
-        self.setupAppConfirmationDialog.accepted.connect(
-            lambda: self.handleUpdates() if ConfigValues.CHECK_FOR_UPDATES_ON_START else None
-        )
-        self.setupAppConfirmationDialog.rejected.connect(self.onSetupAppConfirmationDialogRejected)
-        self.setupAppConfirmationDialog.show()
+            # setupAppDialog is a modal dialog, so it will block the main window until it is closed
+            self.setupAppConfirmationDialog.accepted.connect(
+                lambda: self.handleUpdates() if ConfigValues.CHECK_FOR_UPDATES_ON_START else None
+            )
+            self.setupAppConfirmationDialog.rejected.connect(self.onSetupAppConfirmationDialogRejected)
+            self.setupAppConfirmationDialog.show()
+        else:
+            self.setupAppDialog = SetupAppDialog(self.window(), False)  # skip setupAppConfirmationDialog as user
+            # gave permission already
+            self.setupAppDialog.show()
 
     def onSetupAppConfirmationDialogRejected(self):
         # delete the first run file so that the setup dialog is shown again when the app is started next time

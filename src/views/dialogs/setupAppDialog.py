@@ -1,10 +1,15 @@
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QDesktopServices
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QFrame, QPushButton, QSizePolicy
+from loguru import logger
 from qfluentwidgets import (
     BodyLabel,
     FluentIcon,
     MessageBoxBase,
     SubtitleLabel,
+    PushButton,
+    FluentStyleSheet,
+    setCustomStyleSheet,
 )
 
 from config_values import ConfigValues
@@ -15,12 +20,22 @@ from website_blocker.website_blocker_manager import WebsiteBlockerManager
 
 
 class SetupAppDialog(MessageBoxBase):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, is_setup_first_time: bool = True):
         super().__init__(parent=parent)
-        self.titleLabel = SubtitleLabel(f"Setup {APPLICATION_NAME} for the first time", parent=self)
+
+        self.is_setup_first_time = is_setup_first_time
+
+        titleText = f"Setup {APPLICATION_NAME}"
+        titleText += " for the first time" if self.is_setup_first_time else ""
+        self.titleLabel = SubtitleLabel(titleText, parent=self)
+
+        if self.is_setup_first_time:
+            bodyText = "Before you start using the app, you need to set up system-wide website filtering."
+            bodyText += " Click the below button to visit the webpage to set it up"
+        else:
+            bodyText = "Click the below button to visit the webpage to set up system-wide website filtering."
         self.bodyLabel = BodyLabel(
-            "Before you start using the app, you need to set up system-wide "
-            "website filtering. Click the below button to visit the webpage to set it up",
+            bodyText,
             parent=self,
         )
 
@@ -32,9 +47,17 @@ class SetupAppDialog(MessageBoxBase):
         self.viewLayout.addWidget(self.bodyLabel)
         self.viewLayout.addWidget(self.bodyLabel2)
 
-        self.yesButton.setText("Open Website Filter Setup")
+        self.yesButton.setText("Open Setup")
         self.yesButton.setIcon(FluentIcon.LINK)
-        self.cancelButton.setText("Close")
+        self.cancelButton.setText("Setup Completed")
+
+        self.backButton = PushButton("Cancel Setup", self.buttonGroup)
+
+        # to make all buttons have the same size
+        self.buttonLayout.insertWidget(0, self.backButton, 1, Qt.AlignmentFlag.AlignVCenter)
+        for button in [self.yesButton, self.cancelButton, self.backButton]:
+            button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            button.setMinimumWidth(150)
 
         self.initWidget()
         self.initTemporaryWebsiteBlockerManager()
@@ -59,18 +82,23 @@ class SetupAppDialog(MessageBoxBase):
         self.cancelButton.clicked.disconnect()
         self.yesButton.clicked.connect(self.onWebsiteFilterSetupButtonClicked)
         self.cancelButton.clicked.connect(self.onCloseButtonClicked)
+        self.backButton.clicked.connect(self.onBackButtonClicked)
 
     def onWebsiteFilterSetupButtonClicked(self):
         url = QUrl("http://mitm.it/")
         QDesktopServices.openUrl(url)
 
     def onCloseButtonClicked(self):
-        confirmation_dialog = PostSetupVerificationDialog(self)
+        confirmation_dialog = PostSetupVerificationDialog(self, self.is_setup_first_time)
 
         if confirmation_dialog.exec():
             self.temporary_website_blocker_manager.stop_filtering(delete_proxy=True)  # stopping website filtering here
             # because this function will only be triggered after confirmation_dialog is accepted
             self.accept()
+
+    def onBackButtonClicked(self):
+        self.temporary_website_blocker_manager.stop_filtering(delete_proxy=True)
+        self.reject()
 
     def initTemporaryWebsiteBlockerManager(self):
         self.temporary_website_blocker_manager = WebsiteBlockerManager()
