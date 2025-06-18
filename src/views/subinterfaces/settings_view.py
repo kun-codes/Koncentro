@@ -20,7 +20,7 @@ from qfluentwidgets import (
 )
 
 from config_values import ConfigValues
-from constants import NEW_RELEASE_URL, UpdateCheckResult
+from constants import NEW_RELEASE_URL, UpdateCheckResult, APPLICATION_NAME
 from models.config import app_settings, workspace_specific_settings
 from prefabs.customFluentIcon import CustomFluentIcon
 from prefabs.setting_cards.RangeSettingCardSQL import RangeSettingCardSQL
@@ -150,6 +150,17 @@ class SettingsView(QWidget, Ui_SettingsView):
             self.update_settings_group,
         )
 
+        # Setup Group
+        self.setup_group = SettingCardGroup("Setup", self.scrollArea)
+        self.setup_app_card = PrimaryPushSettingCard(
+            f"Setup {APPLICATION_NAME}",
+            FluentIcon.VPN,
+            f"Setup {APPLICATION_NAME} again",
+            f"Click to setup {APPLICATION_NAME} again",
+            self.setup_group,
+        )
+
+        # About Group
         self.about_group = SettingCardGroup("About", self.scrollArea)
         self.check_for_updates_now_card = PrimaryPushSettingCard(
             "Check Update",
@@ -192,6 +203,10 @@ class SettingsView(QWidget, Ui_SettingsView):
         self.update_settings_group.addSettingCard(self.check_for_updates_on_start_card)
 
         self.scrollAreaWidgetContents.layout().addWidget(self.update_settings_group)
+
+        self.setup_group.addSettingCard(self.setup_app_card)
+
+        self.scrollAreaWidgetContents.layout().addWidget(self.setup_group)
 
         self.about_group.addSettingCard(self.check_for_updates_now_card)
 
