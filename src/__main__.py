@@ -13,6 +13,7 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 import resources.fonts_rc
 from constants import APPLICATION_NAME, ORGANIZATION_NAME
 from main_window import MainWindow
+from src.utils.check_init_service import check_init_service
 from utils.check_valid_db import checkValidDB
 from utils.is_nuitka import is_nuitka
 from utils.update_app_version_in_db import updateAppVersionInDB
@@ -74,6 +75,7 @@ def check_desktop_environment():
 if __name__ == "__main__":
     if platform.system().lower() == "linux":
         check_desktop_environment()
+        check_init_service()
 
     run_alembic_upgrade()  # create db if it doesn't exist and run migrations
     checkValidDB()  # Check if the database is valid, if it doesn't have required sample data, add it
