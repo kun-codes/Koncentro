@@ -35,7 +35,7 @@ class PostSetupVerificationDialog(MessageBoxBase):
         else:
             bodyLabel4Text = ("If you want to set up any other Firefox-based browser, you can "
                               "manually run the setup \n")
-            bodyLabel4Text += "again anytime from the Settings page."
+            bodyLabel4Text += "again."
 
         self.bodyLabel4 = BodyLabel(
             bodyLabel4Text,
