@@ -173,43 +173,40 @@ class SettingsView(QWidget, Ui_SettingsView):
         self.__connectSignalToSlot()
 
     def initLayout(self):
+        # Pomodoro Settings
         self.pomodoro_settings_group.addSettingCard(self.work_duration_card)
         self.pomodoro_settings_group.addSettingCard(self.break_duration_card)
         self.pomodoro_settings_group.addSettingCard(self.long_break_duration_card)
         self.pomodoro_settings_group.addSettingCard(self.work_interval_card)
         self.pomodoro_settings_group.addSettingCard(self.autostart_work_card)
         self.pomodoro_settings_group.addSettingCard(self.autostart_break_card)
-
         self.work_interval_card.spinBox.setMinimumWidth(125)
-
         self.scrollAreaWidgetContents.layout().addWidget(self.pomodoro_settings_group)
 
+        # Website Filter Settings
         self.website_filter_settings_group.addSettingCard(self.enable_website_filter_card)
         self.website_filter_settings_group.addSettingCard(self.proxy_port_card)
-
         self.proxy_port_card.spinBox.setSymbolVisible(False)
         self.proxy_port_card.spinBox.setMinimumWidth(150)
-
         self.scrollAreaWidgetContents.layout().addWidget(self.website_filter_settings_group)
 
+        # Personalization Settings
         self.personalization_settings_group.addSettingCard(self.theme_card)
         self.personalization_settings_group.addSettingCard(self.theme_color_card)
         if isWin11():
             self.personalization_settings_group.addSettingCard(self.mica_card)
-
-
         self.scrollAreaWidgetContents.layout().addWidget(self.personalization_settings_group)
 
+        # Update Settings
         self.update_settings_group.addSettingCard(self.check_for_updates_on_start_card)
-
         self.scrollAreaWidgetContents.layout().addWidget(self.update_settings_group)
 
+        # Setup Group
         self.setup_group.addSettingCard(self.setup_app_card)
-
         self.scrollAreaWidgetContents.layout().addWidget(self.setup_group)
 
+        # About Group
         self.about_group.addSettingCard(self.check_for_updates_now_card)
-
         self.scrollAreaWidgetContents.layout().addWidget(self.about_group)
 
     def initQss(self):
