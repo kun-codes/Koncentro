@@ -252,7 +252,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
             mainWindow=self.main_window,
             interface_type=InterfaceType.TASK_INTERFACE,
             icon=CustomFluentIcon.TEXT_ADD,
-            tailPosition=TeachingTipTailPosition.RIGHT,
+            tailPosition=TeachingTipTailPosition.TOP,
             parent=self.main_window,
             customSignalToDestroy=add_task_dialog.taskEdit.textEdited
         )
