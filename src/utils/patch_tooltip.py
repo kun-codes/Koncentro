@@ -25,7 +25,6 @@ def apply_patches():
         logger.debug(f"Error applying tooltip patch: {e}")
         return False
 
-apply_patches()
 
 if __name__ == "__main__":
     apply_patches()
