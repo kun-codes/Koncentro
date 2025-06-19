@@ -4,12 +4,6 @@ import signal
 import sys
 from pathlib import Path
 
-# Apply tooltip patch to fix window flags issue
-try:
-    from utils.patch_tooltip import apply_patches
-    apply_patches()
-except Exception as e:
-    print(f"Warning: Could not apply tooltip patch: {e}")
 
 from alembic import command
 from alembic.config import Config
@@ -23,6 +17,7 @@ from main_window import MainWindow
 from prefabs.qtSingleApplication import QtSingleApplication
 from utils.check_init_service import check_init_service
 from utils.check_valid_db import checkValidDB
+from utils.patch_tooltip import apply_patches
 from utils.is_nuitka import is_nuitka
 from utils.update_app_version_in_db import updateAppVersionInDB
 
@@ -88,6 +83,12 @@ if __name__ == "__main__":
     run_alembic_upgrade()  # create db if it doesn't exist and run migrations
     checkValidDB()  # Check if the database is valid, if it doesn't have required sample data, add it
     updateAppVersionInDB()
+
+    # Apply tooltip patch to fix window flags issue
+    try:
+        apply_patches()
+    except Exception as e:
+        print(f"Warning: Could not apply tooltip patch: {e}")
 
     appUID = APPLICATION_UID
     app = QtSingleApplication(appUID, sys.argv)
