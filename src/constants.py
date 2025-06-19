@@ -13,6 +13,8 @@ AUTOSTART_WORK = True
 AUTOSTART_BREAK = True
 ENABLE_WEBSITE_FILTER = True
 
+APPLICATION_UID = "org.koncentro.Koncentro"
+
 # for dotfile to detect if its the first time the app is run
 FIRST_RUN_DOTFILE_NAME = ".first_run"
 

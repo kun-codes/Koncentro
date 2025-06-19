@@ -11,9 +11,10 @@ from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtWidgets import QApplication, QMessageBox
 
 import resources.fonts_rc
-from constants import APPLICATION_NAME, ORGANIZATION_NAME
+from constants import APPLICATION_NAME, APPLICATION_UID, ORGANIZATION_NAME
 from main_window import MainWindow
-from src.utils.check_init_service import check_init_service
+from prefabs.qtSingleApplication import QtSingleApplication
+from utils.check_init_service import check_init_service
 from utils.check_valid_db import checkValidDB
 from utils.is_nuitka import is_nuitka
 from utils.update_app_version_in_db import updateAppVersionInDB
@@ -81,7 +82,13 @@ if __name__ == "__main__":
     checkValidDB()  # Check if the database is valid, if it doesn't have required sample data, add it
     updateAppVersionInDB()
 
-    app = QApplication(sys.argv)
+    appUID = APPLICATION_UID
+    app = QtSingleApplication(appUID, sys.argv)
+
+    if app.isRunning():
+        logger.info("Application is already running, activating window of the existing instance.")
+        logger.info("Exiting current instance....")
+        sys.exit(0)
 
     substitute_fonts()
 
@@ -92,6 +99,8 @@ if __name__ == "__main__":
 
     mainWindow = MainWindow()
     mainWindow.show()
+
+    app.setActivationWindow(mainWindow)
 
     signal.signal(signal.SIGINT, handle_signal)
     signal.signal(signal.SIGTERM, handle_signal)
