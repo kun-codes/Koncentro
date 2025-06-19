@@ -5,8 +5,8 @@ from qfluentwidgets import (
     FluentIcon,
     SimpleCardWidget,
     TitleLabel,
-    ToolTipPosition,
     ToolTipFilter,
+    ToolTipPosition,
 )
 
 from models.db_tables import TaskType

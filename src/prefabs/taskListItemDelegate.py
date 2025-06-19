@@ -6,10 +6,10 @@ from qfluentwidgets import (
     FluentIcon,
     LineEdit,
     ListItemDelegate,
+    ToolTipFilter,
     ToolTipPosition,
     TransparentToggleToolButton,
     isDarkTheme,
-    ToolTipFilter,
 )
 
 from models.task_list_model import TaskListModel

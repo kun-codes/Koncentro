@@ -1,6 +1,6 @@
 from PySide6.QtCore import QStringConverter, Qt, QTextStream, Signal
 from PySide6.QtNetwork import QLocalServer, QLocalSocket
-from PySide6.QtWidgets import QApplication, QWidget
+from PySide6.QtWidgets import QApplication
 
 
 # from: https://stackoverflow.com/a/79574637

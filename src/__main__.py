@@ -1,9 +1,8 @@
-import platform
 import os.path
+import platform
 import signal
 import sys
 from pathlib import Path
-
 
 from alembic import command
 from alembic.config import Config
@@ -17,8 +16,8 @@ from main_window import MainWindow
 from prefabs.qtSingleApplication import QtSingleApplication
 from utils.check_init_service import check_init_service
 from utils.check_valid_db import checkValidDB
-from utils.patch_tooltip import apply_patches
 from utils.is_nuitka import is_nuitka
+from utils.patch_tooltip import apply_patches
 from utils.update_app_version_in_db import updateAppVersionInDB
 
 

@@ -1,7 +1,7 @@
 from loguru import logger
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QSizePolicy, QSpacerItem, QWidget
-from qfluentwidgets import FluentIcon, ToolTipPosition, ToolTipFilter
+from qfluentwidgets import FluentIcon, ToolTipFilter, ToolTipPosition
 
 from config_values import ConfigValues
 from constants import TimerState

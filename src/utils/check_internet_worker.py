@@ -1,7 +1,7 @@
 import socket
 
-from PySide6.QtCore import QThread, Signal
 from loguru import logger
+from PySide6.QtCore import QThread, Signal
 
 
 class CheckInternetWorker(QThread):

@@ -1,8 +1,8 @@
 import sys
 
 import psutil
-from PySide6.QtWidgets import QApplication, QMessageBox
 from loguru import logger
+from PySide6.QtWidgets import QApplication, QMessageBox
 
 
 def check_init_service():

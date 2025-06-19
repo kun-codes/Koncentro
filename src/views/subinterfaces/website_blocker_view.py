@@ -4,8 +4,8 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import (
     InfoBar,
     InfoBarPosition,
-    ToolTipPosition,
     ToolTipFilter,
+    ToolTipPosition,
 )
 
 from constants import URLListType, WebsiteFilterType

@@ -1,4 +1,3 @@
-from encodings.punycode import selective_find
 
 from PySide6.QtCore import Qt
 from qfluentwidgets import (

@@ -1,15 +1,12 @@
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QDesktopServices
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QFrame, QPushButton, QSizePolicy
-from loguru import logger
+from PySide6.QtWidgets import QSizePolicy
 from qfluentwidgets import (
     BodyLabel,
     FluentIcon,
     MessageBoxBase,
-    SubtitleLabel,
     PushButton,
-    FluentStyleSheet,
-    setCustomStyleSheet,
+    SubtitleLabel,
 )
 
 from config_values import ConfigValues

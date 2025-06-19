@@ -3,6 +3,7 @@
 
 from loguru import logger
 
+
 def apply_patches():
     """Apply monkey patches to fix the ToolTip window flags"""
     try:

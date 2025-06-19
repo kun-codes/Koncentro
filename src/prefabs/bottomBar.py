@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon, ToolTipPosition, ToolTipFilter
+from qfluentwidgets import FluentIcon, ToolTipFilter, ToolTipPosition
 
 from ui_py.ui_bottom_bar_widget import Ui_BottomBarWidget
 
