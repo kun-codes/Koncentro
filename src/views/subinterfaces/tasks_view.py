@@ -6,11 +6,11 @@ from qfluentwidgets import (
     SimpleCardWidget,
     TitleLabel,
     ToolTipPosition,
+    ToolTipFilter,
 )
 
 from models.db_tables import TaskType
 from models.task_list_model import TaskListModel
-from prefabs.setting_cards.toolTip import WaylandToolTipFilter
 from prefabs.taskList import TaskList
 from ui_py.ui_tasks_list_view import Ui_TaskView
 from views.dialogs.addTaskDialog import AddTaskDialog
@@ -69,15 +69,15 @@ class TaskListView(Ui_TaskView, QWidget):
 
         self.addTaskButton.setToolTip("Add Task")
         self.addTaskButton.installEventFilter(
-            WaylandToolTipFilter(self.addTaskButton, showDelay=300, position=ToolTipPosition.BOTTOM)
+            ToolTipFilter(self.addTaskButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
         self.deleteTaskButton.setToolTip("Delete Task")
         self.deleteTaskButton.installEventFilter(
-            WaylandToolTipFilter(self.deleteTaskButton, showDelay=300, position=ToolTipPosition.BOTTOM)
+            ToolTipFilter(self.deleteTaskButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
         self.editTaskTimeButton.setToolTip("Edit Task Time")
         self.editTaskTimeButton.installEventFilter(
-            WaylandToolTipFilter(self.editTaskTimeButton, showDelay=300, position=ToolTipPosition.BOTTOM)
+            ToolTipFilter(self.editTaskTimeButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
 
     def connectSignalsToSlots(self):

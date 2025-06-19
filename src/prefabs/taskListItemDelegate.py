@@ -9,10 +9,10 @@ from qfluentwidgets import (
     ToolTipPosition,
     TransparentToggleToolButton,
     isDarkTheme,
+    ToolTipFilter,
 )
 
 from models.task_list_model import TaskListModel
-from prefabs.setting_cards.toolTip import WaylandToolTipFilter
 from utils.time_conversion import convert_ms_to_hh_mm_ss
 
 
@@ -56,7 +56,7 @@ class TaskListItemDelegate(ListItemDelegate):
         if self.parent().objectName() == "todoTasksList":
             button.setToolTip("Pause/Resume")
             button.installEventFilter(
-                WaylandToolTipFilter(button, showDelay=300, position=ToolTipPosition.BOTTOM)
+                ToolTipFilter(button, showDelay=300, position=ToolTipPosition.BOTTOM)
             )
 
         button.clicked.connect(lambda checked, tid=task_id: self.onButtonClicked(checked, tid))

@@ -5,13 +5,13 @@ from qfluentwidgets import (
     InfoBar,
     InfoBarPosition,
     ToolTipPosition,
+    ToolTipFilter,
 )
 
 from constants import URLListType, WebsiteFilterType
 from models.website_list_manager_model import WebsiteListManager
 from models.workspace_list_model import WorkspaceListModel
 from models.workspace_lookup import WorkspaceLookup
-from prefabs.setting_cards.toolTip import WaylandToolTipFilter
 from ui_py.ui_website_blocker_view import Ui_WebsiteBlockView
 
 
@@ -48,15 +48,15 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
 
         self.saveButton.setToolTip("Save")
         self.saveButton.installEventFilter(
-            WaylandToolTipFilter(self.saveButton, showDelay=300, position=ToolTipPosition.BOTTOM)
+            ToolTipFilter(self.saveButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
         self.cancelButton.setToolTip("Cancel Changes")
         self.cancelButton.installEventFilter(
-            WaylandToolTipFilter(self.cancelButton, showDelay=300, position=ToolTipPosition.BOTTOM)
+            ToolTipFilter(self.cancelButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
         self.blockTypeComboBox.setToolTip("Select Filter Type")
         self.blockTypeComboBox.installEventFilter(
-            WaylandToolTipFilter(self.blockTypeComboBox, showDelay=300, position=ToolTipPosition.BOTTOM)
+            ToolTipFilter(self.blockTypeComboBox, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
 
     def connectSignalsToSlots(self):
