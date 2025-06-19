@@ -4,6 +4,13 @@ import signal
 import sys
 from pathlib import Path
 
+# Apply tooltip patch to fix window flags issue
+try:
+    from utils.patch_tooltip import apply_patches
+    apply_patches()
+except Exception as e:
+    print(f"Warning: Could not apply tooltip patch: {e}")
+
 from alembic import command
 from alembic.config import Config
 from loguru import logger
