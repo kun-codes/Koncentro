@@ -32,8 +32,6 @@ class TaskListItemDelegate(ListItemDelegate):
 
         self._pomodoro_interface = None
 
-        logger.debug(f"Model: {parent.model()}")
-
     def deleteAllButtons(self):
         """Delete all buttons when there are no tasks"""
         for button in list(self.buttons.values()):
