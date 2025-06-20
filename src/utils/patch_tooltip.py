@@ -1,5 +1,6 @@
 # Monkey patch for qfluentwidgets.components.widgets.tool_tip.ToolTip because of bug in qfluentwidgets
 # This patch sets window flags correctly to Qt.ToolTip
+# Needed for wayland linux sessions only. Shows a box around the tooltip in macOS and Windows
 
 from loguru import logger
 

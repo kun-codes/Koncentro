@@ -83,11 +83,12 @@ if __name__ == "__main__":
     checkValidDB()  # Check if the database is valid, if it doesn't have required sample data, add it
     updateAppVersionInDB()
 
-    # Apply tooltip patch to fix window flags issue
-    try:
-        apply_patches()
-    except Exception as e:
-        print(f"Warning: Could not apply tooltip patch: {e}")
+    # Needed for wayland linux sessions only. Shows a box around the tooltip in macOS and Windows
+    if platform.system().lower() == "linux":
+        try:
+            apply_patches()
+        except Exception as e:
+            print(f"Warning: Could not apply tooltip patch: {e}")
 
     appUID = APPLICATION_UID
     app = QtSingleApplication(appUID, sys.argv)
