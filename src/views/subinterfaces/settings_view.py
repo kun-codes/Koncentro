@@ -1,4 +1,3 @@
-
 from loguru import logger
 from PySide6.QtCore import Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
@@ -137,7 +136,7 @@ class SettingsView(QWidget, Ui_SettingsView):
                 "Mica effect",
                 "Apply semi transparent to windows and surfaces",
                 app_settings.mica_enabled,
-                self.personalization_settings_group
+                self.personalization_settings_group,
             )
 
         # Update Settings
@@ -226,7 +225,6 @@ class SettingsView(QWidget, Ui_SettingsView):
         for card in settingCards:
             setCustomStyleSheet(card, qss_light, qss_dark)
 
-
     def onValueChanged(self):
         workspace_specific_settings.work_duration.valueChanged.connect(self.updateWorkDuration)
         workspace_specific_settings.break_duration.valueChanged.connect(self.updateBreakDuration)
@@ -241,40 +239,52 @@ class SettingsView(QWidget, Ui_SettingsView):
 
     def updateBreakDuration(self):
         ConfigValues.BREAK_DURATION = workspace_specific_settings.get(workspace_specific_settings.break_duration)
-        logger.debug(f"Break Duration: {workspace_specific_settings.get(workspace_specific_settings.break_duration)}")
+        logger.debug(
+            f"Updated Break Duration to: {workspace_specific_settings.get(workspace_specific_settings.break_duration)}"
+        )
 
     def updateWorkDuration(self):
         ConfigValues.WORK_DURATION = workspace_specific_settings.get(workspace_specific_settings.work_duration)
-        logger.debug(f"Work Duration: {workspace_specific_settings.get(workspace_specific_settings.work_duration)}")
+        logger.debug(
+            f"Updated Work Duration to: {workspace_specific_settings.get(workspace_specific_settings.work_duration)}"
+        )
 
     def updateLongBreakDuration(self):
         ConfigValues.LONG_BREAK_DURATION = workspace_specific_settings.get(
             workspace_specific_settings.long_break_duration
         )
         logger.debug(
-            f"Long Break Duration: {workspace_specific_settings.get(workspace_specific_settings.long_break_duration)}"
+            f"Updated Long Break Duration to: "
+            f"{workspace_specific_settings.get(workspace_specific_settings.long_break_duration)}"
         )
 
     def updateWorkIntervals(self):
         ConfigValues.WORK_INTERVALS = workspace_specific_settings.get(workspace_specific_settings.work_intervals)
-        logger.debug(f"Work Intervals: {workspace_specific_settings.get(workspace_specific_settings.work_intervals)}")
+        logger.debug(
+            f"Updated Work Intervals to: {workspace_specific_settings.get(workspace_specific_settings.work_intervals)}"
+        )
 
     def updateAutostartWork(self):
         ConfigValues.AUTOSTART_WORK = workspace_specific_settings.get(workspace_specific_settings.autostart_work)
-        logger.debug(f"Autostart Work: {workspace_specific_settings.get(workspace_specific_settings.autostart_work)}")
+        logger.debug(
+            f"Updated Autostart Work to: {workspace_specific_settings.get(workspace_specific_settings.autostart_work)}"
+        )
 
     def updateAutostartBreak(self):
         ConfigValues.AUTOSTART_BREAK = workspace_specific_settings.get(workspace_specific_settings.autostart_break)
-        logger.debug(f"Autostart Break: {workspace_specific_settings.get(workspace_specific_settings.autostart_break)}")
+        logger.debug(
+            f"Updated Autostart Break to: "
+            f"{workspace_specific_settings.get(workspace_specific_settings.autostart_break)}"
+        )
 
     def updateEnableWebsiteFilter(self):
         ConfigValues.ENABLE_WEBSITE_FILTER = workspace_specific_settings.get(
             workspace_specific_settings.enable_website_filter
         )
         logger.debug(
-            f"Enable Website Filter: {workspace_specific_settings.get(
-                workspace_specific_settings.enable_website_filter
-            )}"
+            f"Enable Website Filter: {
+                workspace_specific_settings.get(workspace_specific_settings.enable_website_filter)
+            }"
         )
 
     def updateProxyPort(self):
