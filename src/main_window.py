@@ -11,11 +11,11 @@ from qfluentwidgets import (
     FluentIcon,
     InfoBar,
     InfoBarPosition,
+    MessageBox,
     NavigationItemPosition,
     PushButton,
     SystemThemeListener,
     Theme,
-    MessageBox,
 )
 
 from config_paths import settings_dir

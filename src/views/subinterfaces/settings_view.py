@@ -20,7 +20,7 @@ from qfluentwidgets import (
 )
 
 from config_values import ConfigValues
-from constants import NEW_RELEASE_URL, UpdateCheckResult, APPLICATION_NAME
+from constants import APPLICATION_NAME, NEW_RELEASE_URL, UpdateCheckResult
 from models.config import app_settings, workspace_specific_settings
 from prefabs.customFluentIcon import CustomFluentIcon
 from prefabs.setting_cards.RangeSettingCardSQL import RangeSettingCardSQL
