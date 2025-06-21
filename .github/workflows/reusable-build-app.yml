@@ -146,7 +146,7 @@ jobs:
                     macos-app-name: 'Koncentro'
                     linux-icon: 'assets/logo.ico'
                     windows-icon-from-ico: 'assets/logo.ico'
-                    msvc: ${{ matrix.os == 'windows-latest' && 'latest' || '' }}
+                    clang: ${{ matrix.os == 'windows-latest' && 'on' || '' }}
                     windows-console-mode: 'disable'
                     output-file: 'koncentro'
                     macos-app-version: '${{ env.KONCENTRO_VERSION }}'
