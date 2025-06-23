@@ -92,7 +92,7 @@ jobs:
                     # install Inno Setup
                     choco install innosetup -y
                     echo "Inno Setup installed successfully."
-                    bash ./scripts/windows/create-installer.sh
+                    bash ./installer-scripts/windows/create-installer.sh
                     mv dist/setup.exe dist/Koncentro-${{ env.KONCENTRO_VERSION }}-Installer.exe
                 shell: bash
 
@@ -106,7 +106,7 @@ jobs:
                     brew install create-dmg
                     echo "create-dmg installed successfully."
                     
-                    bash ./scripts/macos/create-dmg.sh
+                    bash ./installer-scripts/macos/create-dmg.sh
                     
                     mv dist/Koncentro.dmg dist/Koncentro-${{ env.KONCENTRO_VERSION }}-macOS-${{ env.ARCHITECTURE }}.dmg
                 shell: bash
@@ -123,15 +123,15 @@ jobs:
                     ls -la artifacts/
                     
                     # Create Debian package
-                    chmod +x ./scripts/linux/debian/package-deb.sh
-                    ./scripts/linux/debian/package-deb.sh
+                    chmod +x ./installer-scripts/linux/debian/package-deb.sh
+                    ./installer-scripts/linux/debian/package-deb.sh
                     
                     # Create RPM packages for Fedora and openSUSE
-                    chmod +x ./scripts/linux/rpm/package-rpm.sh
+                    chmod +x ./installer-scripts/linux/rpm/package-rpm.sh
                     
-                    ./scripts/linux/rpm/package-rpm.sh fedora
+                    ./installer-scripts/linux/rpm/package-rpm.sh fedora
                     
-                    ./scripts/linux/rpm/package-rpm.sh opensuse
+                    ./installer-scripts/linux/rpm/package-rpm.sh opensuse
                 shell: bash
 
 

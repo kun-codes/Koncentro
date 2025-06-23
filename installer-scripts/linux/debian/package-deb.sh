@@ -82,7 +82,7 @@ echo "3. Copied application files"
 # 4. Create a desktop shortcut
 mkdir -p deb/usr/share/applications
 export KONCENTRO_AUTOSTART_ARGS=""
-< ../scripts/linux/common/koncentro.desktop envsubst > deb/usr/share/applications/org.koncentro.Koncentro.desktop
+< ../installer-scripts/linux/common/koncentro.desktop envsubst > deb/usr/share/applications/org.koncentro.Koncentro.desktop
 echo "4. Created a desktop shortcut"
 
 # 5. Create a relative symlink in /usr/bin
@@ -94,7 +94,7 @@ echo "5. Created a relative symlink in /usr/bin"
 
 # 6. Create metadata
 mkdir -p deb/DEBIAN
-< ../scripts/linux/debian/debian-control envsubst > deb/DEBIAN/control
+< ../installer-scripts/linux/debian/debian-control envsubst > deb/DEBIAN/control
 echo "6. Created metadata"
 cat deb/DEBIAN/control
 
