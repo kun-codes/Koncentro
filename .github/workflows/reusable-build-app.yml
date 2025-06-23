@@ -94,6 +94,12 @@ jobs:
                     pip list
                     poetry show
 
+            # Useful when the file watcher of PyCharm fails to update the version and isn't caught before pushing
+            -   name: Update current version of app (Backup method of updating version)
+                run: |
+                    chmod +x ./file-watchers/sync-version.py
+                    ./file-watchers/sync-version.py
+
             -   name: Download latest version of mitmproxy (Linux)
                 if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
                 run: |
