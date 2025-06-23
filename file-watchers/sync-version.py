@@ -31,3 +31,4 @@ def update_get_app_version(version):
 if __name__ == "__main__":
     version = get_version_from_pyproject()
     update_get_app_version(version)
+    print(f"Updated get_app_version.py to version {version}")
