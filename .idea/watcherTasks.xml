@@ -18,7 +18,7 @@
       <option name="runOnExternalChanges" value="true" />
       <option name="scopeName" value="Project Files" />
       <option name="trackOnlyRoot" value="false" />
-      <option name="workingDir" value="$PROJECT_DIR$/pomodoro-task-app" />
+      <option name="workingDir" value="$PROJECT_DIR$/src" />
       <envs />
     </TaskOptions>
     <TaskOptions isEnabled="true">
@@ -38,7 +38,7 @@
       <option name="runOnExternalChanges" value="true" />
       <option name="scopeName" value="Project Files" />
       <option name="trackOnlyRoot" value="false" />
-      <option name="workingDir" value="$PROJECT_DIR$/pomodoro-task-app" />
+      <option name="workingDir" value="$PROJECT_DIR$/src" />
       <envs />
     </TaskOptions>
   </component>
