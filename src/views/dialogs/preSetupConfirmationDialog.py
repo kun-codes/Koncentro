@@ -12,7 +12,9 @@ class PreSetupConfirmationDialog(MessageBoxBase):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.titleLabel = SubtitleLabel(f"Do you want to setup {APPLICATION_NAME} now?", parent=self)
-        self.bodyLabel = BodyLabel("During setup you would be temporarily disconnected from the internet.",
+        self.bodyLabel = BodyLabel(f"Before you start using the {APPLICATION_NAME}, you need to set up "
+                                   f"system-wide website filtering. During setup you would be temporarily "
+                                   f"disconnected from the internet.",
                                    parent=self)
         self.bodyLabel2 = BodyLabel("If you are ready, click 'Yes' to start the setup.", parent=self)
         self.bodyLabel3 = BodyLabel(f"If you are not ready, click 'No' to setup later."
@@ -32,13 +34,13 @@ class PreSetupConfirmationDialog(MessageBoxBase):
         self.titleLabel.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
         self.bodyLabel.setWordWrap(True)
-        self.bodyLabel.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.bodyLabel.setAlignment(Qt.AlignmentFlag.AlignJustify)
 
         self.bodyLabel2.setWordWrap(True)
-        self.bodyLabel2.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.bodyLabel2.setAlignment(Qt.AlignmentFlag.AlignJustify)
 
         self.bodyLabel3.setWordWrap(True)
-        self.bodyLabel3.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.bodyLabel3.setAlignment(Qt.AlignmentFlag.AlignJustify)
 
         self.__connectSignalsToSlots()
 

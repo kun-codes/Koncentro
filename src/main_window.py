@@ -777,7 +777,7 @@ class MainWindow(KoncentroFluentWindow):
 
         if not has_internet:
             logger.info("No internet connection detected")
-            contentText = f"Internet connection is reqired to set up {APPLICATION_NAME}"
+            contentText = f"Internet connection is required to set up {APPLICATION_NAME}"
             contentText += " for the first time.\n\n" if setup_first_time else "\n\n"
             contentText += f"{APPLICATION_NAME}'s website filtering needs internet to setup and verify it.\n"
             contentText += f"You can use {APPLICATION_NAME} without internet after setup." if setup_first_time else ""

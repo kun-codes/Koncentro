@@ -26,20 +26,18 @@ class SetupAppDialog(MessageBoxBase):
         titleText += " for the first time" if self.is_setup_first_time else ""
         self.titleLabel = SubtitleLabel(titleText, parent=self)
 
-        if self.is_setup_first_time:
-            bodyText = "Before you start using the app, you need to set up system-wide website filtering."
-            bodyText += " Click the below button to visit the webpage to set it up"
-        else:
-            bodyText = "Click the below button to visit the webpage to set up system-wide website filtering."
+        bodyText = "Click the below button to visit the webpage to set up system-wide website filtering. "
+
         self.bodyLabel = BodyLabel(
             bodyText,
             parent=self,
         )
 
         self.bodyLabel2 = BodyLabel(
-            "You would need to install mitmproxy's certificate to your system to enable " "website filtering",
+            "You would need to install mitmproxy's certificate to your system to enable website filtering",
             parent=self,
         )
+
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.bodyLabel)
         self.viewLayout.addWidget(self.bodyLabel2)
@@ -63,10 +61,10 @@ class SetupAppDialog(MessageBoxBase):
         self.titleLabel.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
         self.bodyLabel.setWordWrap(True)
-        self.bodyLabel.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.bodyLabel.setAlignment(Qt.AlignmentFlag.AlignJustify)
 
         self.bodyLabel2.setWordWrap(True)
-        self.bodyLabel2.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.bodyLabel2.setAlignment(Qt.AlignmentFlag.AlignJustify)
 
         # self.widget.setFixedSize(300, 500)
 
