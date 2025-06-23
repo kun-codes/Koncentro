@@ -11,6 +11,7 @@ jobs:
             matrix:
                 os: [ ubuntu-22.04, ubuntu-24.04-arm, windows-latest, macos-13, macos-latest ]  # using older x86
                 # ubuntu for compatibility with older linux distros
+                # not using ubuntu-22.04-arm64 as it is not supported by shiboken6 likely due to glibc compatibility
                 # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
                 python-version: [ 3.12 ]
                 include:
