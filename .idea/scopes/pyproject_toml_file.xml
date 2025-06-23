@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="pyproject.toml file" pattern="file:pyproject.toml" />
+</component>

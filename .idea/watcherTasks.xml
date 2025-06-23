@@ -41,5 +41,25 @@
       <option name="workingDir" value="$PROJECT_DIR$/src" />
       <envs />
     </TaskOptions>
+    <TaskOptions isEnabled="true">
+      <option name="arguments" value="" />
+      <option name="checkSyntaxErrors" value="true" />
+      <option name="description" />
+      <option name="exitCodeBehavior" value="ALWAYS" />
+      <option name="fileExtension" value="toml" />
+      <option name="immediateSync" value="true" />
+      <option name="name" value="app version sync" />
+      <option name="output" value="" />
+      <option name="outputFilters">
+        <array />
+      </option>
+      <option name="outputFromStdout" value="false" />
+      <option name="program" value="$PROJECT_DIR$/file-watchers/sync-version.py" />
+      <option name="runOnExternalChanges" value="true" />
+      <option name="scopeName" value="pyproject.toml file" />
+      <option name="trackOnlyRoot" value="false" />
+      <option name="workingDir" value="$PROJECT_DIR$" />
+      <envs />
+    </TaskOptions>
   </component>
 </project>
