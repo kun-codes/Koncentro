@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="insyncwithfoo.ryecharm.configurations.ruff.Local">
+    <option name="configurationFile" value="$PROJECT_DIR$/pyproject.toml" />
+    <option name="runningMode" value="LSP" />
+  </component>
+</project>
