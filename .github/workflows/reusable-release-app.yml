@@ -10,43 +10,43 @@ jobs:
         permissions:
             contents: write  # Required to create releases
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+            -   name: Checkout repository
+                uses: actions/checkout@v4
 
-            - name: Set up Python
-              uses: actions/setup-python@v5
-              with:
-                  python-version: '3.12'
+            -   name: Set up Python
+                uses: actions/setup-python@v5
+                with:
+                    python-version: '3.12'
 
-            - name: Get app version
-              run: |
-                  # Read version from pyproject.toml
-                  KONCENTRO_VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
-                  echo "KONCENTRO_VERSION=$KONCENTRO_VERSION" >> $GITHUB_ENV
-                  echo "Koncentro version: $KONCENTRO_VERSION"
+            -   name: Get app version
+                run: |
+                    # Read version from pyproject.toml
+                    KONCENTRO_VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+                    echo "KONCENTRO_VERSION=$KONCENTRO_VERSION" >> $GITHUB_ENV
+                    echo "Koncentro version: $KONCENTRO_VERSION"
 
-            - name: Download all artifacts
-              uses: actions/download-artifact@v4
-              with:
-                  pattern: Koncentro*
-                  path: release-artifacts
-                  merge-multiple: true
+            -   name: Download all artifacts
+                uses: actions/download-artifact@v4
+                with:
+                    pattern: Koncentro*
+                    path: release-artifacts
+                    merge-multiple: true
 
-            - name: List downloaded artifacts
-              run: |
-                  ls -la release-artifacts
-                  find release-artifacts -type f | sort
+            -   name: List downloaded artifacts
+                run: |
+                    ls -la release-artifacts
+                    find release-artifacts -type f | sort
 
-            - name: Create GitHub Release
-              env:
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: |
-                  # Create draft release with version tag
-                  RELEASE_NOTES="Koncentro v$KONCENTRO_VERSION release"
-                  gh release create "v$KONCENTRO_VERSION" --title "Koncentro v$KONCENTRO_VERSION" --notes "$RELEASE_NOTES" --draft --target "${{ github.ref }}"
-                  
-                  # Upload all artifacts to the release
-                  find release-artifacts -type f | while read file; do
-                    echo "Uploading $file to the release..."
-                    gh release upload "v$KONCENTRO_VERSION" "$file"
-                  done
+            -   name: Create GitHub Release
+                env:
+                    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    # Create draft release with version tag
+                    RELEASE_NOTES="Koncentro v$KONCENTRO_VERSION release"
+                    gh release create "v$KONCENTRO_VERSION" --title "Koncentro v$KONCENTRO_VERSION" --notes "$RELEASE_NOTES" --draft --target "${{ github.ref }}"
+                    
+                    # Upload all artifacts to the release
+                    find release-artifacts -type f | while read file; do
+                      echo "Uploading $file to the release..."
+                      gh release upload "v$KONCENTRO_VERSION" "$file"
+                    done
