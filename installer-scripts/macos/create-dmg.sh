@@ -29,7 +29,7 @@ mkdir -p ./dist
 
 create-dmg \
   --volname "Koncentro Installer" \
-  --volicon "./assets/logo.icns" \
+  --volicon "./assets/logo-mac.icns" \
   --window-pos 200 120 \
   --window-size 800 400 \
   --icon-size 100 \

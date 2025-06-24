@@ -149,7 +149,7 @@ jobs:
                     enable-plugins: 'pyside6'
                     product-name: 'Koncentro'
                     file-description: 'Koncentro'
-                    macos-app-icon: 'assets/logo.icns'
+                    macos-app-icon: 'assets/logo-mac.icns'
                     macos-app-name: 'Koncentro'
                     linux-icon: 'assets/logo.ico'
                     windows-icon-from-ico: 'assets/logo.ico'
