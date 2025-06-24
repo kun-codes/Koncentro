@@ -1,6 +1,7 @@
 name: Build and Release App
 
 on:
+    workflow_dispatch:
     push:
         branches:
             - main
@@ -23,9 +24,12 @@ jobs:
     create-installer:
         uses: ./.github/workflows/reusable-create-installer.yml
         needs: build
+        with:
+            should_sign: ${{ github.event_name != 'workflow_dispatch' }}
         secrets: inherit
 
     release:
+        if: github.event_name != 'workflow_dispatch'
         permissions:
             contents: write  # Required to create releases
         uses: ./.github/workflows/reusable-release-app.yml
