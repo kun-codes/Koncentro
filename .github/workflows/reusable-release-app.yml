@@ -52,7 +52,7 @@ jobs:
               run: |
                   # Create draft release with version tag
                   RELEASE_NOTES="Koncentro v$KONCENTRO_VERSION release"
-                  gh release create "v$KONCENTRO_VERSION" --title "Koncentro v$KONCENTRO_VERSION" --notes "$RELEASE_NOTES" --draft
+                  gh release create "v$KONCENTRO_VERSION" --title "Koncentro v$KONCENTRO_VERSION" --notes "$RELEASE_NOTES" --draft --target "${{ github.ref }}"
                   
                   # Upload all artifacts to the release
                   find release-artifacts -type f | while read file; do
