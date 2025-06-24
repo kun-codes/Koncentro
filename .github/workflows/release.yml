@@ -25,6 +25,8 @@ jobs:
         secrets: inherit
 
     release:
+        permissions:
+            contents: write  # Required to create releases
         uses: ./.github/workflows/reusable-release-app.yml
         needs: create-installer
         secrets: inherit
