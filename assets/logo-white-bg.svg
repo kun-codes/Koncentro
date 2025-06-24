@@ -16,7 +16,7 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
      id="namedview1"
-     pagecolor="#ffffff"
+     pagecolor="#000000"
      bordercolor="#ffffff"
      borderopacity="1"
      inkscape:showpageshadow="false"
@@ -24,9 +24,9 @@
      inkscape:pagecheckerboard="true"
      inkscape:deskcolor="#505050"
      inkscape:document-units="mm"
-     inkscape:zoom="0.5696905"
-     inkscape:cx="-184.3106"
-     inkscape:cy="297.52997"
+     inkscape:zoom="1.139381"
+     inkscape:cx="127.26208"
+     inkscape:cy="292.70279"
      inkscape:window-width="1920"
      inkscape:window-height="1008"
      inkscape:window-x="0"
@@ -571,7 +571,13 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     style="display:inline"><g
+     style="display:inline"><rect
+       style="fill:#ffffff;stroke-width:0.632354"
+       id="rect2"
+       width="135.46666"
+       height="135.46666"
+       x="3.5603841e-06"
+       y="3.5603841e-06" /><g
        id="g7"
        transform="matrix(0.97861242,0,0,0.97861242,0.75300046,4.9269142)"
        style="display:inline"><path
