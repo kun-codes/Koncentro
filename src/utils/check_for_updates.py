@@ -1,5 +1,5 @@
+import json
 import ssl
-import tomllib
 from http.client import HTTPSConnection
 from urllib.parse import urlparse
 
@@ -44,8 +44,15 @@ class UpdateChecker(QObject):
             # Create SSL context with certifi - works on all platforms
             context = ssl.create_default_context(cafile=certifi.where())
             conn = HTTPSConnection(parsed_url.netloc, context=context)
+
+            # Add User-Agent header to avoid GitHub API rate limiting issues
+            headers = {
+                "User-Agent": f"Koncentro/{current_app_version}",
+                "Accept": "application/json"
+            }
+
             try:
-                conn.request("GET", parsed_url.path)
+                conn.request("GET", parsed_url.path, headers=headers)
             except OSError as e:
                 if e.errno in [101, -3, 110, 111, 113]:  # Handle specific network-related errors
                     raise ConnectionError(f"Network error occurred: {e.strerror}")
@@ -56,8 +63,16 @@ class UpdateChecker(QObject):
             if response.status != 200:
                 raise Exception(f"HTTP error occurred: {response.status} {response.reason}")
 
-            remote_pyproject = tomllib.loads(response.read().decode("utf-8"))
-            remote_app_version = remote_pyproject["project"]["version"]
+            # Parse JSON response from GitHub API
+            github_data = json.loads(response.read().decode("utf-8"))
+
+            tag_name = github_data.get("tag_name", "")
+            if tag_name and tag_name.startswith("v"):
+                remote_app_version = tag_name[1:]  # Remove the 'v' prefix
+            else:
+                remote_app_version = tag_name
+
+            logger.debug(f"Remote version from GitHub: {remote_app_version}")
 
             # Convert versions to semver Version instances for proper comparison
             current_ver = Version.parse(current_app_version)

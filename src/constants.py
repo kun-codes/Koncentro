@@ -18,7 +18,7 @@ APPLICATION_UID = "org.koncentro.Koncentro"
 # for dotfile to detect if its the first time the app is run
 FIRST_RUN_DOTFILE_NAME = ".first_run"
 
-UPDATE_CHECK_URL = "https://raw.githubusercontent.com/kun-codes/koncentro/refs/heads/main/pyproject.toml"
+UPDATE_CHECK_URL = "https://api.github.com/repos/kun-codes/koncentro/releases/latest"
 NEW_RELEASE_URL = "https://github.com/kun-codes/koncentro/releases/latest"
 
 
@@ -80,4 +80,3 @@ class WindowGeometryKeys(Enum):
     """Keys used for storing window geometry information in QSettings"""
     GEOMETRY = "MainWindow/geometry"
     IS_MAXIMIZED = "MainWindow/isMaximized"
-
