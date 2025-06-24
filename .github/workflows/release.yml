@@ -2,9 +2,10 @@ name: Build and Release App
 
 on:
     push:
-#        tags:
-#            - 'v*.*.*'
-
+        branches:
+            - main
+        tags:
+            - 'v*.*.*'
 
 jobs:
     check-mitmproxy-version:
