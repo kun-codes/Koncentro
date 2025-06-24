@@ -32,6 +32,6 @@ echo "Made dist directory"
 mv artifacts/LICENSE artifacts/LICENSE.txt
 echo "Renamed license file"
 
-"ISCC.exe" scripts/windows/windows-installer.iss
+"ISCC.exe" installer-scripts/windows/windows-installer.iss
 echo "Created installer using Inno Setup"
 mv dist/mysetup.exe dist/setup.exe

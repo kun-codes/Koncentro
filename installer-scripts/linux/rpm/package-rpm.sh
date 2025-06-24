@@ -89,7 +89,7 @@ echo "4. Created a wrapper script in /usr/bin"
 # 5. Create a desktop shortcut
 mkdir -p rpm/usr/share/applications
 export KONCENTRO_AUTOSTART_ARGS=""
-< ../scripts/linux/common/koncentro.desktop envsubst > rpm/usr/share/applications/org.koncentro.Koncentro.desktop
+< ../installer-scripts/linux/common/koncentro.desktop envsubst > rpm/usr/share/applications/org.koncentro.Koncentro.desktop
 echo "5. Created a desktop shortcut"
 
 # 6. Build RPM file based on distribution
