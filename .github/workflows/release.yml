@@ -2,9 +2,10 @@ name: Build and Release App
 
 on:
     push:
-#        tags:
-#            - 'v*.*.*'
-
+        branches:
+            - main
+        tags:
+            - 'v*.*.*'
 
 jobs:
     check-mitmproxy-version:
@@ -19,7 +20,14 @@ jobs:
             mitmproxy-version: ${{ needs.check-mitmproxy-version.outputs.mitmproxy-version }}
         secrets: inherit
 
-    release:
+    create-installer:
         uses: ./.github/workflows/reusable-create-installer.yml
         needs: build
+        secrets: inherit
+
+    release:
+        permissions:
+            contents: write  # Required to create releases
+        uses: ./.github/workflows/reusable-release-app.yml
+        needs: create-installer
         secrets: inherit
