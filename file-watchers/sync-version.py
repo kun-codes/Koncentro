@@ -6,8 +6,8 @@ This script is automatically ran by PyCharm when the `pyproject.toml` file is mo
 """
 
 import re
-from pathlib import Path
 import tomllib
+from pathlib import Path
 
 PYPROJECT_PATH = Path(__file__).parent.parent / "pyproject.toml"
 GET_APP_VERSION_PATH = Path(__file__).parent.parent / "src" / "utils" / "get_app_version.py"
