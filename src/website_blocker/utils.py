@@ -52,10 +52,12 @@ def kill_process():
 
         for p in processes:
             try:
-                logger.debug(f"Trying to gracefully shutdown mitmdump with pid {p.pid} on Linux/MacOS "
+                logger.debug(f"Trying to send SIGINT signal to mitmdump with pid {p.pid} on Linux/MacOS "
                              f"inside kill_process().")
                 p.send_signal(signal.SIGINT)
             except psutil.AccessDenied:
-                logger.error(f"Access denied to kill process with pid {p.pid}.")
-                logger.debug(f"Trying to kill process with pid {p.pid}.")
+                logger.error(f"Access denied to kill process with pid {p.pid} with SIGINT.")
+                logger.debug(f"Trying to kill process with pid {p.pid} with SIGKILL.")
                 p.kill()
+            except psutil.NoSuchProcess:
+                logger.debug(f"Process with pid {p.pid} does not exist anymore.")
