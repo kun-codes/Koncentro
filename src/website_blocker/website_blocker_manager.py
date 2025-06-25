@@ -1,9 +1,12 @@
 import os
 import shutil
+import ssl
 import subprocess
 import sys
+import urllib.request
 from pathlib import Path
 
+import certifi
 from loguru import logger
 from PySide6.QtCore import QObject, QThread, Signal
 from uniproxy import Uniproxy
@@ -147,43 +150,27 @@ class WebsiteBlockerManager(QObject):
     def _shutdown_mitmdump(self):
         """Helper method to shutdown mitmdump in a worker thread"""
         try:
-            # detect if curl is installed
-            curl_path = shutil.which("curl")
-            # detect if wget is installed
-            wget_path = shutil.which("wget")
+            proxy_url = f"http://127.0.0.1:{ConfigValues.PROXY_PORT}"
+            proxy_handler = urllib.request.ProxyHandler({
+                'http': proxy_url,
+                'https': proxy_url
+            })
+            context = ssl.create_default_context(cafile=certifi.where())
+            https_handler = urllib.request.HTTPSHandler(context=context)
+            opener = urllib.request.build_opener(proxy_handler, https_handler)
 
-            null_device = "NUL" if os.name == "nt" else "/dev/null"
+            try:
+                with opener.open(MITMDUMP_SHUTDOWN_URL, timeout=5) as response:
+                    logger.debug(f"mitmdump shutdown URL response status: {getattr(response, 'status', 'unknown')}")
+            except urllib.error.URLError as e:
+                logger.debug(f"urllib URLError: {e}")
+                # Most likely mitmproxy/mitmdump isn't running if connection refused
+                if hasattr(e, 'reason') and isinstance(e.reason, ConnectionRefusedError):
+                    logger.debug("Most likely mitmproxy/mitmdump isn't running (connection refused).")
+            except Exception:
+                logger.exception("Unexpected error while shutting down mitmdump via urllib")
+                raise
 
-            if curl_path:
-                result = subprocess.run(
-                    [curl_path, "-s", "--proxy", f"127.0.0.1:{ConfigValues.PROXY_PORT}", MITMDUMP_SHUTDOWN_URL],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    timeout=5,  # Prevent hanging indefinitely
-                    creationflags=CREATE_NO_WINDOW
-                )
-                logger.debug(f"curl command return code: {result.returncode}")
-                if result.returncode == 7:
-                    logger.debug("curl return code 7: Most likely mitmproxy/mitmdump isn't running")
-            elif wget_path:
-                # https://askubuntu.com/a/586550
-                result = subprocess.run([
-                    wget_path,
-                    "-q",  # quiet mode
-                    "-O", null_device,  # discard output file
-                    "-e", "use_proxy=yes",
-                    "-e", f"http_proxy=http://127.0.0.1:{ConfigValues.PROXY_PORT}",
-                    MITMDUMP_SHUTDOWN_URL
-                ],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    timeout=5,
-                    creationflags=CREATE_NO_WINDOW)  # Prevent hanging indefinitely
-                logger.debug(f"wget command return code: {result.returncode}")
-                if result.returncode == 4:
-                    logger.debug("wget return code 4: Most likely mitmproxy/mitmdump isn't running")
-            else:
-                raise NoHTTPClientError("Neither curl nor wget found.")
             return True
         except Exception as e:
             logger.error(f"Graceful shutdown of mitmdump failed: {e}")
@@ -240,4 +227,3 @@ class WebsiteBlockerManager(QObject):
 
         # Clear the list
         self.workers.clear()
-
