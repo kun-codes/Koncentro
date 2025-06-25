@@ -12,12 +12,17 @@ from PySide6.QtCore import QObject, QThread, Signal
 from uniproxy import Uniproxy
 
 from config_values import ConfigValues
-from utils.noHTTPClientError import NoHTTPClientError
 from website_blocker.constants import MITMDUMP_SHUTDOWN_URL
 from website_blocker.utils import kill_process
+from utils.check_flatpak_sandbox import is_flatpak_sandbox
 
 # Windows-specific constant for hiding console windows
 CREATE_NO_WINDOW = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+
+class FlatpakContainerError(Exception):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
 
 class FilterWorker(QThread):
     """Worker thread for filtering operations"""
@@ -150,6 +155,10 @@ class WebsiteBlockerManager(QObject):
     def _shutdown_mitmdump(self):
         """Helper method to shutdown mitmdump in a worker thread"""
         try:
+            if is_flatpak_sandbox():
+                raise FlatpakContainerError("Cannot shutdown mitmdump in a Flatpak sandbox using URL method. Will use "
+                                            "SIGINT or SIGKILL instead.")
+
             proxy_url = f"http://127.0.0.1:{ConfigValues.PROXY_PORT}"
             proxy_handler = urllib.request.ProxyHandler({
                 'http': proxy_url,
@@ -167,11 +176,18 @@ class WebsiteBlockerManager(QObject):
                 # Most likely mitmproxy/mitmdump isn't running if connection refused
                 if hasattr(e, 'reason') and isinstance(e.reason, ConnectionRefusedError):
                     logger.debug("Most likely mitmproxy/mitmdump isn't running (connection refused).")
+            except FlatpakContainerError as e:
+                logger.debug(f"Flatpak sandbox detected: {e}")
+                raise
             except Exception:
                 logger.exception("Unexpected error while shutting down mitmdump via urllib")
                 raise
 
             return True
+        except FlatpakContainerError:
+            logger.debug("Flatpak sandbox detected, using SIGINT or SIGKILL instead for mitmdump.")
+            self._force_kill_process()
+            return False
         except Exception as e:
             logger.error(f"Graceful shutdown of mitmdump failed: {e}")
             # Fall back to force kill if graceful shutdown fails
