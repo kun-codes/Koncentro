@@ -201,7 +201,7 @@ class MainWindow(KoncentroFluentWindow):
                 Theme.DARK if dark_mode_condition else Theme.LIGHT
             )
         )
-        self.tray_menu_quit_action.triggered.connect(self.quitApplication)
+        self.tray_menu_quit_action.triggered.connect(self.close)
 
         self.tray.setContextMenu(self.tray_menu)
 
@@ -878,8 +878,9 @@ class MainWindow(KoncentroFluentWindow):
             self.updateDialog.show()
 
     def quitApplication(self):
+        logger.debug("Quitting application...")
         app_instance = QApplication.instance()
-        app_instance.quit()
+        app_instance.exit()
 
     def closeEvent(self, event):
         self.saveWindowGeometry()
@@ -903,9 +904,10 @@ class MainWindow(KoncentroFluentWindow):
             self.themeListener.terminate()
             self.themeListener.deleteLater()
             logger.debug("Cleanup tasks completed successfully.")
-            logger.debug("Quitting application...")
         except Exception as e:
             logger.error(f"Error during cleanup: {str(e)}")
+        finally:
+            self.quitApplication()
 
     def saveWindowGeometry(self):
         settings.setValue(WindowGeometryKeys.GEOMETRY.value, self.saveGeometry())
