@@ -142,14 +142,25 @@ jobs:
             -   name: Build Executable (Ubuntu 22.04 with Ubuntu 18.04 container)
                 if: matrix.os == 'ubuntu-22.04'
                 uses: docker://ubuntu:18.04
+                env:
+                    PYTHONIOENCODING: utf-8
+                    LC_ALL: C.UTF-8
+                    LANG: C.UTF-8
                 with:
                     args: |
                         bash -c "
-                        apt-get update && 
-                        apt-get install -y git wget curl build-essential python3 python3-pip python3-venv && 
-                        python3 -m pip install --upgrade pip && 
-                        python3 -m pip install poetry nuitka && 
-                        poetry install --no-cache --no-interaction --no-root && 
+                        set -e
+                        export PYTHONIOENCODING=utf-8
+                        export LC_ALL=C.UTF-8
+                        export LANG=C.UTF-8
+                        apt-get update
+                        apt-get install -y git wget curl build-essential python3 python3-pip python3-venv python3-dev
+                        python3 -m pip install --upgrade pip
+                        python3 -m pip install wheel setuptools
+                        python3 -m pip install poetry==1.4.2
+                        python3 -m pip install nuitka
+                        poetry config virtualenvs.create false
+                        poetry install --no-interaction --no-root
                         python3 -m nuitka --standalone --enable-plugin=pyside6 --product-name=Koncentro --file-description=Koncentro --linux-icon=assets/logo.ico --output-file=koncentro --include-module=logging.config --nofollow-import-to=sqlalchemy.dialects.oracle,sqlalchemy.dialects.mssql,sqlalchemy.dialects.mysql --include-data-files=./src/website_blocker/filter.py=./website_blocker/filter.py,./src/website_blocker/constants.py=./website_blocker/constants.py,./mitmdump=./mitmdump,./alembic.ini=./alembic.ini,./src/migrations/*.py=./src/migrations/,./src/migrations/versions/*.py=./src/migrations/versions/,./LICENSE=./LICENSE src/__main__.py
                         "
 
