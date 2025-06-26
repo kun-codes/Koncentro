@@ -11,10 +11,10 @@ class TargetClickTeachingTip(TeachingTip):
     def __init__(self, view, target, tailPosition=TeachingTipTailPosition.BOTTOM, parent=None, isDeleteOnClose=True):
         super().__init__(view, target, duration=-1, tailPosition=tailPosition,
                          parent=parent, isDeleteOnClose=isDeleteOnClose)
-        # Fix to ensure TargetClickTeachingTip is positioned correctly on wayland
-        # After this fix, TeachingTipTailPosition.RIGHT doesn't position correctly on wayland
-        # however TOP, BOTTOM and LEFT work fine
 
+        # Qt.ToolTip and Qt.FramelessWindowHint to fix to ensure TargetClickTeachingTip is positioned correctly on
+        # wayland after this fix, TeachingTipTailPosition.RIGHT doesn't position correctly on wayland
+        # however TOP, BOTTOM and LEFT work fine
         # Qt.Window.WindowTransparentForInput is used to ensure that the teaching tip does not block input events
         # at the corner of buttons because of overlap between its invisible border and the button on all platforms
         # the invisibile border is visible on flatpak wayland sessions
