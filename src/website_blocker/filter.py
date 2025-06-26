@@ -36,6 +36,12 @@ def request(flow):
     def strip_www(domain):
         return domain[4:] if domain.startswith("www.") else domain
 
+    # if reddit.com is in the addresses_str, it will match both www.reddit.com and reddit.com
+    # but won't match old.reddit.com or any other subdomains
+
+    # if old.reddit.com is in the addresses_str, it will match both old.reddit.com only and
+    # no other subdomains
+
     addresses = ctx.options.addresses_str.split(",")
     # Normalize addresses by stripping whitespace and leading www.
     addresses = {strip_www(address.strip()) for address in addresses if address.strip()}
