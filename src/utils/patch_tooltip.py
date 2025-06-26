@@ -3,6 +3,7 @@
 # Needed for wayland linux sessions only. Shows a box around the tooltip in macOS and Windows
 
 from loguru import logger
+from utils.check_flatpak_sandbox import is_flatpak_sandbox
 
 
 def apply_patches():
@@ -15,7 +16,10 @@ def apply_patches():
 
         def patched_init(self, text='', parent=None):
             original_init(self, text, parent)
-            self.setWindowFlags(Qt.ToolTip)
+            if is_flatpak_sandbox():
+                self.setWindowFlags(Qt.FramelessWindowHint)
+            else:
+                self.setWindowFlags(Qt.ToolTip)
             logger.debug("Tooltip window flags patched successfully!")
 
         # Replace the original __init__ with patched version
