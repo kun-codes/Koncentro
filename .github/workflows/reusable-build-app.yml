@@ -174,13 +174,21 @@ jobs:
                         ./src/migrations/versions/*.py=./src/migrations/versions/
                         ./LICENSE=./LICENSE
 
-            -   name: Patch glibc for backwards compatibility
+            -   name: Compile and use polyfill-glibc for backwards compatibility
                 if: matrix.os == 'ubuntu-22.04'
-                uses: lmangani/polyfill-glibc-action@main
-                id: polyfill
-                with:
-                    glibc: "2.28"
-                    target: "build/__main__.dist/koncentro"
+                run: |
+                    # Install ninja build system
+                    sudo apt-get update
+                    sudo apt-get install -y ninja-build
+                    # Clone and build polyfill-glibc in parent directory
+                    cd ..
+                    git clone https://github.com/corsix/polyfill-glibc.git
+                    cd polyfill-glibc
+                    ninja polyfill-glibc
+                    # Patch the binary for glibc 2.25 compatibility
+                    ./polyfill-glibc --target-glibc=2.25 ../Koncentro/build/__main__.dist/koncentro
+                    # Return to workspace
+                    cd ../Koncentro
 
             -   name: Install tree (MacOS)
                 if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
