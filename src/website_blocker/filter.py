@@ -5,6 +5,8 @@
 
 import os
 import sys
+import re
+import urllib.parse
 
 # append directory containing constants.py to path so that BLOCK_HTML_MESSAGE can be imported correctly
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -32,11 +34,18 @@ def request(flow):
         ctx.master.shutdown()
         return
 
+    def strip_www(domain):
+        return domain[4:] if domain.startswith("www.") else domain
+
     addresses = ctx.options.addresses_str.split(",")
-    addresses = set(addresses)
+    addresses = {strip_www(address.strip()) for address in addresses if address.strip()}
+    patterns = {re.compile(rf"^{re.escape(address)}$") for address in addresses}
 
-    addresses = {address for address in addresses if address}
+    parsed_url = urllib.parse.urlparse(flow.request.pretty_url)
+    url_domain = strip_www(parsed_url.netloc)
 
-    has_match = any(address in flow.request.pretty_url for address in addresses)
-    if ctx.options.block_type == "allowlist" and not has_match or ctx.options.block_type == "blocklist" and has_match:
+    # Only match if the domain matches exactly (no subdomain matching unless listed)
+    has_match = any(pattern.fullmatch(url_domain) for pattern in patterns)
+    if (ctx.options.block_type == "allowlist" and not has_match) or \
+       (ctx.options.block_type == "blocklist" and has_match):
         flow.response = http.Response.make(200, BLOCK_HTML_MESSAGE.encode(), {"Content-Type": "text/html"})
