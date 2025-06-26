@@ -14,7 +14,12 @@ class TargetClickTeachingTip(TeachingTip):
         # Fix to ensure TargetClickTeachingTip is positioned correctly on wayland
         # After this fix, TeachingTipTailPosition.RIGHT doesn't position correctly on wayland
         # however TOP, BOTTOM and LEFT work fine
-        self.setWindowFlags(Qt.ToolTip | Qt.FramelessWindowHint)
+
+        # Qt.Window.WindowTransparentForInput is used to ensure that the teaching tip does not block input events
+        # at the corner of buttons because of overlap between its invisible border and the button on all platforms
+        # the invisibile border is visible on flatpak wayland sessions
+        self.setWindowFlags(Qt.WindowType.WindowTransparentForInput | Qt.ToolTip | Qt.FramelessWindowHint)
+
 
         # installing event filter on target to detect clicks
         self.target.installEventFilter(self)
