@@ -139,7 +139,22 @@ jobs:
                     brew remove --force --ignore-dependencies openssl@3
                     brew cleanup openssl@3
 
-            -   name: Build Executable (All Platforms)
+            -   name: Build Executable (Ubuntu 22.04 with Ubuntu 18.04 container)
+                if: matrix.os == 'ubuntu-22.04'
+                uses: docker://ubuntu:18.04
+                with:
+                    args: |
+                        bash -c "
+                        apt-get update && 
+                        apt-get install -y git wget curl build-essential python3 python3-pip python3-venv && 
+                        python3 -m pip install --upgrade pip && 
+                        python3 -m pip install poetry nuitka && 
+                        poetry install --no-cache --no-interaction --no-root && 
+                        python3 -m nuitka --standalone --enable-plugin=pyside6 --product-name=Koncentro --file-description=Koncentro --linux-icon=assets/logo.ico --output-file=koncentro --include-module=logging.config --nofollow-import-to=sqlalchemy.dialects.oracle,sqlalchemy.dialects.mssql,sqlalchemy.dialects.mysql --include-data-files=./src/website_blocker/filter.py=./website_blocker/filter.py,./src/website_blocker/constants.py=./website_blocker/constants.py,./mitmdump=./mitmdump,./alembic.ini=./alembic.ini,./src/migrations/*.py=./src/migrations/,./src/migrations/versions/*.py=./src/migrations/versions/,./LICENSE=./LICENSE src/__main__.py
+                        "
+
+            -   name: Build Executable (Other Platforms)
+                if: matrix.os != 'ubuntu-22.04'
                 uses: Nuitka/Nuitka-Action@main
                 with:
                     nuitka-version: 'main'
@@ -173,22 +188,6 @@ jobs:
                         ./src/migrations/*.py=./src/migrations/
                         ./src/migrations/versions/*.py=./src/migrations/versions/
                         ./LICENSE=./LICENSE
-
-            -   name: Compile and use polyfill-glibc for backwards compatibility
-                if: matrix.os == 'ubuntu-22.04'
-                run: |
-                    # Install ninja build system
-                    sudo apt-get update
-                    sudo apt-get install -y ninja-build
-                    # Clone and build polyfill-glibc in parent directory
-                    cd ..
-                    git clone https://github.com/corsix/polyfill-glibc.git
-                    cd polyfill-glibc
-                    ninja polyfill-glibc
-                    # Patch the binary for glibc 2.25 compatibility
-                    ./polyfill-glibc --target-glibc=2.25 ../Koncentro/build/__main__.dist/koncentro
-                    # Return to workspace
-                    cd ../Koncentro
 
             -   name: Install tree (MacOS)
                 if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
