@@ -1,3 +1,5 @@
+import urllib.parse
+
 from loguru import logger
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget
@@ -135,6 +137,13 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
         # urls are now valid
         urls = set(urls)  # converting to set as self.model.update_target_list_urls() expects a set
         urls = {url.strip() for url in urls if url.strip()}  # removing empty strings and strings with only whitespaces
+
+        # remove https:// and http:// from urls
+        def strip_protocol(url: str) -> str:
+            parsed_url = urllib.parse.urlparse(url)
+            return parsed_url.netloc + parsed_url.path
+
+        urls = {strip_protocol(url) for url in urls}
 
         if current_website_filter_type == WebsiteFilterType.BLOCKLIST:
             self.model.update_target_list_urls(URLListType.BLOCKLIST, urls)

@@ -5,6 +5,7 @@
 
 import os
 import sys
+import urllib.parse
 
 # append directory containing constants.py to path so that BLOCK_HTML_MESSAGE can be imported correctly
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -32,11 +33,24 @@ def request(flow):
         ctx.master.shutdown()
         return
 
+    def strip_www(domain):
+        return domain[4:] if domain.startswith("www.") else domain
+
+    # if reddit.com is in the addresses_str, it will match both www.reddit.com and reddit.com
+    # but won't match old.reddit.com or any other subdomains
+
+    # if old.reddit.com is in the addresses_str, it will match both old.reddit.com only and
+    # no other subdomains
+
     addresses = ctx.options.addresses_str.split(",")
-    addresses = set(addresses)
+    # Normalize addresses by stripping whitespace and leading www.
+    addresses = {strip_www(address.strip()) for address in addresses if address.strip()}
 
-    addresses = {address for address in addresses if address}
+    parsed_url = urllib.parse.urlparse(flow.request.pretty_url)
+    url_domain = strip_www(parsed_url.netloc)
 
-    has_match = any(address in flow.request.pretty_url for address in addresses)
-    if ctx.options.block_type == "allowlist" and not has_match or ctx.options.block_type == "blocklist" and has_match:
+    # Use direct string matching for exact domain match
+    has_match = url_domain in addresses
+    if (ctx.options.block_type == "allowlist" and not has_match) or \
+       (ctx.options.block_type == "blocklist" and has_match):
         flow.response = http.Response.make(200, BLOCK_HTML_MESSAGE.encode(), {"Content-Type": "text/html"})
