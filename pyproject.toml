@@ -38,6 +38,7 @@ extend-exclude = [
     "src/ui",
     "src/ui_py",
     "src/resources",
+    "src/migrations",
 ]
 
 [tool.ruff.lint]
