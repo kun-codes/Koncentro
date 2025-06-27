@@ -5,12 +5,3 @@ repos:
     -   id: ruff-check
         args: [--fix]
     -   id: ruff-format
-
--   repo: local
-    hooks:
-    -   id: validate-git-tag
-        name: Validate Git tag matches pyproject.toml version
-        entry: python .git-hooks/validate-tag-version.py
-        language: python
-        pass_filenames: false
-        stages: [pre-push]
