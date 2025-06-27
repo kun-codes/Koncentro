@@ -2,7 +2,7 @@
 # github_url = "https://github.com/<user or organization>/<project>/"
 
 [version]
-current = "0.4.0"
+current = "0.5.0"
 
 regex = '''
   (?P<major>\d+)
