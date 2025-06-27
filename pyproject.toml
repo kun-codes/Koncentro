@@ -23,10 +23,10 @@ package-mode = false
 
 [tool.poetry.group.build.dependencies]
 nuitka = "^2.5.9"
-ruff = "^0.8.5"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^4.2.0"
+ruff = "^0.8.5"
 
 [build-system]
 requires = ["poetry-core"]
