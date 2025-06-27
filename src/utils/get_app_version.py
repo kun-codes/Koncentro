@@ -1,7 +1,5 @@
-# if edited, update regex in ../../file-watchers/sync-version.py
-
-# this file is automatically updated by the file watcher in PyCharm when pyproject.toml is modified
+__version__ = "0.4.0"
 
 
 def get_app_version():
-    return "0.4.0"
+    return __version__
