@@ -46,3 +46,8 @@ fixable = ["ALL"]
 
 [tool.ruff.lint.pyflakes]
 allowed-unused-imports = ["resources.logos_rc", "resources.resources_rc", "resources.fonts_rc"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "spaces"
+
