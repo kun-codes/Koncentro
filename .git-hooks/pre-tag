@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Extract the tag name from the command line arguments
+tag_name="$1"
+
+# Run our validation script
+python .git-hooks/validate-tag-version.py "$tag_name"
+exit $?
