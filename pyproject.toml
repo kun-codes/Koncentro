@@ -49,5 +49,5 @@ allowed-unused-imports = ["resources.logos_rc", "resources.resources_rc", "resou
 
 [tool.ruff.format]
 quote-style = "double"
-indent-style = "spaces"
+indent-style = "space"
 
