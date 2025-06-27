@@ -42,7 +42,7 @@ class TaskList(ListView):
         # Delete all buttons when there are no items in the model
         if self.model() and self.model().rowCount() == 0:
             delegate = self.itemDelegate()
-            if hasattr(delegate, 'deleteAllButtons'):
+            if hasattr(delegate, "deleteAllButtons"):
                 delegate.deleteAllButtons()
 
         super().paintEvent(event)
@@ -60,7 +60,7 @@ class TaskList(ListView):
             if isDarkTheme():
                 brush = QBrush(QColor(Qt.white))
             else:
-                brush =QBrush(QColor(Qt.black))
+                brush = QBrush(QColor(Qt.black))
 
             if rect.height() == 0:
                 # Draw a horizontal line for above/below positions

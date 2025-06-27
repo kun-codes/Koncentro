@@ -30,7 +30,7 @@ class WorkspaceManagerDialogTutorial(InterfaceTutorial):
             mainWindow=self.main_window,
             isClosable=False,
             duration=-1,
-            isDeleteOnClose=True
+            isDeleteOnClose=True,
         )
         self._show_website_manager_dialog_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._show_website_manager_dialog_step_tip)
@@ -39,4 +39,3 @@ class WorkspaceManagerDialogTutorial(InterfaceTutorial):
         app_settings.set(app_settings.has_completed_workspace_manager_dialog_tutorial, True)
         ConfigValues.HAS_COMPLETED_WORKSPACE_MANAGER_DIALOG_TUTORIAL = True
         self.main_window.isSafeToShowTutorial = True
-

@@ -28,6 +28,7 @@ def handle_signal(signal, frame):
     app_instance = QApplication.instance()
     app_instance.quit()
 
+
 # https://alembic.sqlalchemy.org/en/latest/cookbook.html#building-an-up-to-date-database-from-scratch
 def run_alembic_upgrade():
     if is_nuitka():
@@ -38,6 +39,7 @@ def run_alembic_upgrade():
     alembic_cfg = Config(alembic_ini_path)
     # alembic_cfg.set_main_option("script_location", str(Path(__file__).parent.parent / "migrations"))
     command.upgrade(alembic_cfg, "head")
+
 
 def substitute_fonts():
     # Windows already has Segoe UI, so no need to substitute fonts
@@ -55,8 +57,8 @@ def substitute_fonts():
             if id < 0:
                 logger.error(f"Failed to load font: {font}")
 
-        QFont.insertSubstitutions(
-            "Segoe UI", ["Selawik", "Selawik Light", "Selawik Semibold", "Selawik Semilight"])
+        QFont.insertSubstitutions("Segoe UI", ["Selawik", "Selawik Light", "Selawik Semibold", "Selawik Semilight"])
+
 
 def check_desktop_environment():
     desktop_env = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
@@ -68,7 +70,9 @@ def check_desktop_environment():
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Warning)
         msg.setText("Unsupported Desktop Environment")
-        msg.setInformativeText("This application is not supported on your current desktop environment. Please use GNOME or KDE.")
+        msg.setInformativeText(
+            "This application is not supported on your current desktop environment. Please use GNOME or KDE."
+        )
         msg.setWindowTitle("Unsupported Desktop Environment")
         msg.exec()
         sys.exit(1)  # Exit the application after showing the message

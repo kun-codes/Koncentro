@@ -40,7 +40,6 @@ def kill_process():
             logger.debug(f"Trying to kill process with pid {p.pid} on Windows.")
             p.kill()  # I couldn't find any way of stopping mitmdump gracefully on Windows
     else:
-
         processes = find_processes_by_name("mitmdump") + find_processes_by_name("mitmproxy")
         # list all processes with id and name
         for p in processes:
@@ -52,8 +51,9 @@ def kill_process():
 
         for p in processes:
             try:
-                logger.debug(f"Trying to send SIGINT signal to mitmdump with pid {p.pid} on Linux/MacOS "
-                             f"inside kill_process().")
+                logger.debug(
+                    f"Trying to send SIGINT signal to mitmdump with pid {p.pid} on Linux/MacOS inside kill_process()."
+                )
                 p.send_signal(signal.SIGINT)
             except psutil.AccessDenied:
                 logger.error(f"Access denied to kill process with pid {p.pid} with SIGINT.")

@@ -28,4 +28,3 @@ class InterfaceTutorial(QObject):
         logger.debug(f"Next step: {self.current_step}")
         self.current_step += 1
         self.start()
-

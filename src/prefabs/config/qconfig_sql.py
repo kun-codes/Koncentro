@@ -43,7 +43,7 @@ class QConfigSQL(QConfig):
         # deepcopy new value
         try:
             item.value = deepcopy(value) if copy else value
-        except:
+        except Exception:
             item.value = value
 
         if isinstance(item, ConfigItemSQL) and save:

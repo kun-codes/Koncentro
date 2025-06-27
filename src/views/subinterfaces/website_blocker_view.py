@@ -159,8 +159,9 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
 
         InfoBar.success(
             "URLs saved",
-            f"URLs for {"blocklist" if current_website_filter_type == WebsiteFilterType.BLOCKLIST \
-                else "allowlist"} has been saved successfully.",
+            f"URLs for {
+                'blocklist' if current_website_filter_type == WebsiteFilterType.BLOCKLIST else 'allowlist'
+            } has been saved successfully.",
             orient=Qt.Orientation.Vertical,
             isClosable=True,
             position=InfoBarPosition.TOP_RIGHT,

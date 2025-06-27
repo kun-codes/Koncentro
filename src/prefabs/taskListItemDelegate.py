@@ -53,9 +53,7 @@ class TaskListItemDelegate(ListItemDelegate):
         button.setFixedSize(self.button_size, self.button_size)
         if self.parent().objectName() == "todoTasksList":
             button.setToolTip("Pause/Resume")
-            button.installEventFilter(
-                ToolTipFilter(button, showDelay=300, position=ToolTipPosition.BOTTOM)
-            )
+            button.installEventFilter(ToolTipFilter(button, showDelay=300, position=ToolTipPosition.BOTTOM))
 
         button.clicked.connect(lambda checked, tid=task_id: self.onButtonClicked(checked, tid))
 
@@ -79,7 +77,7 @@ class TaskListItemDelegate(ListItemDelegate):
 
     def onButtonClicked(self, checked, task_id):
         """Handle button clicks using task_id"""
-        if self.parent().objectName() == 'completedTasksList':
+        if self.parent().objectName() == "completedTasksList":
             return
 
         model = self.parent().model()
@@ -126,7 +124,7 @@ class TaskListItemDelegate(ListItemDelegate):
                 model.setData(idx, FluentIcon.PLAY, TaskListModel.IconRole, update_db=False)
                 self.buttons[tid].setIcon(FluentIcon.PLAY)
 
-        if self.parent().objectName() == 'todoTasksList':
+        if self.parent().objectName() == "todoTasksList":
             model.setCurrentTaskID(task_id)
             self.parent().viewport().update()
 
@@ -281,4 +279,3 @@ class TaskListItemDelegate(ListItemDelegate):
             model.setData(index, text, Qt.ItemDataRole.DisplayRole)
         # else:
         #     model.setData(index, "", Qt.ItemDataRole.DisplayRole)
-

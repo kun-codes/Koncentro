@@ -78,5 +78,6 @@ class NavPanelButtonPosition(Enum):
 
 class WindowGeometryKeys(Enum):
     """Keys used for storing window geometry information in QSettings"""
+
     GEOMETRY = "MainWindow/geometry"
     IS_MAXIMIZED = "MainWindow/isMaximized"

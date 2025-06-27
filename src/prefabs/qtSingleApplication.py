@@ -5,11 +5,9 @@ from PySide6.QtWidgets import QApplication
 
 # from: https://stackoverflow.com/a/79574637
 class QtSingleApplication(QApplication):
-
     messageReceived = Signal()
 
     def __init__(self, uid, *argv):
-
         super(QtSingleApplication, self).__init__(*argv)
         self._uid = uid
         self._activationWindow = None
@@ -50,9 +48,7 @@ class QtSingleApplication(QApplication):
     def activateWindow(self):
         if not self._activationWindow:
             return
-        self._activationWindow.setWindowState(
-            self._activationWindow.windowState() & ~Qt.WindowState.WindowMinimized
-        )
+        self._activationWindow.setWindowState(self._activationWindow.windowState() & ~Qt.WindowState.WindowMinimized)
         self._activationWindow.raise_()
         self._activationWindow.activateWindow()
 

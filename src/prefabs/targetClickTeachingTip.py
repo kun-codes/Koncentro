@@ -9,8 +9,9 @@ class TargetClickTeachingTip(TeachingTip):
     """Teaching tip that only closes when the target widget is clicked."""
 
     def __init__(self, view, target, tailPosition=TeachingTipTailPosition.BOTTOM, parent=None, isDeleteOnClose=True):
-        super().__init__(view, target, duration=-1, tailPosition=tailPosition,
-                         parent=parent, isDeleteOnClose=isDeleteOnClose)
+        super().__init__(
+            view, target, duration=-1, tailPosition=tailPosition, parent=parent, isDeleteOnClose=isDeleteOnClose
+        )
 
         # Qt.ToolTip and Qt.FramelessWindowHint to fix to ensure TargetClickTeachingTip is positioned correctly on
         # wayland after this fix, TeachingTipTailPosition.RIGHT doesn't position correctly on wayland
@@ -19,7 +20,6 @@ class TargetClickTeachingTip(TeachingTip):
         # at the corner of buttons because of overlap between its invisible border and the button on all platforms
         # the invisibile border is visible on flatpak wayland sessions
         self.setWindowFlags(Qt.WindowType.WindowTransparentForInput | Qt.ToolTip | Qt.FramelessWindowHint)
-
 
         # installing event filter on target to detect clicks
         self.target.installEventFilter(self)
@@ -62,8 +62,19 @@ class TargetClickTeachingTip(TeachingTip):
         return super().eventFilter(obj, event)
 
     @classmethod
-    def create(cls, target, title, content, mainWindow, interface_type: InterfaceType, icon=None, image=None,
-               tailPosition=TeachingTipTailPosition.BOTTOM, parent=None, customSignalToDestroy: Signal = None):
+    def create(
+        cls,
+        target,
+        title,
+        content,
+        mainWindow,
+        interface_type: InterfaceType,
+        icon=None,
+        image=None,
+        tailPosition=TeachingTipTailPosition.BOTTOM,
+        parent=None,
+        customSignalToDestroy: Signal = None,
+    ):
         """Create a teaching tip that only closes when the target is clicked."""
         view = TeachingTipView(title, content, icon, image, False, tailPosition)
         tip = cls(view, target, tailPosition, parent, True)
@@ -87,7 +98,7 @@ class TargetClickTeachingTip(TeachingTip):
         logger.debug(f"Temporary hide {self.__class__.__name__}")
         # only animate if visible
         if self.isVisible():
-            self.hideAni = QPropertyAnimation(self, b'windowOpacity', self)
+            self.hideAni = QPropertyAnimation(self, b"windowOpacity", self)
             duration = 84
             self.hideAni.setDuration(duration)
             self.hideAni.setStartValue(1)
@@ -104,7 +115,7 @@ class TargetClickTeachingTip(TeachingTip):
             self.setWindowOpacity(0)
             self.show()
             # create a new opacity animation
-            self.showAni = QPropertyAnimation(self, b'windowOpacity', self)
+            self.showAni = QPropertyAnimation(self, b"windowOpacity", self)
             duration = 84
             self.showAni.setDuration(duration)
             self.showAni.setStartValue(0)

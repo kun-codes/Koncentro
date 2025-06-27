@@ -9,16 +9,20 @@ class PreSetupConfirmationDialog(MessageBoxBase):
     """
     Only called when the app is run for the first time.
     """
+
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.titleLabel = SubtitleLabel(f"Do you want to setup {APPLICATION_NAME} now?", parent=self)
-        self.bodyLabel = BodyLabel(f"Before you start using the {APPLICATION_NAME}, you need to set up "
-                                   f"system-wide website filtering. During setup you would be temporarily "
-                                   f"disconnected from the internet.",
-                                   parent=self)
+        self.bodyLabel = BodyLabel(
+            f"Before you start using the {APPLICATION_NAME}, you need to set up "
+            f"system-wide website filtering. During setup you would be temporarily "
+            f"disconnected from the internet.",
+            parent=self,
+        )
         self.bodyLabel2 = BodyLabel("If you are ready, click 'Yes' to start the setup.", parent=self)
-        self.bodyLabel3 = BodyLabel(f"If you are not ready, click 'No' to setup later."
-                                    f" {APPLICATION_NAME} will close immediately", parent=self)
+        self.bodyLabel3 = BodyLabel(
+            f"If you are not ready, click 'No' to setup later. {APPLICATION_NAME} will close immediately", parent=self
+        )
 
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.bodyLabel)
