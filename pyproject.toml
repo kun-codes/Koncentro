@@ -25,6 +25,9 @@ package-mode = false
 nuitka = "^2.5.9"
 ruff = "^0.8.5"
 
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^4.2.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
