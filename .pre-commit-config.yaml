@@ -1,0 +1,14 @@
+repos:
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.1
+    hooks:
+    -   id: ruff-format
+
+-   repo: local
+    hooks:
+    -   id: validate-git-tag
+        name: Validate Git tag matches pyproject.toml version
+        entry: python .git-hooks/validate-tag-version.py
+        language: python
+        pass_filenames: false
+        stages: [pre-push]
