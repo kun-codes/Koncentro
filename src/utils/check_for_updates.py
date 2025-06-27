@@ -14,6 +14,7 @@ from utils.get_app_version import get_app_version
 
 class UpdateChecker(QObject):
     """A thread-based update checker that doesn't block the GUI."""
+
     updateCheckComplete = Signal(UpdateCheckResult)
 
     def __init__(self):
@@ -46,10 +47,7 @@ class UpdateChecker(QObject):
             conn = HTTPSConnection(parsed_url.netloc, context=context)
 
             # Add User-Agent header to avoid GitHub API rate limiting issues
-            headers = {
-                "User-Agent": f"Koncentro/{current_app_version}",
-                "Accept": "application/json"
-            }
+            headers = {"User-Agent": f"Koncentro/{current_app_version}", "Accept": "application/json"}
 
             try:
                 conn.request("GET", parsed_url.path, headers=headers)

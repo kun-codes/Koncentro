@@ -6,15 +6,22 @@ from constants import InterfaceType
 
 
 class TransientPopupTeachingTip(PopupTeachingTip):
-    def __init__(self, view, target, duration=1000,
-                 tailPosition=TeachingTipTailPosition.BOTTOM, parent=None, isDeleteOnClose=True):
+    def __init__(
+        self,
+        view,
+        target,
+        duration=1000,
+        tailPosition=TeachingTipTailPosition.BOTTOM,
+        parent=None,
+        isDeleteOnClose=True,
+    ):
         super().__init__(view, target, duration, tailPosition, parent, isDeleteOnClose)
 
         self.mainWindow: FluentWindow = None
         self.interface_type: InterfaceType = None
 
     def connectSignalsToSlots(self):
-        if self.mainWindow and hasattr(self.mainWindow, 'stackedWidget'):
+        if self.mainWindow and hasattr(self.mainWindow, "stackedWidget"):
             self.mainWindow.stackedWidget.currentChanged.connect(self.onTabChanged)
             logger.debug(f"Connected stackedWidget.currentChanged in {self.__class__.__name__}")
 
@@ -33,7 +40,7 @@ class TransientPopupTeachingTip(PopupTeachingTip):
     def temporaryHide(self):
         """Hide the teaching tip with fade animation without closing it"""
         if self.isVisible():
-            self.hideAni = QPropertyAnimation(self, b'windowOpacity', self)
+            self.hideAni = QPropertyAnimation(self, b"windowOpacity", self)
             self.hideAni.setDuration(84)
             self.hideAni.setStartValue(1)
             self.hideAni.setEndValue(0)
@@ -45,7 +52,7 @@ class TransientPopupTeachingTip(PopupTeachingTip):
         if not self.isVisible():
             self.setWindowOpacity(0)
             self.show()
-            self.showAni = QPropertyAnimation(self, b'windowOpacity', self)
+            self.showAni = QPropertyAnimation(self, b"windowOpacity", self)
             self.showAni.setDuration(84)
             self.showAni.setStartValue(0)
             self.showAni.setEndValue(1)
@@ -53,9 +60,21 @@ class TransientPopupTeachingTip(PopupTeachingTip):
             self.move(self.manager.position(self))
 
     @classmethod
-    def create(cls, target, title, content, mainWindow, interface_type: InterfaceType, icon=None, image=None,
-               isClosable=True, duration=1000, tailPosition=TeachingTipTailPosition.BOTTOM,
-               parent=None, isDeleteOnClose=True):
+    def create(
+        cls,
+        target,
+        title,
+        content,
+        mainWindow,
+        interface_type: InterfaceType,
+        icon=None,
+        image=None,
+        isClosable=True,
+        duration=1000,
+        tailPosition=TeachingTipTailPosition.BOTTOM,
+        parent=None,
+        isDeleteOnClose=True,
+    ):
         """Create a temporary popup teaching tip."""
         view = TeachingTipView(title, content, icon, image, isClosable, tailPosition)
         tip = cls(view, target, duration, tailPosition, parent, isDeleteOnClose)

@@ -33,8 +33,8 @@ class WebsiteFilterInterfaceTutorial(InterfaceTutorial):
         self._select_website_filter_type_step_tip = TransientPopupTeachingTip.create(
             target=self.main_window.website_filter_interface.blockTypeComboBox,
             title="You can select the type of website filter",
-            content="\"Blocklist\" will block the websites you add to the list\n"
-                    "\"Allowlist\" will only allow the websites you add to the list and block all others",
+            content='"Blocklist" will block the websites you add to the list\n'
+            '"Allowlist" will only allow the websites you add to the list and block all others',
             mainWindow=self.main_window,
             interface_type=InterfaceType.TASK_INTERFACE,
             tailPosition=TeachingTipTailPosition.TOP,
@@ -42,23 +42,22 @@ class WebsiteFilterInterfaceTutorial(InterfaceTutorial):
             parent=self.main_window,
             isClosable=False,
             duration=-1,
-            isDeleteOnClose=True
+            isDeleteOnClose=True,
         )
         self._select_website_filter_type_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._select_website_filter_type_step_tip)
 
     def _enter_websites_step(self):
-
         current_website_filter_type: WebsiteFilterType = (
             self.main_window.website_filter_interface.model.get_website_filter_type()
         )
-        active_code_editor = self.main_window.website_filter_interface.blockListTextEdit if \
-            current_website_filter_type == WebsiteFilterType.BLOCKLIST else \
-            self.main_window.website_filter_interface.allowListTextEdit
+        active_code_editor = (
+            self.main_window.website_filter_interface.blockListTextEdit
+            if current_website_filter_type == WebsiteFilterType.BLOCKLIST
+            else self.main_window.website_filter_interface.allowListTextEdit
+        )
 
-        action = "block" if \
-            current_website_filter_type == WebsiteFilterType.BLOCKLIST else \
-            "allow"
+        action = "block" if current_website_filter_type == WebsiteFilterType.BLOCKLIST else "allow"
         self._enter_website_filters_tip = TransientPopupTeachingTip.create(
             target=active_code_editor,
             title=f"You can enter websites to {action} here",
@@ -70,7 +69,7 @@ class WebsiteFilterInterfaceTutorial(InterfaceTutorial):
             parent=self.main_window,
             isClosable=False,
             duration=-1,
-            isDeleteOnClose=True
+            isDeleteOnClose=True,
         )
         self._enter_website_filters_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._enter_website_filters_tip)
@@ -87,7 +86,7 @@ class WebsiteFilterInterfaceTutorial(InterfaceTutorial):
             parent=self.main_window,
             isClosable=False,
             duration=-1,
-            isDeleteOnClose=True
+            isDeleteOnClose=True,
         )
         self._save_websites_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._save_websites_step_tip)

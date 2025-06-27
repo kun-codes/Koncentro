@@ -1,5 +1,4 @@
 import os
-import shutil
 import ssl
 import subprocess
 import sys
@@ -12,20 +11,23 @@ from PySide6.QtCore import QObject, QThread, Signal
 from uniproxy import Uniproxy
 
 from config_values import ConfigValues
+from utils.check_flatpak_sandbox import is_flatpak_sandbox
 from website_blocker.constants import MITMDUMP_SHUTDOWN_URL
 from website_blocker.utils import kill_process
-from utils.check_flatpak_sandbox import is_flatpak_sandbox
 
 # Windows-specific constant for hiding console windows
 CREATE_NO_WINDOW = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+
 
 class FlatpakContainerError(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
 
+
 class FilterWorker(QThread):
     """Worker thread for filtering operations"""
+
     operationCompleted = Signal(bool, str)  # Success flag, message
 
     def __init__(self, operation, *args, **kwargs):
@@ -87,7 +89,7 @@ class WebsiteBlockerManager(QObject):
             "listening_port": listening_port,
             "joined_addresses": joined_addresses,
             "block_type": block_type,
-            "mitmdump_bin_path": mitmdump_bin_path
+            "mitmdump_bin_path": mitmdump_bin_path,
         }
 
         # Not connecting in __init__ because sometimes we want to stop mitmdump without starting it afterwards
@@ -102,13 +104,20 @@ class WebsiteBlockerManager(QObject):
     def _start_mitmdump(self, listening_port, joined_addresses, block_type, mitmdump_bin_path):
         """Helper method to start mitmdump in a worker thread"""
         if os.name == "nt":
-            args = [mitmdump_bin_path,
-                    "--set", "allow_remote=true",
-                    "-p", str(listening_port),
-                    "--showhost",
-                    "-s", os.path.join(getattr(sys, "_MEIPASS", Path(__file__).parent), "filter.py"),
-                    "--set", f"addresses_str={joined_addresses}",
-                    "--set", f"block_type={block_type}"]
+            args = [
+                mitmdump_bin_path,
+                "--set",
+                "allow_remote=true",
+                "-p",
+                str(listening_port),
+                "--showhost",
+                "-s",
+                os.path.join(getattr(sys, "_MEIPASS", Path(__file__).parent), "filter.py"),
+                "--set",
+                f"addresses_str={joined_addresses}",
+                "--set",
+                f"block_type={block_type}",
+            ]
             # using _MEIPASS to make it compatible with pyinstaller
             # the os.path.join returns the location of filter.py
 
@@ -116,13 +125,20 @@ class WebsiteBlockerManager(QObject):
 
             subprocess.Popen(args, creationflags=CREATE_NO_WINDOW)
         else:
-            args = [mitmdump_bin_path,
-                    "--set", "allow_remote=true",
-                    "-p", str(listening_port),
-                    "--showhost",
-                    "-s", os.path.join(getattr(sys, "_MEIPASS", Path(__file__).parent), "filter.py"),
-                    "--set", f"addresses_str={joined_addresses}",
-                    "--set", f"block_type={block_type}"]
+            args = [
+                mitmdump_bin_path,
+                "--set",
+                "allow_remote=true",
+                "-p",
+                str(listening_port),
+                "--showhost",
+                "-s",
+                os.path.join(getattr(sys, "_MEIPASS", Path(__file__).parent), "filter.py"),
+                "--set",
+                f"addresses_str={joined_addresses}",
+                "--set",
+                f"block_type={block_type}",
+            ]
             # using _MEIPASS to make it compatible with pyinstaller
             # the os.path.join returns the location of filter.py
 
@@ -156,14 +172,13 @@ class WebsiteBlockerManager(QObject):
         """Helper method to shutdown mitmdump in a worker thread"""
         try:
             if is_flatpak_sandbox():
-                raise FlatpakContainerError("Cannot shutdown mitmdump in a Flatpak sandbox using URL method. Will use "
-                                            "SIGINT or SIGKILL instead.")
+                raise FlatpakContainerError(
+                    "Cannot shutdown mitmdump in a Flatpak sandbox using URL method. Will use "
+                    "SIGINT or SIGKILL instead."
+                )
 
             proxy_url = f"http://127.0.0.1:{ConfigValues.PROXY_PORT}"
-            proxy_handler = urllib.request.ProxyHandler({
-                'http': proxy_url,
-                'https': proxy_url
-            })
+            proxy_handler = urllib.request.ProxyHandler({"http": proxy_url, "https": proxy_url})
             context = ssl.create_default_context(cafile=certifi.where())
             https_handler = urllib.request.HTTPSHandler(context=context)
             opener = urllib.request.build_opener(proxy_handler, https_handler)
@@ -174,7 +189,7 @@ class WebsiteBlockerManager(QObject):
             except urllib.error.URLError as e:
                 logger.debug(f"urllib URLError: {e}")
                 # Most likely mitmproxy/mitmdump isn't running if connection refused
-                if hasattr(e, 'reason') and isinstance(e.reason, ConnectionRefusedError):
+                if hasattr(e, "reason") and isinstance(e.reason, ConnectionRefusedError):
                     logger.debug("Most likely mitmproxy/mitmdump isn't running (connection refused).")
             except FlatpakContainerError as e:
                 logger.debug(f"Flatpak sandbox detected: {e}")
@@ -220,7 +235,7 @@ class WebsiteBlockerManager(QObject):
                 self.pending_start_params["listening_port"],
                 self.pending_start_params["joined_addresses"],
                 self.pending_start_params["block_type"],
-                self.pending_start_params["mitmdump_bin_path"]
+                self.pending_start_params["mitmdump_bin_path"],
             )
             worker.operationCompleted.connect(self._on_start_completed)
             self.workers.append(worker)

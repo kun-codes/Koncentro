@@ -117,7 +117,6 @@ class MainWindow(KoncentroFluentWindow):
             if ConfigValues.CHECK_FOR_UPDATES_ON_START:
                 self.handleUpdates()
 
-
         self.remainingFontSubstitutions()
 
     def initNavigation(self):
@@ -165,31 +164,23 @@ class MainWindow(KoncentroFluentWindow):
         # context menu of Windows 10 system tray icon is always in light mode for qt apps.
         self.tray_menu_start_action = self.tray_menu.addAction("Start")
         dark_mode_condition: bool = is_os_dark_mode and not isWin10OrEarlier()
-        self.tray_menu_start_action.setIcon(
-            FluentIcon.PLAY.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT)
-        )
+        self.tray_menu_start_action.setIcon(FluentIcon.PLAY.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT))
         self.tray_menu_start_action.triggered.connect(lambda: self.pomodoro_interface.pauseResumeButton.click())
 
         self.tray_menu_pause_resume_action = self.tray_menu.addAction("Pause/Resume")
         self.tray_menu_pause_resume_action.setIcon(
-            CustomFluentIcon.PLAY_PAUSE.icon(
-                Theme.DARK if dark_mode_condition else Theme.LIGHT
-            )
+            CustomFluentIcon.PLAY_PAUSE.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT)
         )
         self.tray_menu_pause_resume_action.triggered.connect(lambda: self.pomodoro_interface.pauseResumeButton.click())
         self.tray_menu_pause_resume_action.setEnabled(False)
 
         self.tray_menu_stop_action = self.tray_menu.addAction("Stop")
-        self.tray_menu_stop_action.setIcon(
-            FluentIcon.CLOSE.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT)
-        )
+        self.tray_menu_stop_action.setIcon(FluentIcon.CLOSE.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT))
         self.tray_menu_stop_action.triggered.connect(lambda: self.pomodoro_interface.stopButton.click())
 
         self.tray_menu_skip_action = self.tray_menu.addAction("Skip")
         self.tray_menu_skip_action.setIcon(
-            FluentIcon.CHEVRON_RIGHT.icon(
-                Theme.DARK if dark_mode_condition else Theme.LIGHT
-            )
+            FluentIcon.CHEVRON_RIGHT.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT)
         )
         self.tray_menu_skip_action.triggered.connect(lambda: self.pomodoro_interface.skipButton.click())
 
@@ -197,9 +188,7 @@ class MainWindow(KoncentroFluentWindow):
 
         self.tray_menu_quit_action = self.tray_menu.addAction("Quit")
         self.tray_menu_quit_action.setIcon(
-            CustomFluentIcon.EXIT.icon(
-                Theme.DARK if dark_mode_condition else Theme.LIGHT
-            )
+            CustomFluentIcon.EXIT.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT)
         )
         self.tray_menu_quit_action.triggered.connect(self.close)
 
@@ -543,12 +532,12 @@ class MainWindow(KoncentroFluentWindow):
         self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(
             lambda timerState: self.task_interface.autoSetCurrentTaskID() if timerState == TimerState.WORK else None
         )
-        self.pomodoro_interface.pauseResumeButton.clicked.connect(lambda: self.spawnTaskStartedInfoBar(
-            self.pomodoro_interface.pauseResumeButton
-        ))
-        self.bottomBar.pauseResumeButton.clicked.connect(lambda: self.spawnTaskStartedInfoBar(
-            self.bottomBar.pauseResumeButton
-        ))
+        self.pomodoro_interface.pauseResumeButton.clicked.connect(
+            lambda: self.spawnTaskStartedInfoBar(self.pomodoro_interface.pauseResumeButton)
+        )
+        self.bottomBar.pauseResumeButton.clicked.connect(
+            lambda: self.spawnTaskStartedInfoBar(self.bottomBar.pauseResumeButton)
+        )
         self.pomodoro_interface.pomodoro_timer_obj.pomodoro_timer.timeout.connect(self.updateTaskTime)
         self.task_interface.completedTasksList.model().taskMovedSignal.connect(self.check_current_task_moved)
         self.pomodoro_interface.pomodoro_timer_obj.sessionStoppedSignal.connect(self.updateTaskTimeDB)
@@ -595,24 +584,15 @@ class MainWindow(KoncentroFluentWindow):
         # for mica effect
         self.settings_interface.micaEnableChanged.connect(self.setMicaEffectEnabled)
 
-        self.pomodoro_interface.pomodoro_timer_obj.sessionPausedSignal.connect(
-            self.setPauseResumeButtonsToPlayIcon
-        )
-        self.pomodoro_interface.pomodoro_timer_obj.sessionStoppedSignal.connect(
-            self.setPauseResumeButtonsToPlayIcon
-        )
-        self.pomodoro_interface.pomodoro_timer_obj.sessionStartedSignal.connect(
-            self.setPauseResumeButtonsToPauseIcon
-        )
-        self.pomodoro_interface.pomodoro_timer_obj.waitForUserInputSignal.connect(
-            self.setPauseResumeButtonsToPauseIcon
-        )
-        self.pomodoro_interface.pomodoro_timer_obj.durationSkippedSignal.connect(
-            self.setPauseResumeButtonsToPauseIcon
-        )
+        self.pomodoro_interface.pomodoro_timer_obj.sessionPausedSignal.connect(self.setPauseResumeButtonsToPlayIcon)
+        self.pomodoro_interface.pomodoro_timer_obj.sessionStoppedSignal.connect(self.setPauseResumeButtonsToPlayIcon)
+        self.pomodoro_interface.pomodoro_timer_obj.sessionStartedSignal.connect(self.setPauseResumeButtonsToPauseIcon)
+        self.pomodoro_interface.pomodoro_timer_obj.waitForUserInputSignal.connect(self.setPauseResumeButtonsToPauseIcon)
+        self.pomodoro_interface.pomodoro_timer_obj.durationSkippedSignal.connect(self.setPauseResumeButtonsToPauseIcon)
         self.task_interface.todoTasksList.itemDelegate().pauseResumeButtonClicked.connect(
-            lambda task_id, checked:
-            self.setPauseResumeButtonsToPauseIcon(True) if checked else self.setPauseResumeButtonsToPlayIcon(True)
+            lambda task_id, checked: self.setPauseResumeButtonsToPauseIcon(True)
+            if checked
+            else self.setPauseResumeButtonsToPlayIcon(True)
         )
 
         self.settings_interface.setup_app_card.clicked.connect(lambda: self.preSetupMitmproxy(False))
@@ -630,8 +610,7 @@ class MainWindow(KoncentroFluentWindow):
 
         self.get_todo_task_list_item_delegate().buttons[self.get_current_task_id()].setChecked(True)
         self.get_todo_task_list_item_delegate().setCheckedStateOfButton(
-            checked=True,
-            task_id=self.get_current_task_id()
+            checked=True, task_id=self.get_current_task_id()
         )
 
     def setPauseResumeButtonsToPlayIcon(self, skip_delegate_button=False):
@@ -646,27 +625,35 @@ class MainWindow(KoncentroFluentWindow):
 
         self.get_todo_task_list_item_delegate().buttons[self.get_current_task_id()].setChecked(False)
         self.get_todo_task_list_item_delegate().setCheckedStateOfButton(
-            checked=False,
-            task_id=self.get_current_task_id()
+            checked=False, task_id=self.get_current_task_id()
         )
 
     def showTutorial(self, index: int):
         self.isSafeToShowTutorial = True
 
-        if not ConfigValues.HAS_COMPLETED_TASK_VIEW_TUTORIAL and self.isSafeToShowTutorial and \
-                index == InterfaceType.TASK_INTERFACE.value:
+        if (
+            not ConfigValues.HAS_COMPLETED_TASK_VIEW_TUTORIAL
+            and self.isSafeToShowTutorial
+            and index == InterfaceType.TASK_INTERFACE.value
+        ):
             self.taskInterfaceTutorial = TaskInterfaceTutorial(self, InterfaceType.TASK_INTERFACE)
             self.taskInterfaceTutorial.start()
 
-        if not ConfigValues.HAS_COMPLETED_POMODORO_VIEW_TUTORIAL and self.isSafeToShowTutorial and \
-                index == InterfaceType.POMODORO_INTERFACE.value:
+        if (
+            not ConfigValues.HAS_COMPLETED_POMODORO_VIEW_TUTORIAL
+            and self.isSafeToShowTutorial
+            and index == InterfaceType.POMODORO_INTERFACE.value
+        ):
             self.pomodoroInterfaceTutorial = PomodoroInterfaceTutorial(self, InterfaceType.POMODORO_INTERFACE)
             self.pomodoroInterfaceTutorial.start()
 
-        if not ConfigValues.HAS_COMPLETED_WEBSITE_FILTER_VIEW_TUTORIAL and self.isSafeToShowTutorial and \
-                index == InterfaceType.WEBSITE_FILTER_INTERFACE.value:
-            self.websiteFilterInterfaceTutorial = (
-                WebsiteFilterInterfaceTutorial(self, InterfaceType.WEBSITE_FILTER_INTERFACE)
+        if (
+            not ConfigValues.HAS_COMPLETED_WEBSITE_FILTER_VIEW_TUTORIAL
+            and self.isSafeToShowTutorial
+            and index == InterfaceType.WEBSITE_FILTER_INTERFACE.value
+        ):
+            self.websiteFilterInterfaceTutorial = WebsiteFilterInterfaceTutorial(
+                self, InterfaceType.WEBSITE_FILTER_INTERFACE
             )
             self.websiteFilterInterfaceTutorial.start()
 
@@ -674,9 +661,7 @@ class MainWindow(KoncentroFluentWindow):
         self.isSafeToShowTutorial = True
 
         if not ConfigValues.HAS_COMPLETED_WORKSPACE_MANAGER_DIALOG_TUTORIAL and self.isSafeToShowTutorial:
-            self.workspaceManagerTutorial = (
-                WorkspaceManagerDialogTutorial(self, InterfaceType.DIALOG)
-            )
+            self.workspaceManagerTutorial = WorkspaceManagerDialogTutorial(self, InterfaceType.DIALOG)
             self.workspaceManagerTutorial.start()
 
     def on_website_filter_enabled_setting_changed(self):
@@ -699,7 +684,6 @@ class MainWindow(KoncentroFluentWindow):
 
     def update_proxy_port(self):
         self.website_blocker_manager.proxy.port = ConfigValues.PROXY_PORT
-
 
     def update_bottom_bar_timer_label(self):
         # check if timer is running
@@ -762,7 +746,7 @@ class MainWindow(KoncentroFluentWindow):
         except OSError:
             return False
 
-    def preSetupMitmproxy(self, setup_first_time: bool  = True):
+    def preSetupMitmproxy(self, setup_first_time: bool = True):
         self.checkInternetWorker = CheckInternetWorker()
         self.checkInternetWorker.internetCheckCompleted.connect(
             lambda has_internet: self.setupMitmproxy(has_internet, setup_first_time)
@@ -781,14 +765,12 @@ class MainWindow(KoncentroFluentWindow):
             contentText += " for the first time.\n\n" if setup_first_time else "\n\n"
             contentText += f"{APPLICATION_NAME}'s website filtering needs internet to setup and verify it.\n"
             contentText += f"You can use {APPLICATION_NAME} without internet after setup." if setup_first_time else ""
-            self.notHasInternetDialog = MessageBox(
-                "No Internet Connection Detected",
-                contentText,
-                self.window()
-            )
+            self.notHasInternetDialog = MessageBox("No Internet Connection Detected", contentText, self.window())
             self.notHasInternetDialog.cancelButton.hide()
             if setup_first_time:
-                self.notHasInternetDialog.yesButton.clicked.connect(self.onSetupAppConfirmationDialogRejected) # this is
+                self.notHasInternetDialog.yesButton.clicked.connect(
+                    self.onSetupAppConfirmationDialogRejected
+                )  # this is
             # equivalent to clicking the cancel button to setting up mitmproxy
             else:
                 self.notHasInternetDialog.yesButton.clicked.connect(self.notHasInternetDialog.close)  # close the dialog

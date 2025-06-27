@@ -199,7 +199,7 @@ class TaskListModel(QAbstractListModel):
 
         # Read all task data from the stream
         while not stream.atEnd():
-            source_row = stream.readInt32()
+            _source_row = stream.readInt32()
             task_id = stream.readInt32()
             task_ids.append(task_id)
             task_name = stream.readQString()
@@ -216,14 +216,16 @@ class TaskListModel(QAbstractListModel):
                         logger.debug(f"Updated elapsed time for current task during drop: {elapsed_time}")
                         break
 
-            drop_tasks.append({
-                "id": task_id,
-                "task_name": task_name,
-                "task_position": None,  # Will be set later
-                "elapsed_time": elapsed_time,
-                "target_time": target_time,
-                "icon": FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
-            })
+            drop_tasks.append(
+                {
+                    "id": task_id,
+                    "task_name": task_name,
+                    "task_position": None,  # Will be set later
+                    "elapsed_time": elapsed_time,
+                    "target_time": target_time,
+                    "icon": FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
+                }
+            )
 
         # Find which tasks in our current model need to be removed (moved)
         task_id_to_original_row = {}

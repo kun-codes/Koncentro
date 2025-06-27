@@ -25,19 +25,19 @@ def checkValidDB():
                     workspace_id=workspace.id,
                     task_name="🛍️ Create shopping list for the week",
                     task_type=TaskType.TODO,
-                    task_position=0
+                    task_position=0,
                 ),
                 Task(
                     workspace_id=workspace.id,
                     task_name="☎️ Call family this weekend",
                     task_type=TaskType.TODO,
-                    task_position=1
+                    task_position=1,
                 ),
                 Task(
                     workspace_id=workspace.id,
                     task_name="🏞️ Go for a nature walk",
                     task_type=TaskType.TODO,
-                    task_position=2
+                    task_position=2,
                 ),
                 Task(
                     workspace_id=workspace.id,

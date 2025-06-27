@@ -73,7 +73,8 @@ def main():
             # Compare versions
             if tag_version != pyproject_version:
                 print(
-                    f"Error: Tag version ({tag_version}) does not match the version in pyproject.toml ({pyproject_version})"
+                    f"Error: Tag version ({tag_version}) does not match the version in "
+                    f"pyproject.toml ({pyproject_version})"
                 )
                 print("Please update pyproject.toml or use the correct tag version.")
                 return 1

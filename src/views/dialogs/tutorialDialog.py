@@ -1,4 +1,3 @@
-
 from loguru import logger
 from PySide6.QtCore import QSize, QUrl
 from PySide6.QtWidgets import QHBoxLayout, QSizePolicy, QStackedWidget, QVBoxLayout, QWidget
@@ -69,7 +68,6 @@ class TutorialDialog(MessageBoxBase):
 
         self.cancelButton.setText("Close")
 
-
         self.__connectSignalsToSlots()
         self.updateNavigationButtons()
 
@@ -95,7 +93,6 @@ class TutorialDialog(MessageBoxBase):
 
     def oncancelButtonClicked(self):
         if self.stackedWidget.currentIndex() == self.stackedWidget.count() - 1:
-
             # Stop all videos before closing
             for i in range(self.stackedWidget.count()):
                 container = self.stackedWidget.widget(i)
@@ -109,13 +106,13 @@ class TutorialDialog(MessageBoxBase):
         else:
             TeachingTip.create(
                 self.cancelButton,
-                title = "Complete the tutorial first",
-                content = "Please complete the tutorial before closing the dialog.",
-                icon = InfoBarIcon.INFORMATION,
-                isClosable= True,
-                tailPosition = TeachingTipTailPosition.TOP,
+                title="Complete the tutorial first",
+                content="Please complete the tutorial before closing the dialog.",
+                icon=InfoBarIcon.INFORMATION,
+                isClosable=True,
+                tailPosition=TeachingTipTailPosition.TOP,
                 parent=self,
-                isDeleteOnClose = True
+                isDeleteOnClose=True,
             )
 
     def addVideo(self, videoPath: QUrl, captionText: str):
@@ -175,4 +172,3 @@ class TutorialDialog(MessageBoxBase):
     def onStackedWidgetCurrentChanged(self, index: int):
         logger.debug(f"Inside onStackedWidgetCurrentChanged: {index}")
         self.stackedWidget.widget(index).findChild(VideoWidget).show()
-

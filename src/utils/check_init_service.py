@@ -12,10 +12,7 @@ def check_init_service():
     try:
         if is_flatpak_sandbox():
             result = subprocess.run(
-                ["flatpak-spawn", "--host", "cat", "/proc/1/comm"],
-                capture_output=True,
-                text=True,
-                check=True
+                ["flatpak-spawn", "--host", "cat", "/proc/1/comm"], capture_output=True, text=True, check=True
             )
             if "systemd" in result.stdout.lower():
                 logger.info("Detected systemd init service in Flatpak sandbox, proceeding with application launch.")
@@ -41,8 +38,9 @@ def check_init_service():
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Warning)
         msg.setText("Unsupported Init Service")
-        msg.setInformativeText("Could not determine init service."
-                               " This application is only supported on systems using systemd.")
+        msg.setInformativeText(
+            "Could not determine init service. This application is only supported on systems using systemd."
+        )
         msg.setWindowTitle("Unsupported Init Service")
         msg.exec()
         sys.exit(1)

@@ -25,11 +25,7 @@ def request(flow):
     if flow.request.pretty_url == MITMDUMP_SHUTDOWN_URL:
         print("Shutting down mitmdump...")
         # Send confirmation response before shutdown
-        flow.response = http.Response.make(
-            200,
-            b"Shutting down mitmproxy...\n",
-            {"Content-Type": "text/plain"}
-        )
+        flow.response = http.Response.make(200, b"Shutting down mitmproxy...\n", {"Content-Type": "text/plain"})
         ctx.master.shutdown()
         return
 
@@ -51,6 +47,7 @@ def request(flow):
 
     # Use direct string matching for exact domain match
     has_match = url_domain in addresses
-    if (ctx.options.block_type == "allowlist" and not has_match) or \
-       (ctx.options.block_type == "blocklist" and has_match):
+    if (ctx.options.block_type == "allowlist" and not has_match) or (
+        ctx.options.block_type == "blocklist" and has_match
+    ):
         flow.response = http.Response.make(200, BLOCK_HTML_MESSAGE.encode(), {"Content-Type": "text/html"})

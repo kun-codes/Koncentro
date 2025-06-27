@@ -32,14 +32,14 @@ class PomodoroInterfaceTutorial(InterfaceTutorial):
             target=self.main_window.pomodoro_interface.ProgressRing,
             title="This is the Pomodoro Timer",
             content="You can adjust Timer duration in the settings\n"
-                    "A copy of the timer is shown in the bottom bar for easy access",
+            "A copy of the timer is shown in the bottom bar for easy access",
             icon=FluentIcon.INFO,
             parent=self.main_window,
             interface_type=InterfaceType.TASK_INTERFACE,
             mainWindow=self.main_window,
             isClosable=False,
             duration=-1,
-            isDeleteOnClose=True
+            isDeleteOnClose=True,
         )
         self._show_pomodoro_timer_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._show_pomodoro_timer_step_tip)

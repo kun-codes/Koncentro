@@ -8,7 +8,7 @@ class AutoLoopVideoWidget(VideoWidget):
 
         self.playBar.hide()
 
-        self.player.setLoops(QMediaPlayer.Loops.Infinite)   # type: StandardMediaPlayBar
+        self.player.setLoops(QMediaPlayer.Loops.Infinite)  # type: StandardMediaPlayBar
 
     def enterEvent(self, e):
         pass
@@ -23,7 +23,6 @@ class AutoLoopVideoWidget(VideoWidget):
     def showEvent(self, e):
         self.play()
         e.accept()
-
 
     # def setVideo(self, url: QUrl):
     #     """ set the video to play """

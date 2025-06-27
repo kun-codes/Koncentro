@@ -1,4 +1,3 @@
-
 from loguru import logger
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget
@@ -62,7 +61,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
             mainWindow=self.main_window,
             isClosable=False,
             duration=-1,
-            isDeleteOnClose=True
+            isDeleteOnClose=True,
         )
         self._todo_task_list_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._todo_task_list_step_tip)
@@ -78,7 +77,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
             mainWindow=self.main_window,
             isClosable=False,
             duration=-1,
-            isDeleteOnClose=True
+            isDeleteOnClose=True,
         )
         self._completed_task_list_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._completed_task_list_step_tip)
@@ -113,7 +112,6 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.teaching_tips.append(self._select_first_task_step_tip)
 
     def _invoke_first_task_edit_task_time_step(self):
-
         self.main_window.task_interface.editTaskTimeButton.setDisabled(False)
 
         self._invoke_first_task_edit_task_time_step_tip = TargetClickTeachingTip.create(
@@ -165,7 +163,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
             target=edit_task_time_dialog.estimateTimePicker,
             title="Now lets edit the estimated time of the selected task",
             content="Esimated time is the time you think you will need to complete this task"
-                    "\nThis is an important part of Time Boxing",
+            "\nThis is an important part of Time Boxing",
             mainWindow=self.main_window,
             interface_type=InterfaceType.TASK_INTERFACE,
             icon=CustomFluentIcon.CLICK,
@@ -195,7 +193,6 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.teaching_tips.append(self._edit_first_task_save_changed_time_step_tip)
 
     def _delete_first_task_step(self):
-
         self.main_window.task_interface.editTaskTimeButton.setDisabled(True)
         self.main_window.task_interface.deleteTaskButton.setDisabled(False)
 
@@ -213,7 +210,6 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.teaching_tips.append(self._delete_first_task_step_tip)
 
     def _invoke_add_new_task_dialog_step(self):
-
         self.main_window.task_interface.deleteTaskButton.setDisabled(True)
         self.main_window.task_interface.addTaskButton.setDisabled(False)
 
@@ -248,13 +244,13 @@ class TaskInterfaceTutorial(InterfaceTutorial):
             target=add_task_dialog.taskEdit,
             title="Enter the name of the new task",
             content="Name it something short and meaningful\n"
-                    "Good goals are SMART: Specific, Measurable, Achievable, Relevant, Time-bound",
+            "Good goals are SMART: Specific, Measurable, Achievable, Relevant, Time-bound",
             mainWindow=self.main_window,
             interface_type=InterfaceType.TASK_INTERFACE,
             icon=CustomFluentIcon.TEXT_ADD,
             tailPosition=TeachingTipTailPosition.TOP,
             parent=self.main_window,
-            customSignalToDestroy=add_task_dialog.taskEdit.textEdited
+            customSignalToDestroy=add_task_dialog.taskEdit.textEdited,
         )
         self._name_new_task_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._name_new_task_step_tip)
@@ -337,7 +333,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
                 tailPosition=TeachingTipTailPosition.TOP,
                 icon=CustomFluentIcon.CLICK,
                 parent=self.main_window,
-                customSignalToDestroy=completed_task_list.model().modelReset
+                customSignalToDestroy=completed_task_list.model().modelReset,
             )
             self._move_to_completed_task_list_step_tip.destroyed.connect(self.next_step)
             self.teaching_tips.append(self._move_to_completed_task_list_step_tip)
