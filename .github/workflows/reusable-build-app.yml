@@ -145,7 +145,7 @@ jobs:
                 if: matrix.os == 'ubuntu-22.04'
                 run: |
                     docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace \
-                        kuncodes/python-3.12-ubuntu-18.04:latest \
+                        kuncodes/python-3.12-ubuntu-18.10:latest \
                         bash -c "
                             python3 -m pip install --upgrade pip && \
                             python3 -m pip install poetry && \
