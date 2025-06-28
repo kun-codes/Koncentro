@@ -139,20 +139,42 @@ jobs:
                     brew remove --force --ignore-dependencies openssl@3
                     brew cleanup openssl@3
 
+            # from: https://github.com/Nuitka/Nuitka-Action/blob/5752d14b8c7a6d6580896f6c593692cb2bf8e50d/action.yml#L657C9-L657C86
+            -   name: Set Nuitka cache directory (Ubuntu 22.04)
+                if: matrix.os == 'ubuntu-22.04'
+                run: |
+                    echo "NUITKA_CACHE_DIR=${{ github.workspace }}/nuitka/cache" >> $GITHUB_ENV
+                    mkdir -p "${{ github.workspace }}/nuitka/cache"
+
+            # from: https://github.com/Nuitka/Nuitka-Action/blob/5752d14b8c7a6d6580896f6c593692cb2bf8e50d/action.yml#L678
+            # default value of caching-key is "caching" taken from https://github.com/Nuitka/Nuitka-Action/blob/5752d14b8c7a6d6580896f6c593692cb2bf8e50d/action.yml#L647
+            -   name: Cache Nuitka cache directory (Ubuntu 22.04)
+                if: matrix.os == 'ubuntu-22.04'
+                uses: actions/cache@v4
+                with:
+                    path: ${{ env.NUITKA_CACHE_DIR }}
+                    key: nuitka-caching-${{ runner.os }}-${{ runner.arch }}-python-3.12-nuitka-${{ github.sha }}
+                    restore-keys: |
+                        nuitka-caching-${{ runner.os }}-${{ runner.arch }}-python-3.12-
+                        nuitka-${{ runner.os }}-${{ runner.arch }}-python-3.12-
+                        nuitka-${{ runner.os }}-${{ runner.arch }}-
+
             # for greater glibc compatibility on older Linux distributions
             # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
             -   name: Build Executable (Ubuntu 22.04 with Docker)
                 if: matrix.os == 'ubuntu-22.04'
                 run: |
-                    docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace \
+                    docker run --rm -v ${{ github.workspace }}:/workspace -v ${{ env.NUITKA_CACHE_DIR }}:/workspace/nuitka/cache -w /workspace \
+                        -e KONCENTRO_VERSION="${{ env.KONCENTRO_VERSION }}" \
                         kuncodes/python-3.12-ubuntu-18.10:latest \
                         bash -c "
-                            apt-get update && apt-get install -y patchelf && \
+                            apt-get update && apt-get install -y patchelf ccache && \
+                            export NUITKA_CACHE_DIR=/workspace/nuitka/cache && \
                             python3 -m pip install --upgrade pip && \
                             python3 -m pip install poetry && \
                             export POETRY_VIRTUALENVS_CREATE=false && \
                             poetry install --no-cache --no-interaction --no-root && \
-                            python3 -m pip install nuitka && \
+                            python3 -m pip install nuitka ordered-set==4.1.0 wheel==0.38.4 zstandard==0.20.0 && \
                             python3 -m nuitka \
                                 --mode=standalone \
                                 --enable-plugins=pyside6 \
@@ -160,7 +182,7 @@ jobs:
                                 --file-description=Koncentro \
                                 --linux-icon=assets/logo.ico \
                                 --output-file=koncentro \
-                                --product-version=${{ env.KONCENTRO_VERSION }} \
+                                --product-version=\$KONCENTRO_VERSION \
                                 --include-module=logging.config \
                                 --nofollow-import-to=sqlalchemy.dialects.oracle \
                                 --nofollow-import-to=sqlalchemy.dialects.mssql \
