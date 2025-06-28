@@ -147,6 +147,7 @@ jobs:
                     docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace \
                         kuncodes/python-3.12-ubuntu-18.10:latest \
                         bash -c "
+                            apt-get update && apt-get install -y patchelf && \
                             python3 -m pip install --upgrade pip && \
                             python3 -m pip install poetry && \
                             export POETRY_VIRTUALENVS_CREATE=false && \
