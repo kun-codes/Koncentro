@@ -1,5 +1,5 @@
 # if below line is modified then update tbump.toml search field for this file
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 
 
 def get_app_version():
