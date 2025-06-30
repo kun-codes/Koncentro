@@ -1,4 +1,4 @@
-from PySide6.QtCore import QRect, Qt
+from PySide6.QtCore import QRect, Qt, QTimer
 from PySide6.QtGui import QBrush, QColor, QPainter, QPen
 from PySide6.QtWidgets import QAbstractItemView, QListView, QWidget
 from qfluentwidgets import ListItemDelegate, ListView, isDarkTheme
@@ -33,6 +33,13 @@ class TaskList(ListView):
         # Custom drop indicator properties
         self.dropIndicatorRect = QRect()
         self.dropIndicatorPosition = -1
+
+        # Track drag operations to handle failed drops
+        self._dragInProgress = False
+        self._draggedIndexes = []
+        self._dragSuccessTimer = QTimer()
+        self._dragSuccessTimer.setSingleShot(True)
+        self._dragSuccessTimer.timeout.connect(self._checkDragResult)
 
     def paintEvent(self, event):
         """
@@ -112,6 +119,89 @@ class TaskList(ListView):
         # Force a repaint to update the indicator
         self.viewport().update()
 
+    def startDrag(self, supportedActions):
+        """
+        Override startDrag to track drag operations and handle failed drops properly
+        """
+        # Store the indexes being dragged
+        self._draggedIndexes = self.selectedIndexes()
+        self._dragInProgress = True
+
+        # Start a timer to check for failed drags after a delay
+        # This helps handle cases where drag callbacks aren't properly called on Wayland
+        self._dragSuccessTimer.start(100)  # Check after 100ms
+
+        # Call the parent implementation to start the drag
+        super().startDrag(supportedActions)
+
+        # After drag completes, check if it was successful
+        # If we reach here and _dragInProgress is still True, it means the drag failed
+        if self._dragInProgress:
+            self._handleFailedDrag()
+
+        # Reset drag state
+        self._dragInProgress = False
+        self._draggedIndexes = []
+        self._dragSuccessTimer.stop()
+
+    def _checkDragResult(self):
+        """
+        Called by timer to check if drag operation completed successfully
+        """
+        if self._dragInProgress:
+            # Drag is still in progress, extend the timer
+            self._dragSuccessTimer.start(100)
+
+    def _handleFailedDrag(self):
+        """
+        Handle the case where a drag operation failed (e.g., dropped on invalid target)
+        This ensures the task doesn't disappear from the original list
+        """
+        # Cancel the drag operation in the model
+        if self.model() and hasattr(self.model(), "cancelDrag"):
+            self.model().cancelDrag()
+
+        # Force the view to refresh
+        if self.model():
+            self.model().layoutChanged.emit()
+
+        # Make sure the view is updated to reflect the current state
+        self.viewport().update()
+
+        # Also check if we have a parent TaskView and cancel drag on both lists
+        parent_view = self.parentWidget()
+        while parent_view is not None:
+            if isinstance(parent_view, Ui_TaskView):
+                if hasattr(parent_view.todoTasksList.model(), "cancelDrag"):
+                    parent_view.todoTasksList.model().cancelDrag()
+                if hasattr(parent_view.completedTasksList.model(), "cancelDrag"):
+                    parent_view.completedTasksList.model().cancelDrag()
+                # Also update the viewports of both task lists
+                parent_view.todoTasksList.viewport().update()
+                parent_view.completedTasksList.viewport().update()
+                break
+            parent_view = parent_view.parentWidget()
+
+    def dragEnterEvent(self, event):
+        """
+        Override dragEnterEvent to handle drag operations properly
+        """
+        super().dragEnterEvent(event)
+        # Accept the drag if it contains our mime type
+        if event.mimeData().hasFormat("application/x-qabstractitemmodeldatalist"):
+            event.accept()
+        else:
+            event.ignore()
+
+    def dragLeaveEvent(self, event):
+        """
+        Override dragLeaveEvent to clean up drop indicators
+        """
+        super().dragLeaveEvent(event)
+        # Clear drop indicator when drag leaves the widget
+        self.dropIndicatorRect = QRect()
+        self.viewport().update()
+
     def resizeEvent(self, event):
         """
         Instead of just resizing editor using itemDelegate's updateEditorGeometry method, I am resizing the editor here
@@ -171,6 +261,10 @@ class TaskList(ListView):
         self.dropIndicatorRect = QRect()
         self.viewport().update()
 
+        # Mark drag as successful if this is our own drag operation
+        if self._dragInProgress:
+            self._dragInProgress = False
+
         parent_view = self.parentWidget()
         while parent_view is not None:
             if isinstance(parent_view, Ui_TaskView):  # using Ui_TaskView because view.subinterfaces.tasks_view.TaskList
@@ -182,6 +276,16 @@ class TaskList(ListView):
                 parent_view.completedTasksList._setHoverRow(-1)
                 parent_view.todoTasksList.viewport().update()
                 parent_view.completedTasksList.viewport().update()
+
+                # Also mark drag as successful for both task lists to handle cross-list drops
+                parent_view.todoTasksList._dragInProgress = False
+                parent_view.completedTasksList._dragInProgress = False
+
+                # Cancel any pending drag operations in the models
+                if hasattr(parent_view.todoTasksList.model(), "cancelDrag"):
+                    parent_view.todoTasksList.model().cancelDrag()
+                if hasattr(parent_view.completedTasksList.model(), "cancelDrag"):
+                    parent_view.completedTasksList.model().cancelDrag()
                 break
             parent_view = parent_view.parentWidget()
         super().dropEvent(e)
