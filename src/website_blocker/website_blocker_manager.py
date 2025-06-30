@@ -9,6 +9,15 @@ import certifi
 from loguru import logger
 from PySide6.QtCore import QObject, QThread, Signal
 from uniproxy import Uniproxy
+from xdg_base_dirs import (
+    xdg_cache_home,
+    xdg_config_dirs,
+    xdg_config_home,
+    xdg_data_dirs,
+    xdg_data_home,
+    xdg_runtime_dir,
+    xdg_state_home,
+)
 
 from config_values import ConfigValues
 from utils.check_flatpak_sandbox import is_flatpak_sandbox
@@ -125,6 +134,14 @@ class WebsiteBlockerManager(QObject):
 
             subprocess.Popen(args, creationflags=CREATE_NO_WINDOW)
         else:
+            if is_flatpak_sandbox():
+                print(xdg_cache_home())
+                print(xdg_config_dirs())
+                print(xdg_config_home())
+                print(xdg_data_dirs())
+                print(xdg_data_home())
+                print(xdg_runtime_dir())
+                print(xdg_state_home())
             args = [
                 mitmdump_bin_path,
                 "--set",
