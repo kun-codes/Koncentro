@@ -17,6 +17,7 @@ from models.db_tables import Workspace
 from prefabs.config.config_item_sql import ConfigItemSQL, RangeConfigItemSQL
 from prefabs.config.qconfig_sql import QConfigSQL, qconfig_custom
 from utils.detect_windows_version import isWin11
+from utils.patch_qconfig_theme import apply_qconfig_theme_patch
 
 
 class WorkspaceSettings(QConfigSQL):
@@ -73,3 +74,13 @@ def load_workspace_settings():
 
 def load_app_settings():
     qconfig.load(settings_file_path, app_settings)
+
+
+# A hacky way to apply the theme patch
+# Only works if called from here, has something to do with module level functions calls
+# which are called in main_window.py when config.py is imported
+# position of apply_qconfig_theme_patch(), load_app_settings() and load_workspace_settings() is key here
+apply_qconfig_theme_patch()
+
+load_app_settings()
+load_workspace_settings()

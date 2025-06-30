@@ -1,3 +1,5 @@
+import platform
+
 import darkdetect
 from loguru import logger
 from PySide6.QtDBus import QDBusInterface, QDBusMessage, QDBusVariant
@@ -42,7 +44,7 @@ def theme_override(self, t):
 
             # Extract the actual value from QDBusVariant with recursive unwrapping
             actual_value: QDBusVariant = value
-            max_unwrap_attempts = 10  # Prevent infinite loops
+            max_unwrap_attempts = 5  # Prevent infinite loops
             unwrap_count = 0
 
             # Keep unwrapping variants until we get the actual value
@@ -94,11 +96,7 @@ def theme_override(self, t):
     self._theme = t
 
 
-def apply_theme_patch():
-    import platform
-
+def apply_qconfig_theme_patch():
+    """Apply the patch to QConfig to override the theme property."""
     if platform.system().lower() == "linux":
         qconfig.__class__.theme = theme_override
-        logger.debug("Applied Linux theme patch")
-    else:
-        logger.debug("Skipping theme patch (not Linux)")
