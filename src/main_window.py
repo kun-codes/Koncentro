@@ -845,6 +845,8 @@ class MainWindow(KoncentroFluentWindow):
                 parent=self.window(),
             )
             self.showTutorial(InterfaceType.TASK_INTERFACE.value)
+        elif result == UpdateCheckResult.UPDATE_URL_DOES_NOT_EXIST or UpdateCheckResult.RATE_LIMITED:
+            self.showTutorial(InterfaceType.TASK_INTERFACE.value)
 
     def showEvent(self, event):
         logger.debug("MainWindow showEvent")

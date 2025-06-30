@@ -50,6 +50,8 @@ class UpdateCheckResult(Enum):
     UPDATE_AVAILABLE = "Update available"
     NETWORK_UNREACHABLE = "Network Unreachable"
     UNKNOWN_ERROR = "An unknown error occurred"
+    UPDATE_URL_DOES_NOT_EXIST = "Update URL does not exist or is invalid"
+    RATE_LIMITED = "GitHub API rate limit exceeded, try again later"
 
 
 class InterfaceType(Enum):
