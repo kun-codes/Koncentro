@@ -12,6 +12,30 @@ from constants import UPDATE_CHECK_URL, UpdateCheckResult
 from utils.get_app_version import get_app_version
 
 
+class UpdateCheckError(Exception):
+    """Base exception for update check errors"""
+
+    def __init__(self, message="An error occurred during update check"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class RepositoryNotFoundError(UpdateCheckError):
+    """Raised when the GitHub repository or release is not found (404)"""
+
+    def __init__(self, message="GitHub repository or release not found", status_code=404):
+        self.status_code = status_code
+        super().__init__(message)
+
+
+class RateLimitExceededError(UpdateCheckError):
+    """Raised when GitHub API rate limit is exceeded (403)"""
+
+    def __init__(self, message="GitHub API rate limit exceeded or access forbidden", status_code=403):
+        self.status_code = status_code
+        super().__init__(message)
+
+
 class UpdateChecker(QObject):
     """A thread-based update checker that doesn't block the GUI."""
 
@@ -58,7 +82,11 @@ class UpdateChecker(QObject):
 
             response = conn.getresponse()
 
-            if response.status != 200:
+            if response.status == 404:
+                raise RepositoryNotFoundError()
+            elif response.status == 403:
+                raise RateLimitExceededError()
+            elif response.status != 200:
                 raise Exception(f"HTTP error occurred: {response.status} {response.reason}")
 
             # Parse JSON response from GitHub API
@@ -86,6 +114,12 @@ class UpdateChecker(QObject):
         except ConnectionError as conn_err:
             logger.error(f"Failed to check for updates: {conn_err}")
             return UpdateCheckResult.NETWORK_UNREACHABLE
+        except RepositoryNotFoundError as repo_err:
+            logger.error(f"Repository not found: {repo_err}")
+            return UpdateCheckResult.UPDATE_URL_DOES_NOT_EXIST
+        except RateLimitExceededError as rate_limit_err:
+            logger.error(f"Rate limit exceeded: {rate_limit_err}")
+            return UpdateCheckResult.RATE_LIMITED
         except Exception as err:
             logger.error(f"An error occurred: {err}")
             return UpdateCheckResult.UNKNOWN_ERROR
