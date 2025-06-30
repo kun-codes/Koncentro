@@ -25,6 +25,7 @@ class TaskListModel(QAbstractListModel):
         self.task_type = task_type
         self.current_task_id = None
         self.tasks = []
+        self._dragInProgress = False  # Track if we're in a drag operation
         self.load_data()
 
     def setCurrentTaskID(self, id):
@@ -128,6 +129,9 @@ class TaskListModel(QAbstractListModel):
         return Qt.DropAction.MoveAction
 
     def mimeData(self, indexes):
+        # Set drag in progress flag
+        self._dragInProgress = True
+
         # First update the elapsed time for the task before drag starts
         if self.task_type == TaskType.TODO and self.current_task_id is not None:
             # Update the database with the current elapsed time to avoid losing time during drag
@@ -175,6 +179,9 @@ class TaskListModel(QAbstractListModel):
         return mime_data
 
     def dropMimeData(self, data, action, row, column, parent):
+        # Clear drag in progress flag since we're handling the drop
+        self._dragInProgress = False
+
         if not data.hasFormat("application/x-qabstractitemmodeldatalist"):
             return False
 
@@ -379,7 +386,15 @@ class TaskListModel(QAbstractListModel):
     def removeRows(self, row, count, parent=...):
         """
         remove rows but not delete from db
+        This method can be called by Qt during drag operations.
+        We should be careful not to permanently remove data during active drags.
         """
+        # If we're in a drag operation, don't actually remove the data
+        # Let the visual removal happen but keep the data intact until drop completes
+        if self._dragInProgress:
+            logger.debug(f"Ignoring removeRows during drag operation for rows {row} to {row + count - 1}")
+            return True
+
         self.beginRemoveRows(parent, row, row + count - 1)
         for i in range(count):
             logger.debug(f"tasks: {self.tasks}")
@@ -394,6 +409,22 @@ class TaskListModel(QAbstractListModel):
 
         self.layoutChanged.emit()
         return True
+
+    def cancelDrag(self):
+        """
+        Cancel an ongoing drag operation and ensure data consistency
+        """
+        if self._dragInProgress:
+            logger.debug(f"Cancelling drag operation for task type: {self.task_type}")
+            self._dragInProgress = False
+            # Force refresh to ensure view reflects actual data
+            self.layoutChanged.emit()
+
+    def isDragInProgress(self):
+        """
+        Check if a drag operation is currently in progress
+        """
+        return self._dragInProgress
 
     def deleteTask(self, row, parent=QModelIndex()):
         """
