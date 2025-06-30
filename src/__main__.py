@@ -13,10 +13,12 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 import resources.fonts_rc
 from constants import APPLICATION_NAME, APPLICATION_UID, ORGANIZATION_NAME
 from main_window import MainWindow
+from models.config import load_app_settings, load_workspace_settings
 from prefabs.qtSingleApplication import QtSingleApplication
 from utils.check_init_service import check_init_service
 from utils.check_valid_db import checkValidDB
 from utils.is_nuitka import is_nuitka
+from utils.patch_qconfig import apply_theme_patch
 from utils.patch_tooltip import apply_patches
 from utils.update_app_version_in_db import updateAppVersionInDB
 
@@ -78,6 +80,16 @@ def check_desktop_environment():
         sys.exit(1)  # Exit the application after showing the message
 
 
+def initialize_app_configuration():
+    """Initialize application configuration with proper theme patching"""
+    # Apply theme patch after Qt application is initialized
+    apply_theme_patch()
+
+    # Load application configuration after theme patch is applied
+    load_app_settings()
+    load_workspace_settings()
+
+
 if __name__ == "__main__":
     if platform.system().lower() == "linux":
         check_desktop_environment()
@@ -101,6 +113,9 @@ if __name__ == "__main__":
         logger.info("Application is already running, activating window of the existing instance.")
         logger.info("Exiting current instance....")
         sys.exit(0)
+
+    # Initialize application configuration with theme patching
+    initialize_app_configuration()
 
     substitute_fonts()
 

@@ -73,7 +73,3 @@ def load_workspace_settings():
 
 def load_app_settings():
     qconfig.load(settings_file_path, app_settings)
-
-
-load_app_settings()
-load_workspace_settings()
