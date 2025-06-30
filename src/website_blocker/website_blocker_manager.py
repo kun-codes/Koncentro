@@ -1,4 +1,5 @@
 import os
+import shutil
 import ssl
 import subprocess
 import sys
@@ -125,6 +126,28 @@ class WebsiteBlockerManager(QObject):
 
             subprocess.Popen(args, creationflags=CREATE_NO_WINDOW)
         else:
+            filter_py_path = Path(getattr(sys, "_MEIPASS", Path(__file__).parent)) / "filter.py"
+            if is_flatpak_sandbox():
+                # this has to be done as flatpak build resets the last modified time of all source files to
+                # epoch time 0, and mitmdump doesn't run filter.py as a script if the last modified time is 0
+                # this is a workaround which works by copying filter.py's parent directory to xdg_data_home which
+                # modifies the last modified time to the current time
+                logger.debug("Running in Flatpak sandbox, copying filter.py's parent directory to xdg_data_home")
+
+                data_home_path: Path = Path(os.environ.get("XDG_DATA_HOME", ""))
+                filter_py_parent = filter_py_path.parent
+
+                dest_dir = data_home_path / filter_py_parent.name
+
+                shutil.copytree(filter_py_parent, dest_dir, copy_function=shutil.copy, dirs_exist_ok=True)
+                filter_by_path = str(dest_dir / "filter.py")
+
+                logger.debug(f"Copied filter.py's parent directory to: {dest_dir}")
+            else:
+                filter_by_path = str(filter_py_path)
+
+            logger.debug(f"Using filter.py path: {filter_by_path}")
+
             args = [
                 mitmdump_bin_path,
                 "--set",
@@ -133,7 +156,7 @@ class WebsiteBlockerManager(QObject):
                 str(listening_port),
                 "--showhost",
                 "-s",
-                os.path.join(getattr(sys, "_MEIPASS", Path(__file__).parent), "filter.py"),
+                filter_by_path,
                 "--set",
                 f"addresses_str={joined_addresses}",
                 "--set",
