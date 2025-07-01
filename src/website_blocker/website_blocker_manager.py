@@ -113,40 +113,40 @@ class WebsiteBlockerManager(QObject):
                 str(listening_port),
                 "--showhost",
                 "-s",
-                os.path.join(getattr(sys, "_MEIPASS", Path(__file__).parent), "filter.py"),
+                os.path.join(getattr(sys, "_MEIPASS", Path(__file__).parent), "block.py"),
                 "--set",
                 f"addresses_str={joined_addresses}",
                 "--set",
                 f"block_type={block_type}",
             ]
             # using _MEIPASS to make it compatible with pyinstaller
-            # the os.path.join returns the location of filter.py
+            # the os.path.join returns the location of block.py
 
             logger.debug(f"Starting mitmdump with command: {' '.join(args)}")
 
             subprocess.Popen(args, creationflags=CREATE_NO_WINDOW)
         else:
-            filter_py_path = Path(getattr(sys, "_MEIPASS", Path(__file__).parent)) / "filter.py"
+            block_py_path = Path(getattr(sys, "_MEIPASS", Path(__file__).parent)) / "block.py"
             if is_flatpak_sandbox():
                 # this has to be done as flatpak build resets the last modified time of all source files to
-                # epoch time 0, and mitmdump doesn't run filter.py as a script if the last modified time is 0
-                # this is a workaround which works by copying filter.py's parent directory to xdg_data_home which
+                # epoch time 0, and mitmdump doesn't run block.py as a script if the last modified time is 0
+                # this is a workaround which works by copying block.py's parent directory to xdg_data_home which
                 # modifies the last modified time to the current time
-                logger.debug("Running in Flatpak sandbox, copying filter.py's parent directory to xdg_data_home")
+                logger.debug("Running in Flatpak sandbox, copying block.py's parent directory to xdg_data_home")
 
                 data_home_path: Path = Path(os.environ.get("XDG_DATA_HOME", ""))
-                filter_py_parent = filter_py_path.parent
+                block_py_parent = block_py_path.parent
 
-                dest_dir = data_home_path / filter_py_parent.name
+                dest_dir = data_home_path / block_py_parent.name
 
-                shutil.copytree(filter_py_parent, dest_dir, copy_function=shutil.copy, dirs_exist_ok=True)
-                filter_by_path = str(dest_dir / "filter.py")
+                shutil.copytree(block_py_parent, dest_dir, copy_function=shutil.copy, dirs_exist_ok=True)
+                block_script_path = str(dest_dir / "block.py")
 
-                logger.debug(f"Copied filter.py's parent directory to: {dest_dir}")
+                logger.debug(f"Copied block.py's parent directory to: {dest_dir}")
             else:
-                filter_by_path = str(filter_py_path)
+                block_script_path = str(block_py_path)
 
-            logger.debug(f"Using filter.py path: {filter_by_path}")
+            logger.debug(f"Using block.py path: {block_script_path}")
 
             args = [
                 mitmdump_bin_path,
@@ -156,14 +156,14 @@ class WebsiteBlockerManager(QObject):
                 str(listening_port),
                 "--showhost",
                 "-s",
-                filter_by_path,
+                block_script_path,
                 "--set",
                 f"addresses_str={joined_addresses}",
                 "--set",
                 f"block_type={block_type}",
             ]
             # using _MEIPASS to make it compatible with pyinstaller
-            # the os.path.join returns the location of filter.py
+            # the os.path.join returns the location of block.py
 
             logger.debug(f"Starting mitmdump with command: {' '.join(args)}")
 

@@ -1,4 +1,4 @@
-# Don't add any 3rd party imports here, as this file is used by mitmdump directly through filter.py
+# Don't add any 3rd party imports here, as this file is used by mitmdump directly through block.py
 
 APPLICATION_NAME = "Koncentro"
 
