@@ -2,7 +2,6 @@ import socket
 import threading
 from pathlib import Path
 
-import darkdetect
 from loguru import logger
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QFont, QIcon
@@ -214,7 +213,7 @@ class MainWindow(KoncentroFluentWindow):
     def updateSystemTrayIcon(self):
         logger.debug("Updating system tray icon")
         # context menu of Windows 10 system tray icon is always in light mode for qt apps.
-        if darkdetect.isDark():
+        if qconfig.theme == Theme.DARK:
             self.tray.setIcon(self.tray_white_icon)
         else:
             self.tray.setIcon(self.tray_black_icon)
@@ -222,7 +221,7 @@ class MainWindow(KoncentroFluentWindow):
         if isWin10OrEarlier():
             return
 
-        if darkdetect.isDark():
+        if qconfig.theme == Theme.DARK:
             self.tray_menu_timer_status_action.setIcon(FluentIcon.STOP_WATCH.icon(Theme.DARK))
             self.tray_menu_start_action.setIcon(FluentIcon.PLAY.icon(Theme.DARK))
             self.tray_menu_pause_resume_action.setIcon(CustomFluentIcon.PLAY_PAUSE.icon(Theme.DARK))
