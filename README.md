@@ -48,27 +48,29 @@ poetry run python src
 </details>
 
 ## Usage
-> [!IMPORTANT]
-> On your first run of the application, start the timer and then go to [mitm.it](http://mitm.it) on a chromium based browser and install the certificate as per your OS and browser choice. This is required for the website blocker to work. After installing the certificate, restart the application.
 
-- Start the app using the command mentioned above.
+1. Install Koncentro from the releases above or from source as described above.
+2. Add your tasks in **tasks list** to get started.
+3. Use the Pomodoro timer from **timer screen** to start a Pomodoro session
+4. Configure website blocking in the **website blocker screen** by adding websites to the blocklist or allowlist.
+5. Switch and create different workspaces using the **workspace manager** to manage separate sets of tasks and settings.
 
-There are four main screens in the app:
-1. **Task View:** This is where you can add, delete and view tasks.
- 
-![image](https://i.ibb.co/6m17JRr/image.png)
+## Screenshots
 
-2. **Timer View:** This is where you can start the timer and view the time left.
+### Task Lists
+![To Do Task List](screenshots/win_tasks_list.png)
 
-![image](https://i.ibb.co/bmMdB3m/image.png)
+### Pomodoro Timer
+![Pomodoro Timer](screenshots/win_pomodoro_timer.png)
 
-3. **Website Filter View:** This is where you can add, delete and view websites to block and choose between a blocklist and a whitelist. Please enter the website without the protocol (http/https) as shown in the image.
+### Website Blocker
+![Website Blocker](screenshots/win_website_blocker.png)
 
-![image](https://i.ibb.co/9N0DK9h/image.png)
+### Workspace Manager
+![Workspace Manager](screenshots/win_workspace_manager.png)
 
-4. **Workspace Selector View:** This is where you can select the workspace you want to work in. Each workspace has its own adjustable timer and website filter settings. Each workspace also has its own tasks.
-
-![image](https://i.ibb.co/72WN7bP/image.png)
+### Settings
+![Settings](screenshots/win_settings.png)
 
 ## Known Bugs
 
