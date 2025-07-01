@@ -33,7 +33,7 @@ class TaskListView(Ui_TaskView, QWidget):
         label_size_policy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
 
         self.todoTasksLabel = TitleLabel()
-        self.todoTasksLabel.setText("Todo Tasks")
+        self.todoTasksLabel.setText("To Do Tasks")
         self.todoTasksLabel.setSizePolicy(label_size_policy)
         self.scrollAreaWidgetContents.layout().addWidget(self.todoTasksLabel)
 
