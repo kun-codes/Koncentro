@@ -151,6 +151,7 @@ class MainWindow(KoncentroFluentWindow):
         self.tray_menu = QMenu()
 
         is_os_dark_mode = qconfig.theme
+        is_os_dark_mode = qconfig.theme == Theme.DARK
 
         self.tray_menu_timer_status_action = self.tray_menu.addAction("Timer not running")
         self.tray_menu_timer_status_action.setIcon(
