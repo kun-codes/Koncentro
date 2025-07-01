@@ -81,7 +81,7 @@ class WebsiteBlockerManager(QObject):
         mitmdump_bin_path: str,
     ):
         """Function which starts blocking in a separate thread."""
-        logger.debug("Inside WebsiteBLockerManager.start_blocking().")
+        logger.debug("Inside WebsiteBlockerManager.start_blocking().")
 
         # Store parameters for later use after stop_blocking completes
         # would be cleared in _start_after_stop to emulate the memory management of method parameters
