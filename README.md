@@ -85,5 +85,3 @@ This project is licensed under the [GPL-3.0-or-later license](LICENSE).
 - [Super Productivity](https://github.com/johannesjo/super-productivity): The app is inspired by Super Productivity.
 - [chomper](https://github.com/aniketpanjwani/chomper): The website blocker has some functionality inspired by chomper.
 - [Flowkeeper](https://github.com/flowkeeper-org/fk-desktop): Installer creation scripts have been adapted from Flowkeeper.
-- [chomper](https://github.com/aniketpanjwani/chomper): The website blocker has some functionality inspired by chomper.
-- [Flowkeeper](https://github.com/flowkeeper-org/fk-desktop): Installer creation scripts have been adapted from Flowkeeper.
