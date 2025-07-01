@@ -18,6 +18,14 @@
 
 ## Installation
 
+### Installer
+
+Installers for Koncentro are available for Windows, macOS and Linux. You can download the latest install from the [releases page](https://github.com/kun-codes/Koncentro/releases/latest)
+
+<details>
+<summary><strong>From Source (Advanced)</strong></summary>
+
+#### From Source
 
 - Install [Python 3.12](https://www.python.org/downloads/) if you haven't already.
 - Install [Poetry](https://python-poetry.org/docs/#installing-with-the-official-installer)
@@ -37,6 +45,7 @@ poetry install
 ```sh
 poetry run python src
 ```
+</details>
 
 ## Usage
 > [!IMPORTANT]
