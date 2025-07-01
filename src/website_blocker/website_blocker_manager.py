@@ -26,8 +26,8 @@ class FlatpakContainerError(Exception):
         super().__init__(self.message)
 
 
-class FilterWorker(QThread):
-    """Worker thread for filtering operations"""
+class WebsiteBlockerWorker(QThread):
+    """Worker thread for website blocking operations"""
 
     operationCompleted = Signal(bool, str)  # Success flag, message
 
@@ -42,7 +42,7 @@ class FilterWorker(QThread):
             _result = self.operation(*self.args, **self.kwargs)
             self.operationCompleted.emit(True, "Operation completed successfully")
         except Exception as e:
-            logger.error(f"Error in FilterWorker: {e}")
+            logger.error(f"Error in WebsiteBlockerWorker: {e}")
             self.operationCompleted.emit(False, str(e))
 
 
@@ -63,8 +63,8 @@ class ProxyWorker(QThread):
 
 
 class WebsiteBlockerManager(QObject):
-    filteringStarted = Signal()
-    filteringStopped = Signal()
+    blockingStarted = Signal()
+    blockingStopped = Signal()
     operationError = Signal(str)
 
     def __init__(self):
@@ -73,17 +73,17 @@ class WebsiteBlockerManager(QObject):
         self.workers = []  # Keep references to prevent garbage collection
         self.pending_start_params = None  # Store parameters for pending start operation
 
-    def start_filtering(
+    def start_blocking(
         self,
         listening_port: int,
         joined_addresses: str,
         block_type: str,
         mitmdump_bin_path: str,
     ):
-        """Function which starts filtering in a separate thread."""
-        logger.debug("Inside WebsiteBLockerManager.start_filtering().")
+        """Function which starts blocking in a separate thread."""
+        logger.debug("Inside WebsiteBlockerManager.start_blocking().")
 
-        # Store parameters for later use after stop_filtering completes
+        # Store parameters for later use after stop_blocking completes
         # would be cleared in _start_after_stop to emulate the memory management of method parameters
         # to prevent memory leaks
         self.pending_start_params = {
@@ -94,9 +94,9 @@ class WebsiteBlockerManager(QObject):
         }
 
         # Not connecting in __init__ because sometimes we want to stop mitmdump without starting it afterwards
-        self.filteringStopped.connect(self._start_after_stop)
+        self.blockingStopped.connect(self._start_after_stop)
 
-        self.stop_filtering(delete_proxy=False)
+        self.stop_blocking(delete_proxy=False)
 
         proxy_worker = ProxyWorker(self.proxy.join)
         self.workers.append(proxy_worker)
@@ -113,40 +113,40 @@ class WebsiteBlockerManager(QObject):
                 str(listening_port),
                 "--showhost",
                 "-s",
-                os.path.join(getattr(sys, "_MEIPASS", Path(__file__).parent), "filter.py"),
+                os.path.join(getattr(sys, "_MEIPASS", Path(__file__).parent), "block.py"),
                 "--set",
                 f"addresses_str={joined_addresses}",
                 "--set",
                 f"block_type={block_type}",
             ]
             # using _MEIPASS to make it compatible with pyinstaller
-            # the os.path.join returns the location of filter.py
+            # the os.path.join returns the location of block.py
 
             logger.debug(f"Starting mitmdump with command: {' '.join(args)}")
 
             subprocess.Popen(args, creationflags=CREATE_NO_WINDOW)
         else:
-            filter_py_path = Path(getattr(sys, "_MEIPASS", Path(__file__).parent)) / "filter.py"
+            block_py_path = Path(getattr(sys, "_MEIPASS", Path(__file__).parent)) / "block.py"
             if is_flatpak_sandbox():
                 # this has to be done as flatpak build resets the last modified time of all source files to
-                # epoch time 0, and mitmdump doesn't run filter.py as a script if the last modified time is 0
-                # this is a workaround which works by copying filter.py's parent directory to xdg_data_home which
+                # epoch time 0, and mitmdump doesn't run block.py as a script if the last modified time is 0
+                # this is a workaround which works by copying block.py's parent directory to xdg_data_home which
                 # modifies the last modified time to the current time
-                logger.debug("Running in Flatpak sandbox, copying filter.py's parent directory to xdg_data_home")
+                logger.debug("Running in Flatpak sandbox, copying block.py's parent directory to xdg_data_home")
 
                 data_home_path: Path = Path(os.environ.get("XDG_DATA_HOME", ""))
-                filter_py_parent = filter_py_path.parent
+                block_py_parent = block_py_path.parent
 
-                dest_dir = data_home_path / filter_py_parent.name
+                dest_dir = data_home_path / block_py_parent.name
 
-                shutil.copytree(filter_py_parent, dest_dir, copy_function=shutil.copy, dirs_exist_ok=True)
-                filter_by_path = str(dest_dir / "filter.py")
+                shutil.copytree(block_py_parent, dest_dir, copy_function=shutil.copy, dirs_exist_ok=True)
+                block_script_path = str(dest_dir / "block.py")
 
-                logger.debug(f"Copied filter.py's parent directory to: {dest_dir}")
+                logger.debug(f"Copied block.py's parent directory to: {dest_dir}")
             else:
-                filter_by_path = str(filter_py_path)
+                block_script_path = str(block_py_path)
 
-            logger.debug(f"Using filter.py path: {filter_by_path}")
+            logger.debug(f"Using block.py path: {block_script_path}")
 
             args = [
                 mitmdump_bin_path,
@@ -156,14 +156,14 @@ class WebsiteBlockerManager(QObject):
                 str(listening_port),
                 "--showhost",
                 "-s",
-                filter_by_path,
+                block_script_path,
                 "--set",
                 f"addresses_str={joined_addresses}",
                 "--set",
                 f"block_type={block_type}",
             ]
             # using _MEIPASS to make it compatible with pyinstaller
-            # the os.path.join returns the location of filter.py
+            # the os.path.join returns the location of block.py
 
             logger.debug(f"Starting mitmdump with command: {' '.join(args)}")
 
@@ -171,22 +171,22 @@ class WebsiteBlockerManager(QObject):
         return True
 
     def _on_start_completed(self, success, message):
-        """Handle completion of start_filtering operation"""
+        """Handle completion of start_blocking operation"""
         if success:
-            self.filteringStarted.emit()
+            self.blockingStarted.emit()
         else:
-            self.operationError.emit(f"Failed to start filtering: {message}")
+            self.operationError.emit(f"Failed to start blocking: {message}")
 
-    def stop_filtering(self, delete_proxy: bool = True):
-        """Stop filtering in a separate thread."""
-        logger.debug("Inside WebsiteBlockerManager.stop_filtering().")
+    def stop_blocking(self, delete_proxy: bool = True):
+        """Stop website blocking in a separate thread."""
+        logger.debug("Inside WebsiteBlockerManager.stop_blocking().")
 
         if delete_proxy:
             proxy_worker = ProxyWorker(self.proxy.delete_proxy)
             self.workers.append(proxy_worker)
             proxy_worker.start()
 
-        worker = FilterWorker(self._shutdown_mitmdump)
+        worker = WebsiteBlockerWorker(self._shutdown_mitmdump)
         worker.operationCompleted.connect(self._on_stop_completed)
         self.workers.append(worker)
         worker.start()
@@ -241,19 +241,19 @@ class WebsiteBlockerManager(QObject):
         return True
 
     def _on_stop_completed(self, success, message):
-        """Handle completion of stop_filtering operation"""
+        """Handle completion of stop_blocking operation"""
         if not success:
-            self.operationError.emit(f"Warning during filtering shutdown: {message}")
+            self.operationError.emit(f"Warning during blocking shutdown: {message}")
 
-        self.filteringStopped.emit()
+        self.blockingStopped.emit()
 
     def _start_after_stop(self):
-        """Start mitmdump after stop_filtering has completed"""
-        # disconnect the signal to prevent multiple connections as it would be reconnected in start_filtering
-        self.filteringStopped.disconnect(self._start_after_stop)
+        """Start mitmdump after stop_blocking has completed"""
+        # disconnect the signal to prevent multiple connections as it would be reconnected in start_blocking
+        self.blockingStopped.disconnect(self._start_after_stop)
 
         if self.pending_start_params:
-            worker = FilterWorker(
+            worker = WebsiteBlockerWorker(
                 self._start_mitmdump,
                 self.pending_start_params["listening_port"],
                 self.pending_start_params["joined_addresses"],

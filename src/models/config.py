@@ -7,7 +7,7 @@ from constants import (
     AUTOSTART_BREAK,
     AUTOSTART_WORK,
     BREAK_DURATION,
-    ENABLE_WEBSITE_FILTER,
+    ENABLE_WEBSITE_BLOCKER,
     LONG_BREAK_DURATION,
     ORGANIZATION_NAME,
     WORK_DURATION,
@@ -34,8 +34,8 @@ class WorkspaceSettings(QConfigSQL):
     work_intervals = RangeConfigItemSQL(Workspace, Workspace.work_intervals, WORK_INTERVALS, RangeValidator(1, 10))
     autostart_work = ConfigItemSQL(Workspace, Workspace.autostart_work, AUTOSTART_WORK, BoolValidator())
     autostart_break = ConfigItemSQL(Workspace, Workspace.autostart_break, AUTOSTART_BREAK, BoolValidator())
-    enable_website_filter = ConfigItemSQL(
-        Workspace, Workspace.enable_website_filter, ENABLE_WEBSITE_FILTER, BoolValidator()
+    enable_website_blocker = ConfigItemSQL(
+        Workspace, Workspace.enable_website_blocker, ENABLE_WEBSITE_BLOCKER, BoolValidator()
     )
 
 
@@ -51,8 +51,8 @@ class AppSettings(QConfig):
     has_completed_pomodoro_view_tutorial = ConfigItem(
         "AppSettings", "HasCompletedPomodoroViewTutorial", False, BoolValidator()
     )
-    has_completed_website_filter_view_tutorial = ConfigItem(
-        "AppSettings", "HasCompletedWebsiteFilterViewTutorial", False, BoolValidator()
+    has_completed_website_blocker_view_tutorial = ConfigItem(
+        "AppSettings", "HasCompletedWebsiteBlockerViewTutorial", False, BoolValidator()
     )
     has_completed_workspace_manager_dialog_tutorial = ConfigItem(
         "AppSettings", "HasCompletedWorkspaceManagerDialogTutorial", False, BoolValidator()

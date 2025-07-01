@@ -11,12 +11,12 @@ from constants import (
     AUTOSTART_BREAK,
     AUTOSTART_WORK,
     BREAK_DURATION,
-    ENABLE_WEBSITE_FILTER,
+    ENABLE_WEBSITE_BLOCKER,
     LONG_BREAK_DURATION,
     WORK_DURATION,
     WORK_INTERVALS,
     URLListType,
-    WebsiteFilterType,
+    WebsiteBlockType,
 )
 
 url_object = URL.create(
@@ -93,8 +93,8 @@ class Workspace(Base):
     work_intervals = Column(Integer, default=WORK_INTERVALS)
     autostart_work = Column(Boolean, default=AUTOSTART_WORK)
     autostart_break = Column(Boolean, default=AUTOSTART_BREAK)
-    enable_website_filter = Column(Boolean, default=ENABLE_WEBSITE_FILTER)
-    website_filter_type = Column(SQLEnum(WebsiteFilterType), default=WebsiteFilterType.BLOCKLIST)
+    enable_website_blocker = Column(Boolean, default=ENABLE_WEBSITE_BLOCKER)
+    website_block_type = Column(SQLEnum(WebsiteBlockType), default=WebsiteBlockType.BLOCKLIST)
 
     blocklist_urls = relationship("BlocklistURL", back_populates="workspace", cascade="all, delete-orphan")
     blocklist_exception_urls = relationship(

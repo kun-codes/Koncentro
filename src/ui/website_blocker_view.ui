@@ -71,7 +71,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Website Filter</string>
+          <string>Website Blocker</string>
          </property>
         </widget>
        </item>
@@ -86,7 +86,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Select type of website filtering: </string>
+            <string>Select type of website blocking: </string>
            </property>
           </widget>
          </item>

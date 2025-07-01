@@ -11,13 +11,13 @@ from constants import APPLICATION_NAME
 class PostSetupVerificationDialog(MessageBoxBase):
     def __init__(self, parent=None, is_setup_first_time: bool = True):
         super().__init__(parent=parent)
-        self.titleLabel = SubtitleLabel("Are you sure you have set up website filtering correctly?", parent=self)
+        self.titleLabel = SubtitleLabel("Are you sure you have set up website blocking correctly?", parent=self)
         self.bodyLabel = BodyLabel(
-            'You can check if the website filter is working correctly by visiting <a href="https://example.com">https://example.com</a>.',
+            'You can check if the website blocker is working correctly by visiting <a href="https://example.com">https://example.com</a>.',
             parent=self,
         )
         self.bodyLabel2 = BodyLabel(
-            f"It should be blocked by {APPLICATION_NAME} if the website filter is working correctly.", parent=self
+            f"It should be blocked by {APPLICATION_NAME} if the website blocker is working correctly.", parent=self
         )
         self.bodyLabel3 = BodyLabel(
             "Other websites like <a href='https://duckduckgo.com'>https://duckduckgo.com</a> should not be blocked.",
@@ -26,7 +26,7 @@ class PostSetupVerificationDialog(MessageBoxBase):
 
         if is_setup_first_time:
             bodyLabel4Text = (
-                "If you still face issues with website filtering, or if you want to set up any other "
+                "If you still face issues with website blocking, or if you want to set up any other "
                 "Firefox-based browser, you can manually run the setup again the anytime from the "
                 "Settings page."
             )

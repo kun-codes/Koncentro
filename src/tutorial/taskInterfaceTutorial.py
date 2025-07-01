@@ -43,7 +43,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
 
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.BACK_BUTTON, False)
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.POMODORO_INTERFACE, False)
-        setNavButtonEnabled(self.main_window, NavPanelButtonPosition.WEBSITE_FILTER_INTERFACE, False)
+        setNavButtonEnabled(self.main_window, NavPanelButtonPosition.WEBSITE_BLOCKER_INTERFACE, False)
 
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.WORKSPACE_MANAGER_DIALOG, False)
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.SETTINGS_INTERFACE, False)
@@ -377,7 +377,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
 
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.BACK_BUTTON, True)
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.POMODORO_INTERFACE, True)
-        setNavButtonEnabled(self.main_window, NavPanelButtonPosition.WEBSITE_FILTER_INTERFACE, True)
+        setNavButtonEnabled(self.main_window, NavPanelButtonPosition.WEBSITE_BLOCKER_INTERFACE, True)
 
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.WORKSPACE_MANAGER_DIALOG, True)
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.SETTINGS_INTERFACE, True)
