@@ -9,13 +9,15 @@
 
 ## Features
 
-- **Cross Platform:** Koncentro is cross-platform and can be used on Windows, macOS and Linux.
-- **Website Filter:** Websites can be filtered using either a blocklist or an allowlist.
-- **Timeboxing:** Koncentro has integrated [timeboxing](https://en.wikipedia.org/wiki/Timeboxing) features.
+- **Cross Platform:** Koncentro works on Windows, macOS and Linux without using heavy frameworks like Electron.
+- **Timeboxing:** Allocate a fixed duration to each task and aim to complete it within the time limit.
+- **Website Blocker:** Koncentro includes an integrated website blocker that lets you choose to block distractions by either a blocklist or an allowlist.
+- **Workspaces:** Each Workspace has its own set of Pomodoro timer settings, website blocker settings and task list, allowing you to separate work and personal projects.
+- **Fluent Design:** Koncentro follows Microsoft's Fluent Design principles. It supports the Mica effect on Windows 11.
+
 
 ## Installation
 
-Currently, there is no installer provided. You can run the app by doing the following:
 
 - Install [Python 3.12](https://www.python.org/downloads/) if you haven't already.
 - Install [Poetry](https://python-poetry.org/docs/#installing-with-the-official-installer)
