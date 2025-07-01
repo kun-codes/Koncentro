@@ -74,6 +74,9 @@ There are four main screens in the app:
 
 - App doesn't change theme correctly without restarting when OS theme is changed.
 
+## License
+This project is licensed under the [GPL-3.0-or-later license](LICENSE).
+
 ## Credits
 
 - [Super Productivity](https://github.com/johannesjo/super-productivity): The app is inspired by Super Productivity.
