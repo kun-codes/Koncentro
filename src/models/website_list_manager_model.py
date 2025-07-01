@@ -4,7 +4,7 @@ import validators
 from loguru import logger
 from PySide6.QtCore import QObject
 
-from constants import URLListType, WebsiteFilterType
+from constants import URLListType, WebsiteBlockType
 from models.db_tables import AllowlistExceptionURL, AllowlistURL, BlocklistExceptionURL, BlocklistURL, Workspace
 from models.workspace_lookup import WorkspaceLookup
 from utils.db_utils import get_session
@@ -19,9 +19,9 @@ class WebsiteListManager(QObject):
         self.allowlist_urls = set()
         self.allowlist_exception_urls = set()
 
-        self.website_filter_type = None
+        self.website_block_type = None
 
-        self.load_website_filter_type()
+        self.load_website_block_type()
         self.load_data()
 
     def load_data(self, target_list: URLListType = None):
@@ -83,20 +83,20 @@ class WebsiteListManager(QObject):
                     .all()
                 }
 
-    def load_website_filter_type(self):
+    def load_website_block_type(self):
         with get_session(is_read_only=True) as session:
             current_workspace_id = WorkspaceLookup.get_current_workspace_id()
-            self.website_filter_type = session.query(Workspace).get(current_workspace_id).website_filter_type
+            self.website_block_type = session.query(Workspace).get(current_workspace_id).website_block_type
 
-    def set_website_filter_type(self, website_filter_type: WebsiteFilterType):
+    def set_website_block_type(self, website_block_type: WebsiteBlockType):
         with get_session() as session:
             current_workspace = WorkspaceLookup.get_current_workspace()
-            current_workspace.website_filter_type = website_filter_type
+            current_workspace.website_block_type = website_block_type
             session.add(current_workspace)
-            self.website_filter_type = website_filter_type
+            self.website_block_type = website_block_type
 
-    def get_website_filter_type(self):
-        return self.website_filter_type
+    def get_website_block_type(self):
+        return self.website_block_type
 
     def update_target_list_urls(self, target_list: URLListType, target_list_urls: set):
         """

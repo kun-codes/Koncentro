@@ -96,21 +96,21 @@ class SettingsView(QWidget, Ui_SettingsView):
             self.pomodoro_settings_group,
         )
 
-        # Website Filter Settings
-        self.website_filter_settings_group = SettingCardGroup("Website Filter", self.scrollArea)
-        self.enable_website_filter_card = SwitchSettingCardSQL(
-            CustomFluentIcon.WEBSITE_FILTER_VIEW,
-            "Enable Website Filter",
-            "Enable website filtering",
-            workspace_specific_settings.enable_website_filter,
-            self.website_filter_settings_group,
+        # Website Blocker Settings
+        self.website_blocker_settings_group = SettingCardGroup("Website Blocker", self.scrollArea)
+        self.enable_website_blocker_card = SwitchSettingCardSQL(
+            CustomFluentIcon.WEBSITE_BLOCKER_VIEW,
+            "Enable Website Blocker",
+            "Enable website blocking",
+            workspace_specific_settings.enable_website_blocker,
+            self.website_blocker_settings_group,
         )
         self.proxy_port_card = SpinBoxSettingCard(
             app_settings.proxy_port,
             CustomFluentIcon.PORT,
             "Proxy Port",
-            "Select the port where the website filter runs",
-            self.website_filter_settings_group,
+            "Select the port where the website blocker runs",
+            self.website_blocker_settings_group,
         )
 
         # Personalization Settings
@@ -182,12 +182,12 @@ class SettingsView(QWidget, Ui_SettingsView):
         self.work_interval_card.spinBox.setMinimumWidth(125)
         self.scrollAreaWidgetContents.layout().addWidget(self.pomodoro_settings_group)
 
-        # Website Filter Settings
-        self.website_filter_settings_group.addSettingCard(self.enable_website_filter_card)
-        self.website_filter_settings_group.addSettingCard(self.proxy_port_card)
+        # Website Blocker Settings
+        self.website_blocker_settings_group.addSettingCard(self.enable_website_blocker_card)
+        self.website_blocker_settings_group.addSettingCard(self.proxy_port_card)
         self.proxy_port_card.spinBox.setSymbolVisible(False)
         self.proxy_port_card.spinBox.setMinimumWidth(150)
-        self.scrollAreaWidgetContents.layout().addWidget(self.website_filter_settings_group)
+        self.scrollAreaWidgetContents.layout().addWidget(self.website_blocker_settings_group)
 
         # Personalization Settings
         self.personalization_settings_group.addSettingCard(self.theme_card)
@@ -232,7 +232,7 @@ class SettingsView(QWidget, Ui_SettingsView):
         workspace_specific_settings.work_intervals.valueChanged.connect(self.updateWorkIntervals)
         workspace_specific_settings.autostart_work.valueChanged.connect(self.updateAutostartWork)
         workspace_specific_settings.autostart_break.valueChanged.connect(self.updateAutostartBreak)
-        workspace_specific_settings.enable_website_filter.valueChanged.connect(self.updateEnableWebsiteFilter)
+        workspace_specific_settings.enable_website_blocker.valueChanged.connect(self.updateEnableWebsiteBlocker)
 
         app_settings.proxy_port.valueChanged.connect(self.updateProxyPort)
         app_settings.check_for_updates_on_start.valueChanged.connect(self.updateCheckForUpdatesOnStart)
@@ -277,13 +277,13 @@ class SettingsView(QWidget, Ui_SettingsView):
             f"{workspace_specific_settings.get(workspace_specific_settings.autostart_break)}"
         )
 
-    def updateEnableWebsiteFilter(self):
-        ConfigValues.ENABLE_WEBSITE_FILTER = workspace_specific_settings.get(
-            workspace_specific_settings.enable_website_filter
+    def updateEnableWebsiteBlocker(self):
+        ConfigValues.ENABLE_WEBSITE_BLOCKER = workspace_specific_settings.get(
+            workspace_specific_settings.enable_website_blocker
         )
         logger.debug(
-            f"Enable Website Filter: {
-                workspace_specific_settings.get(workspace_specific_settings.enable_website_filter)
+            f"Enable Website Blocker: {
+                workspace_specific_settings.get(workspace_specific_settings.enable_website_blocker)
             }"
         )
 

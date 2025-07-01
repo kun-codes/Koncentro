@@ -27,7 +27,7 @@ from constants import (
     TimerState,
     UpdateCheckResult,
     URLListType,
-    WebsiteFilterType,
+    WebsiteBlockType,
     WindowGeometryKeys,
 )
 from models.config import app_settings, load_workspace_settings, settings, workspace_specific_settings
@@ -39,7 +39,7 @@ from prefabs.koncentroFluentWindow import KoncentroFluentWindow
 from resources import logos_rc
 from tutorial.pomodoroInterfaceTutorial import PomodoroInterfaceTutorial
 from tutorial.taskInterfaceTutorial import TaskInterfaceTutorial
-from tutorial.websiteFilterInterfaceTutorial import WebsiteFilterInterfaceTutorial
+from tutorial.websiteBlockerInterfaceTutorial import WebsiteBlockerInterfaceTutorial
 from tutorial.workspaceManagerDialogTutorial import WorkspaceManagerDialogTutorial
 from utils.check_for_updates import UpdateChecker
 from utils.check_internet_worker import CheckInternetWorker
@@ -83,8 +83,8 @@ class MainWindow(KoncentroFluentWindow):
         self.settings_interface = SettingsView()
         self.settings_interface.setObjectName("settings_interface")
 
-        self.website_filter_interface = WebsiteBlockerView(self.workplace_list_model)
-        self.website_filter_interface.setObjectName("website_filter_interface")
+        self.website_blocker_interface = WebsiteBlockerView(self.workplace_list_model)
+        self.website_blocker_interface.setObjectName("website_blocker_interface")
 
         self.setObjectName("main_window")
 
@@ -103,7 +103,7 @@ class MainWindow(KoncentroFluentWindow):
         self.initBottomBar()
         self.connectSignalsToSlots()
 
-        self.website_filter_interface.setEnabled(ConfigValues.ENABLE_WEBSITE_FILTER)
+        self.website_blocker_interface.setEnabled(ConfigValues.ENABLE_WEBSITE_BLOCKER)
 
         self.navigationInterface.panel.setFixedHeight(48)
 
@@ -123,7 +123,7 @@ class MainWindow(KoncentroFluentWindow):
         # Add sub interface
         self.addSubInterface(self.task_interface, CustomFluentIcon.TASKS_VIEW, "Tasks")
         self.addSubInterface(self.pomodoro_interface, FluentIcon.STOP_WATCH, "Pomodoro")
-        self.addSubInterface(self.website_filter_interface, CustomFluentIcon.WEBSITE_FILTER_VIEW, "Website Filter")
+        self.addSubInterface(self.website_blocker_interface, CustomFluentIcon.WEBSITE_BLOCKER_VIEW, "Website Blocker")
 
         # Add sub interface at bottom
         self.navigationInterface.addItem(
@@ -345,25 +345,25 @@ class MainWindow(KoncentroFluentWindow):
             self.pomodoro_interface.skipButton.setEnabled(False)
             self.bottomBar.skipButton.setEnabled(False)
 
-    def toggle_website_filtering(self, timerState):
-        if not ConfigValues.ENABLE_WEBSITE_FILTER:
-            logger.debug("Website filtering is disabled, so not starting website filtering")
-            self.website_blocker_manager.stop_filtering(delete_proxy=True)
+    def toggle_website_blocking(self, timerState):
+        if not ConfigValues.ENABLE_WEBSITE_BLOCKER:
+            logger.debug("Website blocking is disabled, so not starting website blocking")
+            self.website_blocker_manager.stop_blocking(delete_proxy=True)
             return
 
-        logger.debug("Website filtering is enabled, so starting website filtering")
-        website_filter_type = self.website_filter_interface.model.get_website_filter_type()
-        logger.debug(f"website_filter_type: {website_filter_type}")
+        logger.debug("Website blocking is enabled, so starting website blocking")
+        website_block_type = self.website_blocker_interface.model.get_website_block_type()
+        logger.debug(f"website_block_type: {website_block_type}")
 
         urls = None
         block_type = None
         joined_urls = ""
 
-        if website_filter_type == WebsiteFilterType.BLOCKLIST:  # blocklist
-            urls = self.website_filter_interface.model.get_urls(URLListType.BLOCKLIST)
+        if website_block_type == WebsiteBlockType.BLOCKLIST:  # blocklist
+            urls = self.website_blocker_interface.model.get_urls(URLListType.BLOCKLIST)
             block_type = "blocklist"
-        elif website_filter_type == WebsiteFilterType.ALLOWLIST:  # allowlist
-            urls = self.website_filter_interface.model.get_urls(URLListType.ALLOWLIST)
+        elif website_block_type == WebsiteBlockType.ALLOWLIST:  # allowlist
+            urls = self.website_blocker_interface.model.get_urls(URLListType.ALLOWLIST)
             block_type = "allowlist"
 
         logger.debug(f"URLs: {urls}")
@@ -375,15 +375,13 @@ class MainWindow(KoncentroFluentWindow):
         mitmdump_path = get_mitmdump_path()
 
         if timerState == TimerState.WORK:
-            # todo: check if the timer is running before starting the website filtering, because in case autostart work
-            # is off, the website filter would start even when the timer is not running
-            logger.debug("Starting website filtering")
-            self.website_blocker_manager.start_filtering(
-                ConfigValues.PROXY_PORT, joined_urls, block_type, mitmdump_path
-            )
+            # todo: check if the timer is running before starting the website blocking, because in case autostart work
+            # is off, the website block would start even when the timer is not running
+            logger.debug("Starting website blocking")
+            self.website_blocker_manager.start_blocking(ConfigValues.PROXY_PORT, joined_urls, block_type, mitmdump_path)
         else:
-            logger.debug("Stopping website filtering")
-            self.website_blocker_manager.stop_filtering(delete_proxy=True)
+            logger.debug("Stopping website blocking")
+            self.website_blocker_manager.stop_blocking(delete_proxy=True)
 
     def is_task_beginning(self):
         current_state = self.pomodoro_interface.pomodoro_timer_obj.getTimerState()
@@ -527,7 +525,7 @@ class MainWindow(KoncentroFluentWindow):
         self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(
             self.toggleUIElementsBasedOnTimerState
         )
-        self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(self.toggle_website_filtering)
+        self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(self.toggle_website_blocking)
         # Auto set current task whenever a work session begins. current task won't be overwritten if it is already set
         self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(
             lambda timerState: self.task_interface.autoSetCurrentTaskID() if timerState == TimerState.WORK else None
@@ -544,26 +542,26 @@ class MainWindow(KoncentroFluentWindow):
         self.task_interface.todoTasksList.model().taskDeletedSignal.connect(self.check_current_task_deleted)
         self.pomodoro_interface.pomodoro_timer_obj.durationSkippedSignal.connect(self.updateTaskTimeDB)
         self.pomodoro_interface.pomodoro_timer_obj.sessionPausedSignal.connect(self.updateTaskTimeDB)
-        self.website_filter_interface.blockTypeComboBox.currentIndexChanged.connect(
-            lambda: self.toggle_website_filtering(self.pomodoro_interface.pomodoro_timer_obj.getTimerState())
+        self.website_blocker_interface.blockTypeComboBox.currentIndexChanged.connect(
+            lambda: self.toggle_website_blocking(self.pomodoro_interface.pomodoro_timer_obj.getTimerState())
         )
-        self.website_filter_interface.saveButton.clicked.connect(
-            lambda: self.toggle_website_filtering(self.pomodoro_interface.pomodoro_timer_obj.getTimerState())
-        )  # todo: check if the list has changed before restarting the filtering
+        self.website_blocker_interface.saveButton.clicked.connect(
+            lambda: self.toggle_website_blocking(self.pomodoro_interface.pomodoro_timer_obj.getTimerState())
+        )  # todo: check if the list has changed before restarting the blockking
         self.workplace_list_model.current_workspace_changed.connect(load_workspace_settings)
         self.workplace_list_model.current_workspace_changed.connect(
-            self.website_filter_interface.onCurrentWorkspaceChanged
+            self.website_blocker_interface.onCurrentWorkspaceChanged
         )
         self.workplace_list_model.current_workspace_changed.connect(
             self.task_interface.onCurrentWorkspaceChanged  # update task list when workspace is changed
         )
         self.pomodoro_interface.pomodoro_timer_obj.pomodoro_timer.timeout.connect(self.update_bottom_bar_timer_label)
         self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(self.update_bottom_bar_timer_label)
-        workspace_specific_settings.enable_website_filter.valueChanged.connect(
-            self.on_website_filter_enabled_setting_changed
+        workspace_specific_settings.enable_website_blocker.valueChanged.connect(
+            self.on_website_block_enabled_setting_changed
         )
-        workspace_specific_settings.enable_website_filter.valueChanged.connect(
-            lambda: self.toggle_website_filtering(self.pomodoro_interface.pomodoro_timer_obj.getTimerState())
+        workspace_specific_settings.enable_website_blocker.valueChanged.connect(
+            lambda: self.toggle_website_blocking(self.pomodoro_interface.pomodoro_timer_obj.getTimerState())
         )
         self.stackedWidget.mousePressEvent = self.onStackedWidgetClicked
         self.settings_interface.proxy_port_card.valueChanged.connect(self.update_proxy_port)
@@ -648,14 +646,14 @@ class MainWindow(KoncentroFluentWindow):
             self.pomodoroInterfaceTutorial.start()
 
         if (
-            not ConfigValues.HAS_COMPLETED_WEBSITE_FILTER_VIEW_TUTORIAL
+            not ConfigValues.HAS_COMPLETED_WEBSITE_BLOCKER_VIEW_TUTORIAL
             and self.isSafeToShowTutorial
-            and index == InterfaceType.WEBSITE_FILTER_INTERFACE.value
+            and index == InterfaceType.WEBSITE_BLOCKER_INTERFACE.value
         ):
-            self.websiteFilterInterfaceTutorial = WebsiteFilterInterfaceTutorial(
-                self, InterfaceType.WEBSITE_FILTER_INTERFACE
+            self.websiteBlockerInterfaceTutorial = WebsiteBlockerInterfaceTutorial(
+                self, InterfaceType.WEBSITE_BLOCKER_INTERFACE
             )
-            self.websiteFilterInterfaceTutorial.start()
+            self.websiteBlockerInterfaceTutorial.start()
 
     def showWorkspaceManagerTutorial(self):
         self.isSafeToShowTutorial = True
@@ -664,17 +662,17 @@ class MainWindow(KoncentroFluentWindow):
             self.workspaceManagerTutorial = WorkspaceManagerDialogTutorial(self, InterfaceType.DIALOG)
             self.workspaceManagerTutorial.start()
 
-    def on_website_filter_enabled_setting_changed(self):
-        enable_website_filter_setting_value = ConfigValues.ENABLE_WEBSITE_FILTER
+    def on_website_block_enabled_setting_changed(self):
+        enable_website_block_setting_value = ConfigValues.ENABLE_WEBSITE_BLOCKER
 
-        self.website_filter_interface.setEnabled(enable_website_filter_setting_value)
+        self.website_blocker_interface.setEnabled(enable_website_block_setting_value)
 
     def onStackedWidgetClicked(self, event):
-        if self.stackedWidget.currentIndex() == 2 and not self.website_filter_interface.isEnabled():
-            # show an infobar to inform the user that website filter is disabled and how it can be enabled
+        if self.stackedWidget.currentIndex() == 2 and not self.website_blocker_interface.isEnabled():
+            # show an infobar to inform the user that website blocker is disabled and how it can be enabled
             InfoBar.warning(
-                title="Website Filter is Disabled",
-                content="You can enable the website filter from the settings view",
+                title="Website Blocker is Disabled",
+                content="You can enable the website blocker from the settings view",
                 orient=Qt.Orientation.Vertical,
                 isClosable=True,
                 position=InfoBarPosition.TOP_RIGHT,
@@ -763,7 +761,7 @@ class MainWindow(KoncentroFluentWindow):
             logger.info("No internet connection detected")
             contentText = f"Internet connection is required to set up {APPLICATION_NAME}"
             contentText += " for the first time.\n\n" if setup_first_time else "\n\n"
-            contentText += f"{APPLICATION_NAME}'s website filtering needs internet to setup and verify it.\n"
+            contentText += f"{APPLICATION_NAME}'s website blocker needs internet to setup and verify it.\n"
             contentText += f"You can use {APPLICATION_NAME} without internet after setup." if setup_first_time else ""
             self.notHasInternetDialog = MessageBox("No Internet Connection Detected", contentText, self.window())
             self.notHasInternetDialog.cancelButton.hide()
@@ -883,7 +881,7 @@ class MainWindow(KoncentroFluentWindow):
         logger.debug("Running cleanup tasks in background thread...")
         try:
             self.updateTaskTimeDB()
-            self.website_blocker_manager.stop_filtering(delete_proxy=True)
+            self.website_blocker_manager.stop_blocking(delete_proxy=True)
             self.website_blocker_manager.cleanup()
             self.themeListener.terminate()
             self.themeListener.deleteLater()

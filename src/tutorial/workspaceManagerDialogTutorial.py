@@ -23,7 +23,7 @@ class WorkspaceManagerDialogTutorial(InterfaceTutorial):
         self._show_website_manager_dialog_step_tip = TransientPopupTeachingTip.create(
             target=self.main_window.manage_workspace_dialog.titleLabel,
             title="You can create and delete new workspaces here",
-            content="Each workspace has its own tasks, pomodoro timer and website filtering settings.",
+            content="Each workspace has its own tasks, pomodoro timer and website blocking settings.",
             icon=FluentIcon.INFO,
             parent=self.main_window,
             interface_type=InterfaceType.TASK_INTERFACE,

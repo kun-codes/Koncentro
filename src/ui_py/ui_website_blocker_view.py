@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'website_blocker_view.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.0
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -119,8 +119,8 @@ class Ui_WebsiteBlockView(object):
 
     def retranslateUi(self, WebsiteBlockView):
         WebsiteBlockView.setWindowTitle(QCoreApplication.translate("WebsiteBlockView", u"Form", None))
-        self.titleLabel.setText(QCoreApplication.translate("WebsiteBlockView", u"Website Filter", None))
-        self.blockTypeLabel.setText(QCoreApplication.translate("WebsiteBlockView", u"Select type of website filtering: ", None))
+        self.titleLabel.setText(QCoreApplication.translate("WebsiteBlockView", u"Website Blocker", None))
+        self.blockTypeLabel.setText(QCoreApplication.translate("WebsiteBlockView", u"Select type of website blocking: ", None))
         self.cancelButton.setText(QCoreApplication.translate("WebsiteBlockView", u"Cancel", None))
         self.saveButton.setText(QCoreApplication.translate("WebsiteBlockView", u"Save", None))
     # retranslateUi

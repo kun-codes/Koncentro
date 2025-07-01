@@ -26,8 +26,8 @@ class FlatpakContainerError(Exception):
         super().__init__(self.message)
 
 
-class FilterWorker(QThread):
-    """Worker thread for filtering operations"""
+class WebsiteBlockerWorker(QThread):
+    """Worker thread for website blocking operations"""
 
     operationCompleted = Signal(bool, str)  # Success flag, message
 
@@ -42,7 +42,7 @@ class FilterWorker(QThread):
             _result = self.operation(*self.args, **self.kwargs)
             self.operationCompleted.emit(True, "Operation completed successfully")
         except Exception as e:
-            logger.error(f"Error in FilterWorker: {e}")
+            logger.error(f"Error in WebsiteBlockerWorker: {e}")
             self.operationCompleted.emit(False, str(e))
 
 
@@ -63,8 +63,8 @@ class ProxyWorker(QThread):
 
 
 class WebsiteBlockerManager(QObject):
-    filteringStarted = Signal()
-    filteringStopped = Signal()
+    blockingStarted = Signal()
+    blockingStopped = Signal()
     operationError = Signal(str)
 
     def __init__(self):
@@ -73,17 +73,17 @@ class WebsiteBlockerManager(QObject):
         self.workers = []  # Keep references to prevent garbage collection
         self.pending_start_params = None  # Store parameters for pending start operation
 
-    def start_filtering(
+    def start_blocking(
         self,
         listening_port: int,
         joined_addresses: str,
         block_type: str,
         mitmdump_bin_path: str,
     ):
-        """Function which starts filtering in a separate thread."""
-        logger.debug("Inside WebsiteBLockerManager.start_filtering().")
+        """Function which starts blocking in a separate thread."""
+        logger.debug("Inside WebsiteBLockerManager.start_blocking().")
 
-        # Store parameters for later use after stop_filtering completes
+        # Store parameters for later use after stop_blocking completes
         # would be cleared in _start_after_stop to emulate the memory management of method parameters
         # to prevent memory leaks
         self.pending_start_params = {
@@ -94,9 +94,9 @@ class WebsiteBlockerManager(QObject):
         }
 
         # Not connecting in __init__ because sometimes we want to stop mitmdump without starting it afterwards
-        self.filteringStopped.connect(self._start_after_stop)
+        self.blockingStopped.connect(self._start_after_stop)
 
-        self.stop_filtering(delete_proxy=False)
+        self.stop_blocking(delete_proxy=False)
 
         proxy_worker = ProxyWorker(self.proxy.join)
         self.workers.append(proxy_worker)
@@ -171,22 +171,22 @@ class WebsiteBlockerManager(QObject):
         return True
 
     def _on_start_completed(self, success, message):
-        """Handle completion of start_filtering operation"""
+        """Handle completion of start_blocking operation"""
         if success:
-            self.filteringStarted.emit()
+            self.blockingStarted.emit()
         else:
-            self.operationError.emit(f"Failed to start filtering: {message}")
+            self.operationError.emit(f"Failed to start blocking: {message}")
 
-    def stop_filtering(self, delete_proxy: bool = True):
-        """Stop filtering in a separate thread."""
-        logger.debug("Inside WebsiteBlockerManager.stop_filtering().")
+    def stop_blocking(self, delete_proxy: bool = True):
+        """Stop website blocking in a separate thread."""
+        logger.debug("Inside WebsiteBlockerManager.stop_blocking().")
 
         if delete_proxy:
             proxy_worker = ProxyWorker(self.proxy.delete_proxy)
             self.workers.append(proxy_worker)
             proxy_worker.start()
 
-        worker = FilterWorker(self._shutdown_mitmdump)
+        worker = WebsiteBlockerWorker(self._shutdown_mitmdump)
         worker.operationCompleted.connect(self._on_stop_completed)
         self.workers.append(worker)
         worker.start()
@@ -241,19 +241,19 @@ class WebsiteBlockerManager(QObject):
         return True
 
     def _on_stop_completed(self, success, message):
-        """Handle completion of stop_filtering operation"""
+        """Handle completion of stop_blocking operation"""
         if not success:
-            self.operationError.emit(f"Warning during filtering shutdown: {message}")
+            self.operationError.emit(f"Warning during blocking shutdown: {message}")
 
-        self.filteringStopped.emit()
+        self.blockingStopped.emit()
 
     def _start_after_stop(self):
-        """Start mitmdump after stop_filtering has completed"""
-        # disconnect the signal to prevent multiple connections as it would be reconnected in start_filtering
-        self.filteringStopped.disconnect(self._start_after_stop)
+        """Start mitmdump after stop_blocking has completed"""
+        # disconnect the signal to prevent multiple connections as it would be reconnected in start_blocking
+        self.blockingStopped.disconnect(self._start_after_stop)
 
         if self.pending_start_params:
-            worker = FilterWorker(
+            worker = WebsiteBlockerWorker(
                 self._start_mitmdump,
                 self.pending_start_params["listening_port"],
                 self.pending_start_params["joined_addresses"],

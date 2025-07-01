@@ -26,7 +26,7 @@ class SetupAppDialog(MessageBoxBase):
         titleText += " for the first time" if self.is_setup_first_time else ""
         self.titleLabel = SubtitleLabel(titleText, parent=self)
 
-        bodyText = "Click the below button to visit the webpage to set up system-wide website filtering. "
+        bodyText = "Click the below button to visit the webpage to set up system-wide website blocking. "
 
         self.bodyLabel = BodyLabel(
             bodyText,
@@ -34,7 +34,7 @@ class SetupAppDialog(MessageBoxBase):
         )
 
         self.bodyLabel2 = BodyLabel(
-            "You would need to install mitmproxy's certificate to your system to enable website filtering",
+            "You would need to install mitmproxy's certificate to your system to enable website blocking",
             parent=self,
         )
 
@@ -75,11 +75,11 @@ class SetupAppDialog(MessageBoxBase):
         # are not called
         self.yesButton.clicked.disconnect()
         self.cancelButton.clicked.disconnect()
-        self.yesButton.clicked.connect(self.onWebsiteFilterSetupButtonClicked)
+        self.yesButton.clicked.connect(self.onWebsiteBlockSetupButtonClicked)
         self.cancelButton.clicked.connect(self.onCloseButtonClicked)
         self.backButton.clicked.connect(self.onBackButtonClicked)
 
-    def onWebsiteFilterSetupButtonClicked(self):
+    def onWebsiteBlockSetupButtonClicked(self):
         url = QUrl("http://mitm.it/")
         QDesktopServices.openUrl(url)
 
@@ -87,17 +87,17 @@ class SetupAppDialog(MessageBoxBase):
         confirmation_dialog = PostSetupVerificationDialog(self, self.is_setup_first_time)
 
         if confirmation_dialog.exec():
-            self.temporary_website_blocker_manager.stop_filtering(delete_proxy=True)  # stopping website filtering here
+            self.temporary_website_blocker_manager.stop_blocking(delete_proxy=True)  # stopping website blocking here
             # because this function will only be triggered after confirmation_dialog is accepted
             self.accept()
 
     def onBackButtonClicked(self):
-        self.temporary_website_blocker_manager.stop_filtering(delete_proxy=True)
+        self.temporary_website_blocker_manager.stop_blocking(delete_proxy=True)
         self.reject()
 
     def initTemporaryWebsiteBlockerManager(self):
         self.temporary_website_blocker_manager = WebsiteBlockerManager()
-        self.temporary_website_blocker_manager.start_filtering(
+        self.temporary_website_blocker_manager.start_blocking(
             listening_port=ConfigValues.PROXY_PORT,
             joined_addresses="example.com",
             block_type="blocklist",

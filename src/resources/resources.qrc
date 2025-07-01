@@ -14,8 +14,8 @@
     <file>icons/port_black.svg</file>
     <file>icons/workspace_selector_view_black.svg</file>
     <file>icons/workspace_selector_view_white.svg</file>
-    <file>icons/website_filter_view_black.svg</file>
-    <file>icons/website_filter_view_white.svg</file>
+    <file>icons/website_blocker_view_black.svg</file>
+    <file>icons/website_blocker_view_white.svg</file>
     <file>icons/tasks_view_black.svg</file>
     <file>icons/tasks_view_white.svg</file>
     <file>icons/autostart_break_black.svg</file>

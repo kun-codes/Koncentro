@@ -35,8 +35,8 @@ def upgrade() -> None:
     sa.Column('work_intervals', sa.Integer(), nullable=True),
     sa.Column('autostart_work', sa.Boolean(), nullable=True),
     sa.Column('autostart_break', sa.Boolean(), nullable=True),
-    sa.Column('enable_website_filter', sa.Boolean(), nullable=True),
-    sa.Column('website_filter_type', sa.Enum('BLOCKLIST', 'ALLOWLIST', name='websitefiltertype'), nullable=True),
+    sa.Column('enable_website_blocker', sa.Boolean(), nullable=True),
+    sa.Column('website_block_type', sa.Enum('BLOCKLIST', 'ALLOWLIST', name='websiteblocktype'), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('allowlist_exception_urls',

@@ -1,7 +1,7 @@
 # Copyright: (c) 2018, Aniket Panjwani <aniket@addictedto.tech>
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-"""Filter URLs according to rules."""
+"""Block URLs according to rules."""
 
 import os
 import sys
@@ -17,7 +17,7 @@ from website_blocker.constants import BLOCK_HTML_MESSAGE, MITMDUMP_SHUTDOWN_URL
 
 def load(loader):
     loader.add_option("addresses_str", str, "", "Concatenated addresses.")
-    loader.add_option("block_type", str, "", "Whitelist or blacklist.")
+    loader.add_option("block_type", str, "", "Allowlist or blocklist.")
 
 
 def request(flow):

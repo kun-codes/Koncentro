@@ -11,7 +11,7 @@ LONG_BREAK_DURATION = 15
 WORK_INTERVALS = 2
 AUTOSTART_WORK = True
 AUTOSTART_BREAK = True
-ENABLE_WEBSITE_FILTER = True
+ENABLE_WEBSITE_BLOCKER = True
 
 APPLICATION_UID = "com.bishwasaha.koncentro"
 
@@ -22,7 +22,7 @@ UPDATE_CHECK_URL = "https://api.github.com/repos/kun-codes/koncentro/releases/la
 NEW_RELEASE_URL = "https://github.com/kun-codes/koncentro/releases/latest"
 
 
-class WebsiteFilterType(Enum):
+class WebsiteBlockType(Enum):
     BLOCKLIST = 0
     ALLOWLIST = 1
 
@@ -57,7 +57,7 @@ class UpdateCheckResult(Enum):
 class InterfaceType(Enum):
     TASK_INTERFACE = 0
     POMODORO_INTERFACE = 1
-    WEBSITE_FILTER_INTERFACE = 2
+    WEBSITE_BLOCKER_INTERFACE = 2
     SETTINGS_INTERFACE = 3
 
     DIALOG = -1
@@ -69,7 +69,7 @@ class NavPanelButtonPosition(Enum):
     BACK_BUTTON = (0, 0)
     TASK_INTERFACE = (0, 2)
     POMODORO_INTERFACE = (0, 3)
-    WEBSITE_FILTER_INTERFACE = (0, 4)
+    WEBSITE_BLOCKER_INTERFACE = (0, 4)
 
     # 1 = Scroll Layout of Panel of Navigation Panel
 

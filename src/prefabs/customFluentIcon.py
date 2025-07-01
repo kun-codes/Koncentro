@@ -11,7 +11,7 @@ class CustomFluentIcon(FluentIconBase, Enum):
     AUTOSTART_BREAK = "autostart_break"
     AUTOSTART_WORK = "autostart_work"
     BREAK = "break"
-    WEBSITE_FILTER_VIEW = "website_filter_view"
+    WEBSITE_BLOCKER_VIEW = "website_blocker_view"
     LONG_BREAK = "long_break"
     TASKS_VIEW = "tasks_view"
     WORK = "work"
