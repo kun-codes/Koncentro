@@ -2,7 +2,7 @@
   <img src="assets/logo_64x64.png" width="64" style="vertical-align: middle; margin-right: 12px;" />
   <span style="display: inline-block; vertical-align: middle; font-size:2.5em;"><b>Koncentro</b></span>
 </p>
-<p align="center">Pomodoro todo list app with an integrated website blocker and timeboxing</p>
+<p align="center">A powerful productivity app combining Pomodoro technique, task management, and website blocking.</p>
 
 > [!IMPORTANT]
 > Koncentro assumes that you aren't using a proxy server already since it runs a local proxy server to block websites.
