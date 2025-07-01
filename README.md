@@ -1,4 +1,7 @@
-<h1 align="center">Koncentro</h1>
+<p align="center" style="display: flex; align-items: center; justify-content: center;">
+  <img src="assets/logo_64x64.png" width="64" style="vertical-align: middle; margin-right: 12px;" />
+  <span style="display: inline-block; vertical-align: middle; font-size:2.5em;"><b>Koncentro</b></span>
+</p>
 <p align="center">Pomodoro todo list app with an integrated website blocker and timeboxing</p>
 
 > [!IMPORTANT]
