@@ -1,7 +1,8 @@
-<p align="center" style="display: flex; align-items: center; justify-content: center;">
-  <img src="assets/logo_64x64.png" width="64" style="vertical-align: middle; margin-right: 12px;" />
-  <span style="display: inline-block; vertical-align: middle; font-size:2.5em;"><b>Koncentro</b></span>
+<p align="center">
+  <img src="assets/logo_64x64.png" width="64" /><br>
+  <span style="font-size:2.5em;"><b>Koncentro</b></span>
 </p>
+
 <p align="center">A powerful productivity app combining Pomodoro technique, task management, and website blocking.</p>
 
 > [!IMPORTANT]
@@ -82,5 +83,7 @@ This project is licensed under the [GPL-3.0-or-later license](LICENSE).
 ## Credits
 
 - [Super Productivity](https://github.com/johannesjo/super-productivity): The app is inspired by Super Productivity.
+- [chomper](https://github.com/aniketpanjwani/chomper): The website blocker has some functionality inspired by chomper.
+- [Flowkeeper](https://github.com/flowkeeper-org/fk-desktop): Installer creation scripts have been adapted from Flowkeeper.
 - [chomper](https://github.com/aniketpanjwani/chomper): The website blocker has some functionality inspired by chomper.
 - [Flowkeeper](https://github.com/flowkeeper-org/fk-desktop): Installer creation scripts have been adapted from Flowkeeper.
