@@ -547,7 +547,7 @@ class MainWindow(KoncentroFluentWindow):
         )
         self.website_blocker_interface.saveButton.clicked.connect(
             lambda: self.toggle_website_blocking(self.pomodoro_interface.pomodoro_timer_obj.getTimerState())
-        )  # todo: check if the list has changed before restarting the blockking
+        )  # todo: check if the list has changed before restarting the blocking
         self.workplace_list_model.current_workspace_changed.connect(load_workspace_settings)
         self.workplace_list_model.current_workspace_changed.connect(
             self.website_blocker_interface.onCurrentWorkspaceChanged
