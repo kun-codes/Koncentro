@@ -2,6 +2,10 @@
 
 <p align="center">A powerful productivity app combining Pomodoro technique, task management, and website blocking.</p>
 
+<p align="center">
+  <img src="screenshots/banner.png" alt="Koncentro Banner" />
+</p>
+
 > [!IMPORTANT]
 > Koncentro assumes that you aren't using a proxy server already since it runs a local proxy server to block websites.
 
@@ -82,3 +86,4 @@ This project is licensed under the [GPL-3.0-or-later license](LICENSE).
 - [Super Productivity](https://github.com/johannesjo/super-productivity): The app is inspired by Super Productivity.
 - [chomper](https://github.com/aniketpanjwani/chomper): The website blocker has some functionality inspired by chomper.
 - [Flowkeeper](https://github.com/flowkeeper-org/fk-desktop): Installer creation scripts have been adapted from Flowkeeper.
+- [Flathub Banner Preview](https://docs.flathub.org/banner-preview): For the banner image used in the README.
