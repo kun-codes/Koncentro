@@ -1,6 +1,6 @@
 <p align="center">
   <img src="assets/logo_64x64.png" width="64" /><br>
-  <span style="font-size:2.5em;"><b>Koncentro</b></span>
+  <span style="font-size:5em;"><b>Koncentro</b></span>
 </p>
 
 <p align="center">A powerful productivity app combining Pomodoro technique, task management, and website blocking.</p>
