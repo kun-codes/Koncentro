@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>com.bishwasaha.Koncentro</id>
+
+    <name>Koncentro</name>
+    <summary>Pomodoro, tasks &amp; website blocking</summary>
+
+    <metadata_license>MIT</metadata_license>
+    <project_license>GPL-3.0-or-later</project_license>
+
+    <developer id="com.bishwasaha">
+        <name>Bishwa Saha</name>
+    </developer>
+
+    <description>
+        <p>
+            A powerful productivity app combining Pomodoro technique, task management, and website blocking.
+        </p>
+        <p>A list of features:</p>
+        <ul>
+            <li>Timeboxing: Set fixed durations for tasks to boost focus and efficiency.</li>
+            <li>Website Blocker: Block distracting sites using customizable blocklists or allowlists.</li>
+            <li>Workspaces: Separate work and personal tasks with dedicated Pomodoro timers, blockers, and task lists.</li>
+            <li>Fluent Design: Built with Microsoft’s Fluent Design.</li>
+        </ul>
+    </description>
+
+    <provides>
+        <binary>koncentro</binary>
+    </provides>
+
+    <categories>
+        <category>Network</category>
+        <category>Office</category>
+    </categories>
+
+    <branding>
+        <color type="primary" scheme_preference="light">#bfd9ea</color>
+        <color type="primary" scheme_preference="dark">#1c2a36</color>
+    </branding>
+
+    <content_rating type="oars-1.1" />
+
+    <url type="homepage">https://github.com/kun-codes/Koncentro</url>
+    <url type="bugtracker">https://github.com/kun-codes/Koncentro/issues</url>
+    <url type="contribute">https://github.com/kun-codes/Koncentro/pulls</url>
+    <url type="contact">https://github.com/kun-codes/Koncentro/discussions</url>
+    <url type="vcs-browser">https://github.com/kun-codes/Koncentro</url>
+
+    <screenshots>
+      <screenshot type="default">
+        <image>https://github.com/kun-codes/Koncentro/blob/0458e9272e480b11940db5cd6e38a41e38999dad/screenshots/linux_tasks_list.png</image>
+        <caption>Tasks List View</caption>
+      </screenshot>
+      <screenshot>
+        <image>https://github.com/kun-codes/Koncentro/blob/0458e9272e480b11940db5cd6e38a41e38999dad/screenshots/linux_pomodoro_timer.png</image>
+        <caption>Pomodoro Timer</caption>
+      </screenshot>
+      <screenshot>
+        <image>https://github.com/kun-codes/Koncentro/blob/0458e9272e480b11940db5cd6e38a41e38999dad/screenshots/linux_website_blocker.png</image>
+        <caption>Website Blocker</caption>
+      </screenshot>
+      <screenshot>
+        <image>https://github.com/kun-codes/Koncentro/blob/0458e9272e480b11940db5cd6e38a41e38999dad/screenshots/linux_workspace_manager.png</image>
+        <caption>Workspace Manager</caption>
+      </screenshot>
+      <screenshot>
+        <image>https://github.com/kun-codes/Koncentro/blob/0458e9272e480b11940db5cd6e38a41e38999dad/screenshots/linux_settings.png</image>
+        <caption>Settings</caption>
+      </screenshot>
+    </screenshots>
+
+    <launchable type="desktop-id">koncentro.desktop</launchable>
+</component>
