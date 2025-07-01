@@ -1,8 +1,8 @@
+import os
 import socket
 import threading
 from pathlib import Path
 
-import darkdetect
 from loguru import logger
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QFont, QIcon
@@ -151,7 +151,9 @@ class MainWindow(KoncentroFluentWindow):
 
         self.tray_menu = QMenu()
 
-        is_os_dark_mode = qconfig.theme
+        is_os_dark_mode = qconfig.theme == Theme.DARK
+        desktop = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
+        is_gnome = "gnome" in desktop
 
         self.tray_menu_timer_status_action = self.tray_menu.addAction("Timer not running")
         self.tray_menu_timer_status_action.setIcon(
@@ -198,7 +200,9 @@ class MainWindow(KoncentroFluentWindow):
         self.tray_white_icon = QIcon(":/logosPrefix/logos/logo-monochrome-white.svg")
         self.tray_black_icon = QIcon(":/logosPrefix/logos/logo-monochrome-black.svg")
 
-        if is_os_dark_mode:
+        if is_gnome:
+            initial_icon = self.tray_white_icon
+        elif is_os_dark_mode:
             initial_icon = self.tray_white_icon
         else:
             initial_icon = self.tray_black_icon
@@ -214,7 +218,11 @@ class MainWindow(KoncentroFluentWindow):
     def updateSystemTrayIcon(self):
         logger.debug("Updating system tray icon")
         # context menu of Windows 10 system tray icon is always in light mode for qt apps.
-        if darkdetect.isDark():
+        desktop = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
+        is_gnome = "gnome" in desktop
+        if is_gnome:
+            self.tray.setIcon(self.tray_white_icon)
+        elif qconfig.theme == Theme.DARK:
             self.tray.setIcon(self.tray_white_icon)
         else:
             self.tray.setIcon(self.tray_black_icon)
@@ -222,7 +230,7 @@ class MainWindow(KoncentroFluentWindow):
         if isWin10OrEarlier():
             return
 
-        if darkdetect.isDark():
+        if qconfig.theme == Theme.DARK:
             self.tray_menu_timer_status_action.setIcon(FluentIcon.STOP_WATCH.icon(Theme.DARK))
             self.tray_menu_start_action.setIcon(FluentIcon.PLAY.icon(Theme.DARK))
             self.tray_menu_pause_resume_action.setIcon(CustomFluentIcon.PLAY_PAUSE.icon(Theme.DARK))
