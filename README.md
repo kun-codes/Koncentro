@@ -6,6 +6,13 @@
   <img src="screenshots/banner.png" alt="Koncentro Banner" />
 </p>
 
+<div align="center">
+
+  [![wakatime](https://wakatime.com/badge/github/kun-codes/koncentro.svg?style=flat-square)](https://wakatime.com/badge/github/kun-codes/koncentro)
+  ![WinGet Package Version](https://img.shields.io/winget/v/BishwaSaha.Koncentro?style=flat-square)
+
+</div>
+
 > [!IMPORTANT]
 > Koncentro assumes that you aren't using a proxy server already since it runs a local proxy server to block websites.
 
