@@ -103,26 +103,39 @@ jobs:
                     cp mitmdump Koncentro/mitmdump
                     cd Koncentro
 
-            -   name: Download latest version of mitmproxy (MacOS)
-                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            -   name: Find mitmdump path
+                shell: bash
                 run: |
-                    cd ..
-                    gh release download --repo kun-codes/mitmproxy-nuitka-binaries --pattern "mitmdump-macos-${{ env.ARCHITECTURE }}*.zip" --dir .
-                    unzip mitmdump-macos*.zip
-                    cp mitmdump-macos*/mitmdump Koncentro/mitmdump
-                    chmod +x Koncentro/mitmdump
-                    cd Koncentro
+                    if [[ "$RUNNER_OS" == "Windows" ]]; then
+                      MITMDUMP_PATH=$(where mitmdump.exe | head -n 1 | tr -d '\r')
+                      echo "MITMDUMP_PATH=$MITMDUMP_PATH" >> $GITHUB_ENV
+                      echo "MITMDUMP_PATH=$MITMDUMP_PATH"
+                    else
+                      MITMDUMP_PATH=$(which mitmdump)
+                      echo "MITMDUMP_PATH=$MITMDUMP_PATH" >> $GITHUB_ENV
+                      echo "MITMDUMP_PATH=$MITMDUMP_PATH"
+                    fi
 
-            -   name: Download latest version of mitmproxy (Windows)
-                if: matrix.os == 'windows-latest'
-                run: |
-                    cd ..
-                    Invoke-WebRequest -Uri "https://downloads.mitmproxy.org/${{ env.MITMPROXY_LATEST_VERSION }}/mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-windows-x86_64.zip" -OutFile "mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-windows-x86_64.zip"
-                    Expand-Archive -Path "mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-windows-x86_64.zip" -DestinationPath .
-                    Copy-Item -Path "mitmdump.exe" -Destination "Koncentro\mitmdump.exe"
-                    cd "Koncentro"
+#            -   name: Download latest version of mitmproxy (MacOS)
+#                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+#                env:
+#                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#                run: |
+#                    cd ..
+#                    gh release download --repo kun-codes/mitmproxy-nuitka-binaries --pattern "mitmdump-macos-${{ env.ARCHITECTURE }}*.zip" --dir .
+#                    unzip mitmdump-macos*.zip
+#                    cp mitmdump-macos*/mitmdump Koncentro/mitmdump
+#                    chmod +x Koncentro/mitmdump
+#                    cd Koncentro
+#
+#            -   name: Download latest version of mitmproxy (Windows)
+#                if: matrix.os == 'windows-latest'
+#                run: |
+#                    cd ..
+#                    Invoke-WebRequest -Uri "https://downloads.mitmproxy.org/${{ env.MITMPROXY_LATEST_VERSION }}/mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-windows-x86_64.zip" -OutFile "mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-windows-x86_64.zip"
+#                    Expand-Archive -Path "mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-windows-x86_64.zip" -DestinationPath .
+#                    Copy-Item -Path "mitmdump.exe" -Destination "Koncentro\mitmdump.exe"
+#                    cd "Koncentro"
 
             # Remove problematic brew libs if Intel Mac
             # https://github.com/Nuitka/Nuitka/issues/2853#issuecomment-2119520735
@@ -138,6 +151,7 @@ jobs:
                     nuitka-version: 'main'
                     script-name: |
                         src/__main__.py
+                        ${{ env.MITMDUMP_PATH }}
                     mode: ${{ (matrix.os == 'macos-latest' || matrix.os == 'macos-13') && 'app' || 'standalone' }}
                     enable-plugins: 'pyside6'
                     product-name: 'Koncentro'
@@ -148,7 +162,7 @@ jobs:
                     windows-icon-from-ico: 'assets/logo.ico'
                     clang: ${{ matrix.os == 'windows-latest' && 'on' || '' }}
                     windows-console-mode: 'disable'
-                    output-file: 'koncentro'
+#                    output-file: 'koncentro'
                     macos-app-version: '${{ env.KONCENTRO_VERSION }}'
                     product-version: '${{ env.KONCENTRO_VERSION }}'
                     deployment: ${{ inputs.deployment }}
