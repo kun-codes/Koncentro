@@ -24,12 +24,14 @@ def get_mitmdump_path():
             return str(mitmdump_path)
 
     # get the path to the project root
-    path = Path(__file__).parent.parent.parent
+    _path = Path(__file__).parent.parent.parent
     # Find the path to the mitmdump executable
-    mitmdump_path = shutil.which("mitmdump", path=path)
+    # mitmdump_path = shutil.which("mitmdump", path=path)
+    mitmdump_path = shutil.which("mitmdump")
 
     if platform.system() == "Windows" and mitmdump_path is None:
-        mitmdump_path = shutil.which("mitmdump.exe", path=path)
+        # mitmdump_path = shutil.which("mitmdump.exe", path=path)
+        mitmdump_path = shutil.which("mitmdump.exe")
 
     logger.debug(f"mitmdump path: {mitmdump_path}")
     return mitmdump_path
