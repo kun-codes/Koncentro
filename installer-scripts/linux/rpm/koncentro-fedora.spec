@@ -26,7 +26,15 @@ Koncentro - Focus manager and website blocker
 mkdir -p %{buildroot}/usr/lib/koncentro
 mkdir -p %{buildroot}/usr/bin
 mkdir -p %{buildroot}/usr/share/applications
-mkdir -p %{buildroot}/usr/share/icons/hicolor/{16x16,24x24,32x32,48x48,64x64,128x128,256x256,512x512,1024x1024}/apps
+mkdir -p %{buildroot}/usr/share/icons/hicolor/16x16/apps
+mkdir -p %{buildroot}/usr/share/icons/hicolor/24x24/apps
+mkdir -p %{buildroot}/usr/share/icons/hicolor/32x32/apps
+mkdir -p %{buildroot}/usr/share/icons/hicolor/48x48/apps
+mkdir -p %{buildroot}/usr/share/icons/hicolor/64x64/apps
+mkdir -p %{buildroot}/usr/share/icons/hicolor/128x128/apps
+mkdir -p %{buildroot}/usr/share/icons/hicolor/256x256/apps
+mkdir -p %{buildroot}/usr/share/icons/hicolor/512x512/apps
+mkdir -p %{buildroot}/usr/share/icons/hicolor/1024x1024/apps
 
 cp -r usr/lib/koncentro/* %{buildroot}/usr/lib/koncentro/
 cp usr/bin/koncentro %{buildroot}/usr/bin/koncentro
@@ -49,8 +57,3 @@ cp usr/share/icons/hicolor/1024x1024/apps/koncentro.png %{buildroot}/usr/share/i
 /usr/lib/koncentro/*
 /usr/share/applications/org.koncentro.Koncentro.desktop
 /usr/share/icons/hicolor/*/apps/koncentro.png
-
-%changelog
-* $(date +"%%a %%b %%d %%Y") Bishwa Saha <email@example.com> - ${KONCENTRO_VERSION}-1
-- Initial package
-
