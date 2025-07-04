@@ -99,5 +99,5 @@ echo "6. Created metadata"
 cat deb/DEBIAN/control
 
 # 7. Build DEB file
-dpkg-deb --build deb ../dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}.deb
-echo "7. Built DEB file"
+dpkg-deb --build -Zzstd -z9 deb ../dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}.deb
+echo "7. Built DEB file with aggressive compression"
