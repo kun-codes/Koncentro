@@ -110,14 +110,10 @@ case "$DISTRO" in
     tar -czf ~/rpmbuild/SOURCES/koncentro-${KONCENTRO_VERSION}.tar.gz -C build/rpm .
 
     # Build RPM with zstd compression
-    rpmbuild -bb ~/rpmbuild/SPECS/koncentro.spec \
-        --define "_rpmdir $(pwd)/dist" \
-        --define "_build_name_fmt %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm"
+    rpmbuild -bb ~/rpmbuild/SPECS/koncentro.spec
 
-    # Move and rename the built RPM
-    mv dist/${ARCHITECTURE}/koncentro-${KONCENTRO_VERSION}-1.fc*.${ARCHITECTURE}.rpm \
-       dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}-Fedora.rpm 2>/dev/null || \
-    mv dist/${ARCHITECTURE}/koncentro-${KONCENTRO_VERSION}-1.${ARCHITECTURE}.rpm \
+    # Move and rename the built RPM from default location
+    mv ~/rpmbuild/RPMS/${ARCHITECTURE}/koncentro-${KONCENTRO_VERSION}-1*.${ARCHITECTURE}.rpm \
        dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}-Fedora.rpm
 
     echo "Built Fedora RPM package with zstd compression"
@@ -133,12 +129,10 @@ case "$DISTRO" in
     tar -czf ~/rpmbuild/SOURCES/koncentro-${KONCENTRO_VERSION}.tar.gz -C build/rpm .
 
     # Build RPM with zstd compression
-    rpmbuild -bb ~/rpmbuild/SPECS/koncentro.spec \
-        --define "_rpmdir $(pwd)/dist" \
-        --define "_build_name_fmt %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm"
+    rpmbuild -bb ~/rpmbuild/SPECS/koncentro.spec
 
-    # Move and rename the built RPM
-    mv dist/${ARCHITECTURE}/koncentro-${KONCENTRO_VERSION}-1.${ARCHITECTURE}.rpm \
+    # Move and rename the built RPM from default location
+    mv ~/rpmbuild/RPMS/${ARCHITECTURE}/koncentro-${KONCENTRO_VERSION}-1.${ARCHITECTURE}.rpm \
        dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}-openSUSE.rpm
 
     echo "Built openSUSE RPM package with zstd compression"
