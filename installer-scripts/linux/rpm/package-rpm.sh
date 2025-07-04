@@ -92,58 +92,51 @@ export KONCENTRO_AUTOSTART_ARGS=""
 < ../installer-scripts/linux/common/koncentro.desktop envsubst > rpm/usr/share/applications/org.koncentro.Koncentro.desktop
 echo "5. Created a desktop shortcut"
 
-# 6. Build RPM file based on distribution
+# 6. Build RPM file based on distribution using rpmbuild
 mkdir -p ../dist
 cd ..
 
+# Setup rpmbuild directories
+mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+
 case "$DISTRO" in
   fedora)
-    echo "Building Fedora RPM package..."
-    fpm -s dir -t rpm \
-        -C build/rpm \
-        -n koncentro \
-        -v $KONCENTRO_VERSION \
-        --license "GPL-3.0" \
-        --vendor "Bishwa Saha" \
-        --url "https://github.com/kun-codes/Koncentro" \
-        --description "Koncentro - Focus manager and website blocker" \
-        --category "Productivity" \
-        --maintainer "Bishwa Saha" \
-        --rpm-summary "Focus manager and website blocker" \
-        --architecture "$ARCHITECTURE" \
-        --depends "xcb-util-cursor" \
-        --depends "xcb-util-keysyms" \
-        --depends "xcb-util-wm" \
-        --rpm-compression xzmt \
-        --rpm-compression-level 9 \
-        -p dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}-Fedora.rpm \
-        usr
-    echo "Built Fedora RPM package"
+    echo "Building Fedora RPM package with zstd compression..."
+
+    # Process spec file
+    envsubst < installer-scripts/linux/rpm/koncentro-fedora.spec > ~/rpmbuild/SPECS/koncentro.spec
+
+    # Create source tarball
+    tar -czf ~/rpmbuild/SOURCES/koncentro-${KONCENTRO_VERSION}.tar.gz -C build/rpm .
+
+    # Build RPM with zstd compression
+    rpmbuild -bb ~/rpmbuild/SPECS/koncentro.spec
+
+    # Move and rename the built RPM from default location
+    mv ~/rpmbuild/RPMS/${ARCHITECTURE}/koncentro-${KONCENTRO_VERSION}-1*.${ARCHITECTURE}.rpm \
+       dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}-Fedora.rpm
+
+    echo "Built Fedora RPM package with zstd compression"
     ;;
 
   opensuse|*)
-    echo "Building openSUSE RPM package..."
-    fpm -s dir -t rpm \
-        -C build/rpm \
-        -n koncentro \
-        -v $KONCENTRO_VERSION \
-        --license "GPL-3.0" \
-        --vendor "Bishwa Saha" \
-        --url "https://github.com/kun-codes/Koncentro" \
-        --description "Koncentro - Focus manager and website blocker" \
-        --category "Productivity" \
-        --maintainer "Bishwa Saha" \
-        --rpm-summary "Focus manager and website blocker" \
-        --architecture "$ARCHITECTURE" \
-        --depends "libxcb-cursor0" \
-        --depends "libxcb-keysyms1" \
-        --depends "libxcb-icccm4" \
-        --rpm-compression xzmt \
-        --rpm-compression-level 9 \
-        -p dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}-openSUSE.rpm \
-        usr
-    echo "Built openSUSE RPM package"
+    echo "Building openSUSE RPM package with zstd compression..."
+
+    # Process spec file
+    envsubst < installer-scripts/linux/rpm/koncentro-opensuse.spec > ~/rpmbuild/SPECS/koncentro.spec
+
+    # Create source tarball
+    tar -czf ~/rpmbuild/SOURCES/koncentro-${KONCENTRO_VERSION}.tar.gz -C build/rpm .
+
+    # Build RPM with zstd compression
+    rpmbuild -bb ~/rpmbuild/SPECS/koncentro.spec
+
+    # Move and rename the built RPM from default location
+    mv ~/rpmbuild/RPMS/${ARCHITECTURE}/koncentro-${KONCENTRO_VERSION}-1.${ARCHITECTURE}.rpm \
+       dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}-openSUSE.rpm
+
+    echo "Built openSUSE RPM package with zstd compression"
     ;;
 esac
 
-echo "6. RPM packages built successfully"
+echo "6. RPM packages built successfully with zstd compression"
