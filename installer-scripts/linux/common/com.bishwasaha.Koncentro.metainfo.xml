@@ -71,4 +71,9 @@
     </screenshots>
 
     <launchable type="desktop-id">koncentro.desktop</launchable>
+
+    <releases>
+        <release version="0.8.0" date="2025-07-06">
+        </release>
+    </releases>
 </component>
