@@ -20,3 +20,7 @@ search = 'version = "{current_version}"'
 [[file]]
 src = "src/utils/get_app_version.py"
 search = '__version__ = "{current_version}"'
+
+[[file]]
+src = "installer-scripts/linux/common/com.bishwasaha.Koncentro.metainfo.xml"
+search = 'release version="{current_version}"'
