@@ -1,3 +1,5 @@
+import platform
+
 from loguru import logger
 from PySide6.QtCore import Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
@@ -158,6 +160,16 @@ class SettingsView(QWidget, Ui_SettingsView):
             f"Click to setup {APPLICATION_NAME} again",
             self.setup_group,
         )  # connected in main_window.py
+        operating_system = platform.system()
+        if operating_system == "Darwin":
+            operating_system = "macOS"
+        self.reset_proxy_settings = PrimaryPushSettingCard(
+            "Reset Proxy",
+            FluentIcon.VPN,
+            "Reset Proxy Settings",
+            f"Click to reset proxy settings for {APPLICATION_NAME} and {operating_system}",
+            self.setup_group,
+        )  # connected in main_window.py
 
         # About Group
         self.about_group = SettingCardGroup("About", self.scrollArea)
@@ -202,6 +214,7 @@ class SettingsView(QWidget, Ui_SettingsView):
 
         # Setup Group
         self.setup_group.addSettingCard(self.setup_app_card)
+        self.setup_group.addSettingCard(self.reset_proxy_settings)
         self.scrollAreaWidgetContents.layout().addWidget(self.setup_group)
 
         # About Group

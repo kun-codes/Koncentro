@@ -344,6 +344,7 @@ class MainWindow(KoncentroFluentWindow):
             workspace_selector_button.setDisabled(True)
             self.settings_interface.proxy_port_card.setDisabled(True)
             self.settings_interface.setup_app_card.setDisabled(True)
+            self.settings_interface.reset_proxy_settings.setDisabled(True)
             self.pomodoro_interface.skipButton.setEnabled(True)
             self.bottomBar.skipButton.setEnabled(True)
         else:
@@ -351,6 +352,7 @@ class MainWindow(KoncentroFluentWindow):
             workspace_selector_button.setDisabled(False)
             self.settings_interface.proxy_port_card.setDisabled(False)
             self.settings_interface.setup_app_card.setDisabled(False)
+            self.settings_interface.reset_proxy_settings.setDisabled(False)
             self.pomodoro_interface.skipButton.setEnabled(False)
             self.bottomBar.skipButton.setEnabled(False)
 
@@ -603,6 +605,23 @@ class MainWindow(KoncentroFluentWindow):
         )
 
         self.settings_interface.setup_app_card.clicked.connect(lambda: self.preSetupMitmproxy(False))
+        self.settings_interface.reset_proxy_settings.clicked.connect(self.resetProxySettings)
+
+    def resetProxySettings(self):
+        logger.debug("Reset proxy settings button clicked")
+        self.website_blocker_manager.stop_blocking(delete_proxy=True)
+        self.settings_interface.proxy_port_card.setValue(8080)
+
+        InfoBar.success(
+            title="Proxy Settings Reset",
+            content="Proxy settings have been reset successfully.",
+            orient=Qt.Orientation.Vertical,
+            isClosable=True,
+            duration=5000,
+            position=InfoBarPosition.TOP_RIGHT,
+            parent=self,
+        )
+        logger.debug("Proxy settings have been reset successfully")
 
     def setPauseResumeButtonsToPauseIcon(self, skip_delegate_button=False):
         self.pomodoro_interface.pauseResumeButton.setIcon(FluentIcon.PAUSE)
