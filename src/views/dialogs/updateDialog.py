@@ -7,7 +7,7 @@ from constants import NEW_RELEASE_URL
 
 
 class UpdateDialog(MessageBoxBase):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent=parent)
 
         self.titleLabel = SubtitleLabel("A new update is available", parent=self)

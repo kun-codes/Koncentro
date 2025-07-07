@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (QApplication, QHBoxLayout, QSizePolicy, QSpacerIt
 from qfluentwidgets import (SingleDirectionScrollArea, ToolButton)
 
 class Ui_TaskView(object):
-    def setupUi(self, TaskView):
+    def setupUi(self, TaskView) -> None:
         if not TaskView.objectName():
             TaskView.setObjectName(u"TaskView")
         TaskView.resize(800, 600)
@@ -74,7 +74,7 @@ class Ui_TaskView(object):
         QMetaObject.connectSlotsByName(TaskView)
     # setupUi
 
-    def retranslateUi(self, TaskView):
+    def retranslateUi(self, TaskView) -> None:
         TaskView.setWindowTitle(QCoreApplication.translate("TaskView", u"Form", None))
     # retranslateUi
 

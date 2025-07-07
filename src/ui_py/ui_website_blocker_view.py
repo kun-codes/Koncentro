@@ -23,7 +23,7 @@ from qfluentwidgets import (BodyLabel, ComboBox, PrimaryPushButton, PushButton,
     SingleDirectionScrollArea, TitleLabel)
 
 class Ui_WebsiteBlockView(object):
-    def setupUi(self, WebsiteBlockView):
+    def setupUi(self, WebsiteBlockView) -> None:
         if not WebsiteBlockView.objectName():
             WebsiteBlockView.setObjectName(u"WebsiteBlockView")
         WebsiteBlockView.resize(534, 532)
@@ -117,7 +117,7 @@ class Ui_WebsiteBlockView(object):
         QMetaObject.connectSlotsByName(WebsiteBlockView)
     # setupUi
 
-    def retranslateUi(self, WebsiteBlockView):
+    def retranslateUi(self, WebsiteBlockView) -> None:
         WebsiteBlockView.setWindowTitle(QCoreApplication.translate("WebsiteBlockView", u"Form", None))
         self.titleLabel.setText(QCoreApplication.translate("WebsiteBlockView", u"Website Blocker", None))
         self.blockTypeLabel.setText(QCoreApplication.translate("WebsiteBlockView", u"Select type of website blocking: ", None))

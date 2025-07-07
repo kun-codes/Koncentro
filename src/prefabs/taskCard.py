@@ -10,7 +10,7 @@ class TaskCard(SimpleCardWidget):
     TaskCard is a simple card widget that displays a task along with an icon of its own
     """
 
-    def __init__(self, parent=None, task_name=""):
+    def __init__(self, parent=None, task_name="") -> None:
         super().__init__(parent=parent)
         self.setAcceptDrops(True)
 

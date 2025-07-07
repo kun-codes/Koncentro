@@ -22,7 +22,7 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
     For website blocker view of the app
     """
 
-    def __init__(self, workspace_list_model: WorkspaceListModel):
+    def __init__(self, workspace_list_model: WorkspaceListModel) -> None:
         super().__init__()
         self.setupUi(self)
 
@@ -41,7 +41,7 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
 
         self.saveButton.setDisabled(True)
 
-    def initWidget(self):
+    def initWidget(self) -> None:
         self.blockListTextEdit.setHidden(True)
         self.allowListTextEdit.setHidden(True)
 
@@ -61,7 +61,7 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
             ToolTipFilter(self.blockTypeComboBox, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
 
-    def connectSignalsToSlots(self):
+    def connectSignalsToSlots(self) -> None:
         self.blockTypeComboBox.currentIndexChanged.connect(self.onBlockTypeChanged)
         self.saveButton.clicked.connect(self.onSaveButtonClicked)
         self.cancelButton.clicked.connect(self.onCancelButtonClicked)
@@ -74,7 +74,7 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
         self.blockListTextEdit.textChanged.connect(self.checkURLs)
         self.allowListTextEdit.textChanged.connect(self.checkURLs)
 
-    def onTextChanged(self):
+    def onTextChanged(self) -> None:
         self.is_editing = True
 
         self.saveButton.setDisabled(False)
@@ -123,7 +123,7 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
 
         return urls
 
-    def onSaveButtonClicked(self):
+    def onSaveButtonClicked(self) -> None:
         is_all_urls_valid, result = self.checkURLs()
 
         if is_all_urls_valid:
@@ -169,7 +169,7 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
             parent=self,
         )
 
-    def spawnInvalidURLInfoBar(self, line_numbers: list[int]):
+    def spawnInvalidURLInfoBar(self, line_numbers: list[int]) -> None:
         InfoBar.error(
             "Invalid URLs",
             f"URLs at line numbers {', '.join(map(str, line_numbers[:10]))}"
@@ -182,7 +182,7 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
             parent=self,
         )
 
-    def onCancelButtonClicked(self):
+    def onCancelButtonClicked(self) -> None:
         self.blockListTextEdit.setPlainText(self.blockListText)
         self.allowListTextEdit.setPlainText(self.allowListText)
 
@@ -191,11 +191,11 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
         self.saveButton.setDisabled(True)
         self.blockTypeComboBox.setDisabled(False)
 
-    def load_data(self):
+    def load_data(self) -> None:
         # todo: check for invalid urls
         pass
 
-    def onBlockTypeChanged(self):
+    def onBlockTypeChanged(self) -> None:
         logger.debug("Inside onBlockTypeChanged")
         if self.blockTypeComboBox.currentIndex() == WebsiteBlockType.BLOCKLIST.value:
             self.allowListTextEdit.setHidden(True)
@@ -209,14 +209,14 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
 
             self.model.set_website_block_type(WebsiteBlockType.ALLOWLIST)
 
-    def initWebsiteBlockerComboBox(self):
+    def initWebsiteBlockerComboBox(self) -> None:
         self.blockTypeComboBox.addItem("Blocklist")
         self.blockTypeComboBox.addItem("Allowlist")
 
         self.blockTypeComboBox.setCurrentIndex(self.model.get_website_block_type().value)
         self.onBlockTypeChanged()  # calling manually since signals aren't connected to slots yet
 
-    def initTextEdits(self, block_type: WebsiteBlockType = None):
+    def initTextEdits(self, block_type: WebsiteBlockType = None) -> None:
         if block_type is None:
             self.blockListTextEdit.setPlainText("\n".join(sorted(self.model.blocklist_urls)))
             self.allowListTextEdit.setPlainText("\n".join(sorted(self.model.allowlist_urls)))
@@ -230,7 +230,7 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
             self.allowListTextEdit.setPlainText("\n".join(sorted(self.model.allowlist_urls)))
             self.allowListText = self.allowListTextEdit.toPlainText()
 
-    def onCurrentWorkspaceDeleted(self):
+    def onCurrentWorkspaceDeleted(self) -> None:
         # set every ui component to its default
         self.blockTypeComboBox.setCurrentIndex(0)
         # todo: set blockTypeComboBox index to new current workspace's website_block_type
@@ -240,7 +240,7 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
         self.allowListTextEdit.clear()
         # todo: set allowListTextEdit to new current workspace's allowlist
 
-    def onCurrentWorkspaceChanged(self):
+    def onCurrentWorkspaceChanged(self) -> None:
         self.model.load_website_block_type()
         self.model.load_data()
 

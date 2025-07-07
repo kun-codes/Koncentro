@@ -21,7 +21,7 @@ CREATE_NO_WINDOW = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
 
 
 class FlatpakContainerError(Exception):
-    def __init__(self, message):
+    def __init__(self, message) -> None:
         self.message = message
         super().__init__(self.message)
 
@@ -31,13 +31,13 @@ class WebsiteBlockerWorker(QThread):
 
     operationCompleted = Signal(bool, str)  # Success flag, message
 
-    def __init__(self, operation, *args, **kwargs):
+    def __init__(self, operation, *args, **kwargs) -> None:
         super().__init__()
         self.operation = operation
         self.args = args
         self.kwargs = kwargs
 
-    def run(self):
+    def run(self) -> None:
         try:
             _result = self.operation(*self.args, **self.kwargs)
             self.operationCompleted.emit(True, "Operation completed successfully")
@@ -49,13 +49,13 @@ class WebsiteBlockerWorker(QThread):
 class ProxyWorker(QThread):
     """Worker thread for proxy operations"""
 
-    def __init__(self, operation, *args, **kwargs):
+    def __init__(self, operation, *args, **kwargs) -> None:
         super().__init__()
         self.operation = operation
         self.args = args
         self.kwargs = kwargs
 
-    def run(self):
+    def run(self) -> None:
         try:
             self.operation(*self.args, **self.kwargs)
         except Exception as e:
@@ -67,7 +67,7 @@ class WebsiteBlockerManager(QObject):
     blockingStopped = Signal()
     operationError = Signal(str)
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.proxy = Uniproxy("127.0.0.1", ConfigValues.PROXY_PORT)
         self.workers = []  # Keep references to prevent garbage collection
@@ -79,7 +79,7 @@ class WebsiteBlockerManager(QObject):
         joined_addresses: str,
         block_type: str,
         mitmdump_bin_path: str,
-    ):
+    ) -> None:
         """Function which starts blocking in a separate thread."""
         logger.debug("Inside WebsiteBlockerManager.start_blocking().")
 
@@ -102,7 +102,7 @@ class WebsiteBlockerManager(QObject):
         self.workers.append(proxy_worker)
         proxy_worker.start()
 
-    def _start_mitmdump(self, listening_port, joined_addresses, block_type, mitmdump_bin_path):
+    def _start_mitmdump(self, listening_port, joined_addresses, block_type, mitmdump_bin_path) -> bool:
         """Helper method to start mitmdump in a worker thread"""
         if os.name == "nt":
             args = [
@@ -170,14 +170,14 @@ class WebsiteBlockerManager(QObject):
             subprocess.Popen(args)
         return True
 
-    def _on_start_completed(self, success, message):
+    def _on_start_completed(self, success, message) -> None:
         """Handle completion of start_blocking operation"""
         if success:
             self.blockingStarted.emit()
         else:
             self.operationError.emit(f"Failed to start blocking: {message}")
 
-    def stop_blocking(self, delete_proxy: bool = True):
+    def stop_blocking(self, delete_proxy: bool = True) -> None:
         """Stop website blocking in a separate thread."""
         logger.debug("Inside WebsiteBlockerManager.stop_blocking().")
 
@@ -191,7 +191,7 @@ class WebsiteBlockerManager(QObject):
         self.workers.append(worker)
         worker.start()
 
-    def _shutdown_mitmdump(self):
+    def _shutdown_mitmdump(self) -> bool:
         """Helper method to shutdown mitmdump in a worker thread"""
         try:
             if is_flatpak_sandbox():
@@ -233,21 +233,21 @@ class WebsiteBlockerManager(QObject):
             self._force_kill_process()
             return False
 
-    def _force_kill_process(self):
+    def _force_kill_process(self) -> bool:
         """Run kill_process in a thread to prevent GUI blocking"""
         kill_worker = ProxyWorker(kill_process)
         self.workers.append(kill_worker)
         kill_worker.start()
         return True
 
-    def _on_stop_completed(self, success, message):
+    def _on_stop_completed(self, success, message) -> None:
         """Handle completion of stop_blocking operation"""
         if not success:
             self.operationError.emit(f"Warning during blocking shutdown: {message}")
 
         self.blockingStopped.emit()
 
-    def _start_after_stop(self):
+    def _start_after_stop(self) -> None:
         """Start mitmdump after stop_blocking has completed"""
         # disconnect the signal to prevent multiple connections as it would be reconnected in start_blocking
         self.blockingStopped.disconnect(self._start_after_stop)
@@ -269,7 +269,7 @@ class WebsiteBlockerManager(QObject):
         else:
             logger.warning("No pending parameters for starting mitmdump")
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         """Clean up resources and terminate threads"""
         # Stop any running workers
         for worker in self.workers:

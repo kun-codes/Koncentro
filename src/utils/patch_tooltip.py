@@ -7,7 +7,7 @@ from loguru import logger
 from utils.check_flatpak_sandbox import is_flatpak_sandbox
 
 
-def apply_patches():
+def apply_patches() -> bool:
     """Apply monkey patches to fix the ToolTip window flags"""
     try:
         from PySide6.QtCore import Qt
@@ -15,7 +15,7 @@ def apply_patches():
 
         original_init = ToolTip.__init__
 
-        def patched_init(self, text="", parent=None):
+        def patched_init(self, text="", parent=None) -> None:
             original_init(self, text, parent)
             if is_flatpak_sandbox():
                 self.setWindowFlags(Qt.FramelessWindowHint)

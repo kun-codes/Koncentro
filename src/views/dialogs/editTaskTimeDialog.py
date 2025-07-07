@@ -5,7 +5,7 @@ from models.task_lookup import TaskLookup
 
 
 class EditTaskTimeDialog(MessageBoxBase):
-    def __init__(self, parent=None, task_id=None):
+    def __init__(self, parent=None, task_id=None) -> None:
         super().__init__(parent=parent)
 
         self.elapsedTimeLabel = SubtitleLabel("Elapsed Time", self)
@@ -35,10 +35,10 @@ class EditTaskTimeDialog(MessageBoxBase):
         self.elapsedTimePicker.timeChanged.connect(lambda: self.setElapsedTimeChanged(True))
         self.estimateTimePicker.timeChanged.connect(lambda: self.setTargetTimeChanged(True))
 
-    def setElapsedTimeChanged(self, value):
+    def setElapsedTimeChanged(self, value) -> None:
         self.elapsed_time_changed = value
 
-    def setTargetTimeChanged(self, value):
+    def setTargetTimeChanged(self, value) -> None:
         self.target_time_changed = value
 
     def convertMsToQTime(self, ms):

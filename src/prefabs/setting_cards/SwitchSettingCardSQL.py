@@ -15,7 +15,7 @@ class SwitchSettingCardSQL(SwitchSettingCard):
         content=None,
         configItem: ConfigItemSQL = None,
         parent=None,
-    ):
+    ) -> None:
         super().__init__(icon, title, content, configItem, parent)
         if configItem:
             self.setValue(qconfig_custom.get(configItem))
@@ -23,7 +23,7 @@ class SwitchSettingCardSQL(SwitchSettingCard):
 
         qconfig_custom.get(configItem)
 
-    def setValue(self, isChecked: bool):
+    def setValue(self, isChecked: bool) -> None:
         if self.configItem:
             qconfig_custom.set(self.configItem, isChecked)
 

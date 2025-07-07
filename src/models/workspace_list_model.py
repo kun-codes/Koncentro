@@ -9,17 +9,17 @@ class WorkspaceListModel(QAbstractListModel):
     current_workspace_changed = Signal()
     current_workspace_deleted = Signal()
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.workspaces = []
         self.load_data()
         self.layoutChanged.connect(self.logList)
         self.selection_model: QItemSelectionModel = None
 
-    def setSelectionModel(self, selection_model: QItemSelectionModel):
+    def setSelectionModel(self, selection_model: QItemSelectionModel) -> None:
         self.selection_model = selection_model
 
-    def load_data(self):
+    def load_data(self) -> None:
         with get_session(is_read_only=True) as session:
             self.workspaces = [
                 {"id": workspace.id, "workspace_name": workspace.workspace_name}
@@ -33,7 +33,7 @@ class WorkspaceListModel(QAbstractListModel):
         if role == Qt.ItemDataRole.DisplayRole:
             return self.workspaces[index.row()]["id"]
 
-    def setData(self, index, value, role=Qt.EditRole):
+    def setData(self, index, value, role=Qt.EditRole) -> bool:
         """Update workspace name"""
         if role == Qt.EditRole:
             workspace_name = value.strip()
@@ -56,7 +56,7 @@ class WorkspaceListModel(QAbstractListModel):
     def rowCount(self, index=QModelIndex()):
         return len(self.workspaces)
 
-    def add_workspace(self, workspace):
+    def add_workspace(self, workspace) -> None:
         with get_session() as session:
             session.add(workspace)
             session.commit()
@@ -65,7 +65,7 @@ class WorkspaceListModel(QAbstractListModel):
 
     # TODO: Implement update_workspace method
 
-    def delete_workspace(self, index):
+    def delete_workspace(self, index) -> None:
         if 0 <= index < len(self.workspaces):
             workspace_id = self.workspaces[index]["id"]  # workspace about to be deleted
             selected_workspace_id = self.get_current_workspace_id()
@@ -78,7 +78,7 @@ class WorkspaceListModel(QAbstractListModel):
             self.workspaces.pop(index)
             self.layoutChanged.emit()
 
-    def set_current_workspace_preference(self):
+    def set_current_workspace_preference(self) -> None:
         if self.selection_model:
             selected_index = self.selection_model.currentIndex()
             if selected_index.isValid():
@@ -112,5 +112,5 @@ class WorkspaceListModel(QAbstractListModel):
                 return workspace["workspace_name"]
         return None
 
-    def logList(self):
+    def logList(self) -> None:
         logger.debug(f"Workspaces list in memory: {self.workspaces}")

@@ -9,14 +9,14 @@ from utils.setNavButtonEnabled import setNavButtonEnabled
 
 
 class PomodoroInterfaceTutorial(InterfaceTutorial):
-    def __init__(self, main_window: FluentWindow, interface_type: InterfaceType):
+    def __init__(self, main_window: FluentWindow, interface_type: InterfaceType) -> None:
         super().__init__(main_window, interface_type)
 
         self.tutorial_steps.append(self._first_step)
         self.tutorial_steps.append(self._show_pomodoro_timer_step)
         self.tutorial_steps.append(self._last_step)
 
-    def _first_step(self):
+    def _first_step(self) -> None:
         self.main_window.isSafeToShowTutorial = False  # block tutorials of other interfaces from showing
 
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.BACK_BUTTON, False)
@@ -27,7 +27,7 @@ class PomodoroInterfaceTutorial(InterfaceTutorial):
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.SETTINGS_INTERFACE, False)
         self.next_step()
 
-    def _show_pomodoro_timer_step(self):
+    def _show_pomodoro_timer_step(self) -> None:
         self._show_pomodoro_timer_step_tip = TransientPopupTeachingTip.create(
             target=self.main_window.pomodoro_interface.ProgressRing,
             title="This is the Pomodoro Timer",
@@ -44,7 +44,7 @@ class PomodoroInterfaceTutorial(InterfaceTutorial):
         self._show_pomodoro_timer_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._show_pomodoro_timer_step_tip)
 
-    def _last_step(self):
+    def _last_step(self) -> None:
         # this is the last step
         app_settings.set(app_settings.has_completed_pomodoro_view_tutorial, True)
         ConfigValues.HAS_COMPLETED_POMODORO_VIEW_TUTORIAL = True

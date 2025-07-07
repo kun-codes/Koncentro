@@ -15,7 +15,7 @@ from utils.get_app_version import get_app_version
 class UpdateCheckError(Exception):
     """Base exception for update check errors"""
 
-    def __init__(self, message="An error occurred during update check"):
+    def __init__(self, message="An error occurred during update check") -> None:
         self.message = message
         super().__init__(self.message)
 
@@ -23,7 +23,7 @@ class UpdateCheckError(Exception):
 class RepositoryNotFoundError(UpdateCheckError):
     """Raised when the GitHub repository or release is not found (404)"""
 
-    def __init__(self, message="GitHub repository or release not found", status_code=404):
+    def __init__(self, message="GitHub repository or release not found", status_code=404) -> None:
         self.status_code = status_code
         super().__init__(message)
 
@@ -31,7 +31,7 @@ class RepositoryNotFoundError(UpdateCheckError):
 class RateLimitExceededError(UpdateCheckError):
     """Raised when GitHub API rate limit is exceeded (403)"""
 
-    def __init__(self, message="GitHub API rate limit exceeded or access forbidden", status_code=403):
+    def __init__(self, message="GitHub API rate limit exceeded or access forbidden", status_code=403) -> None:
         self.status_code = status_code
         super().__init__(message)
 
@@ -41,17 +41,17 @@ class UpdateChecker(QObject):
 
     updateCheckComplete = Signal(UpdateCheckResult)
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._thread = QThread()
         self.moveToThread(self._thread)
         self._thread.started.connect(self._check_for_updates)
 
-    def start(self):
+    def start(self) -> None:
         """Start the update check in a separate thread."""
         self._thread.start()
 
-    def _check_for_updates(self):
+    def _check_for_updates(self) -> None:
         """Internal method that performs the actual update check."""
         result = self.checkForUpdates()
         self.updateCheckComplete.emit(result)

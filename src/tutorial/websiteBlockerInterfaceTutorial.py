@@ -9,7 +9,7 @@ from utils.setNavButtonEnabled import setNavButtonEnabled
 
 
 class WebsiteBlockerInterfaceTutorial(InterfaceTutorial):
-    def __init__(self, main_window: FluentWindow, interface_type: InterfaceType):
+    def __init__(self, main_window: FluentWindow, interface_type: InterfaceType) -> None:
         super().__init__(main_window, interface_type)
 
         self.tutorial_steps.append(self._first_step)
@@ -18,7 +18,7 @@ class WebsiteBlockerInterfaceTutorial(InterfaceTutorial):
         self.tutorial_steps.append(self._save_websites_step)
         self.tutorial_steps.append(self._last_step)
 
-    def _first_step(self):
+    def _first_step(self) -> None:
         self.main_window.isSafeToShowTutorial = False
 
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.BACK_BUTTON, False)
@@ -29,7 +29,7 @@ class WebsiteBlockerInterfaceTutorial(InterfaceTutorial):
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.SETTINGS_INTERFACE, False)
         self.next_step()
 
-    def _select_website_block_type_step(self):
+    def _select_website_block_type_step(self) -> None:
         self._select_website_block_type_step_tip = TransientPopupTeachingTip.create(
             target=self.main_window.website_blocker_interface.blockTypeComboBox,
             title="You can select the type of website block",
@@ -47,7 +47,7 @@ class WebsiteBlockerInterfaceTutorial(InterfaceTutorial):
         self._select_website_block_type_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._select_website_block_type_step_tip)
 
-    def _enter_websites_step(self):
+    def _enter_websites_step(self) -> None:
         current_website_block_type: WebsiteBlockType = (
             self.main_window.website_blocker_interface.model.get_website_block_type()
         )
@@ -74,7 +74,7 @@ class WebsiteBlockerInterfaceTutorial(InterfaceTutorial):
         self._enter_website_block_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._enter_website_block_tip)
 
-    def _save_websites_step(self):
+    def _save_websites_step(self) -> None:
         self._save_websites_step_tip = TransientPopupTeachingTip.create(
             target=self.main_window.website_blocker_interface.saveButton,
             title="Always save your changes after editing the list",
@@ -91,7 +91,7 @@ class WebsiteBlockerInterfaceTutorial(InterfaceTutorial):
         self._save_websites_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._save_websites_step_tip)
 
-    def _last_step(self):
+    def _last_step(self) -> None:
         # this is the last step
         app_settings.set(app_settings.has_completed_website_blocker_view_tutorial, True)
         ConfigValues.HAS_COMPLETED_WEBSITE_BLOCKER_VIEW_TUTORIAL = True

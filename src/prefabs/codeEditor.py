@@ -9,19 +9,19 @@ from models.config import AppSettings
 
 
 class LineNumberArea(QWidget):
-    def __init__(self, editor):
+    def __init__(self, editor) -> None:
         QWidget.__init__(self, editor)
         self._code_editor = editor
 
     def sizeHint(self):
         return QSize(self._code_editor.line_number_area_width(), 0)
 
-    def paintEvent(self, event):
+    def paintEvent(self, event) -> None:
         self._code_editor.lineNumberAreaPaintEvent(event)
 
 
 class CodeEditor(PlainTextEdit):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent=parent)
         self.line_number_area = LineNumberArea(self)
 
@@ -59,14 +59,14 @@ class CodeEditor(PlainTextEdit):
         space = base_space + self.fontMetrics().horizontalAdvance("9") * digits
         return space
 
-    def resizeEvent(self, e):
+    def resizeEvent(self, e) -> None:
         super().resizeEvent(e)
         cr = self.contentsRect()
         width = self.line_number_area_width()
         rect = QRect(cr.left(), cr.top(), width, cr.height())
         self.line_number_area.setGeometry(rect)
 
-    def lineNumberAreaPaintEvent(self, event):
+    def lineNumberAreaPaintEvent(self, event) -> None:
         painter = QPainter(self.line_number_area)
         painter.fillRect(
             event.rect(),
@@ -133,11 +133,11 @@ class CodeEditor(PlainTextEdit):
         painter.end()
 
     @Slot()
-    def update_line_number_area_width(self, newBlockCount):
+    def update_line_number_area_width(self, newBlockCount) -> None:
         self.setViewportMargins(self.line_number_area_width(), 0, 0, 0)
 
     @Slot()
-    def update_line_number_area(self, rect, dy):
+    def update_line_number_area(self, rect, dy) -> None:
         if dy:
             self.line_number_area.scroll(0, dy)
         else:
@@ -148,7 +148,7 @@ class CodeEditor(PlainTextEdit):
             self.update_line_number_area_width(0)
 
     @Slot()
-    def highlight_current_line(self):
+    def highlight_current_line(self) -> None:
         extra_selections = []
 
         if not self.isReadOnly() and self.hasFocus():
@@ -164,11 +164,11 @@ class CodeEditor(PlainTextEdit):
 
         self.setExtraSelections(extra_selections)
 
-    def focusOutEvent(self, e):
+    def focusOutEvent(self, e) -> None:
         super().focusOutEvent(e)
         self.setExtraSelections(self._underline_selections)
 
-    def underline_lines(self, line_numbers: list[int]):
+    def underline_lines(self, line_numbers: list[int]) -> None:
         self._underline_selections = []
         for line_number in line_numbers:
             selection = QTextEdit.ExtraSelection()

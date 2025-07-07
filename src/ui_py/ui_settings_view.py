@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (QApplication, QSizePolicy, QVBoxLayout, QWidget)
 from qfluentwidgets import (ScrollArea, TitleLabel)
 
 class Ui_SettingsView(object):
-    def setupUi(self, SettingsView):
+    def setupUi(self, SettingsView) -> None:
         if not SettingsView.objectName():
             SettingsView.setObjectName(u"SettingsView")
         SettingsView.resize(648, 591)
@@ -59,7 +59,7 @@ class Ui_SettingsView(object):
         QMetaObject.connectSlotsByName(SettingsView)
     # setupUi
 
-    def retranslateUi(self, SettingsView):
+    def retranslateUi(self, SettingsView) -> None:
         SettingsView.setWindowTitle(QCoreApplication.translate("SettingsView", u"Form", None))
         self.TitleLabel.setText(QCoreApplication.translate("SettingsView", u"Settings", None))
     # retranslateUi

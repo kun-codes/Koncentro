@@ -4,10 +4,10 @@ from qfluentwidgets import StrongBodyLabel
 
 
 class ElidedStrongBodyLabel(StrongBodyLabel):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
 
-    def paintEvent(self, event):
+    def paintEvent(self, event) -> None:
         if not self.text():
             return
 

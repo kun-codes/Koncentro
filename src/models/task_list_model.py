@@ -20,7 +20,7 @@ class TaskListModel(QAbstractListModel):
     taskMovedSignal = Signal(int, TaskType)  # task_id and TaskType
     currentTaskChangedSignal = Signal(int)  # task_id
 
-    def __init__(self, task_type: TaskType, parent=None):
+    def __init__(self, task_type: TaskType, parent=None) -> None:
         super().__init__(parent)
         self.task_type = task_type
         self.current_task_id = None
@@ -28,14 +28,14 @@ class TaskListModel(QAbstractListModel):
         self._dragInProgress = False  # Track if we're in a drag operation
         self.load_data()
 
-    def setCurrentTaskID(self, id):
+    def setCurrentTaskID(self, id) -> None:
         self.current_task_id = id
         self.currentTaskChangedSignal.emit(id)
 
     def currentTaskID(self):
         return self.current_task_id
 
-    def load_data(self):
+    def load_data(self) -> None:
         current_workspace_id = WorkspaceLookup.get_current_workspace_id()
         self.tasks = []
         with get_session(is_read_only=True) as session:
@@ -83,7 +83,7 @@ class TaskListModel(QAbstractListModel):
 
         return None
 
-    def setData(self, index, value, role=..., update_db=True):
+    def setData(self, index, value, role=..., update_db=True) -> bool:
         if role == Qt.DisplayRole:
             row = index.row()
             task_name = value.strip()
@@ -119,7 +119,7 @@ class TaskListModel(QAbstractListModel):
         self.load_data()
         return super().revert()
 
-    def columnCount(self, parent):
+    def columnCount(self, parent) -> int:
         return 1
 
     def rowCount(self, parent=...):
@@ -178,7 +178,7 @@ class TaskListModel(QAbstractListModel):
         mime_data.setData("application/x-qabstractitemmodeldatalist", encoded_data)
         return mime_data
 
-    def dropMimeData(self, data, action, row, column, parent):
+    def dropMimeData(self, data, action, row, column, parent) -> bool:
         # Clear drag in progress flag since we're handling the drop
         self._dragInProgress = False
 
@@ -302,7 +302,7 @@ class TaskListModel(QAbstractListModel):
 
         return True
 
-    def update_db(self):
+    def update_db(self) -> None:
         """
         updating db, using bulk insert
         https://docs.sqlalchemy.org/en/20/orm/queryguide/dml.html#orm-queryguide-bulk-update
@@ -350,7 +350,7 @@ class TaskListModel(QAbstractListModel):
     #     task_name = stream.readQString()
     #     return True
 
-    def insertRow(self, row, parent=QModelIndex(), task_name=None, task_type=TaskType.TODO):
+    def insertRow(self, row, parent=QModelIndex(), task_name=None, task_type=TaskType.TODO) -> bool:
         """
         Used to insert a new task in the list
         """
@@ -383,7 +383,7 @@ class TaskListModel(QAbstractListModel):
         self.layoutChanged.emit()
         return True
 
-    def removeRows(self, row, count, parent=...):
+    def removeRows(self, row, count, parent=...) -> bool:
         """
         remove rows but not delete from db
         This method can be called by Qt during drag operations.
@@ -410,7 +410,7 @@ class TaskListModel(QAbstractListModel):
         self.layoutChanged.emit()
         return True
 
-    def cancelDrag(self):
+    def cancelDrag(self) -> None:
         """
         Cancel an ongoing drag operation and ensure data consistency
         """
@@ -426,7 +426,7 @@ class TaskListModel(QAbstractListModel):
         """
         return self._dragInProgress
 
-    def deleteTask(self, row, parent=QModelIndex()):
+    def deleteTask(self, row, parent=QModelIndex()) -> bool:
         """
         will remove rows as well as delete from database
         """
@@ -448,7 +448,7 @@ class TaskListModel(QAbstractListModel):
         self.layoutChanged.emit()
         return True
 
-    def setIconForTask(self, row, icon):
+    def setIconForTask(self, row, icon) -> None:
         self.tasks[row]["icon"] = icon
         self.dataChanged.emit(self.index(row, 0), self.index(row, 0), [self.IconRole])
 

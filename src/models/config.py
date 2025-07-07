@@ -67,12 +67,12 @@ settings = QSettings(QSettings.Format.NativeFormat, QSettings.Scope.UserScope, O
 app_settings.themeMode.value = Theme.AUTO
 
 
-def load_workspace_settings():
+def load_workspace_settings() -> None:
     qconfig_custom.load("", workspace_specific_settings)  # passing empty string as the path as function asks for path
     # to json file which stores settings and we are using db to store settings
 
 
-def load_app_settings():
+def load_app_settings() -> None:
     qconfig.load(settings_file_path, app_settings)
 
 

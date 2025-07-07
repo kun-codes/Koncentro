@@ -9,10 +9,10 @@ from models.task_list_model import TaskListModel
 class RoundedListItemDelegate(ListItemDelegate):
     """Round List item delegate"""
 
-    def __init__(self, parent: QListView):
+    def __init__(self, parent: QListView) -> None:
         super().__init__(parent)
 
-    def _drawBackground(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex):
+    def _drawBackground(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         painter.save()
         rect = option.rect.adjusted(1, 1, -1, -1)  # Adjust to fit within the background
         if option.state & QStyle.State_Selected:
@@ -26,13 +26,13 @@ class RoundedListItemDelegate(ListItemDelegate):
         painter.drawRoundedRect(rect, 5, 5)
         painter.restore()
 
-    def _drawIndicator(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex):
+    def _drawIndicator(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         if option.state & QStyle.State_Selected:
             rect = option.rect.adjusted(1, 1, -1, -1)  # Adjust to fit within the background
             painter.setPen(QPen(themeColor(), 2))  # Set pen with theme color and width 2
             painter.drawRoundedRect(rect, 5, 5)  # Draw rounded rectangle border
 
-    def updateEditorGeometry(self, editor: QWidget, option: QStyleOptionViewItem, index: QModelIndex):
+    def updateEditorGeometry(self, editor: QWidget, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         rect = option.rect
         y = rect.y() + (rect.height() - editor.height()) // 2
 
@@ -43,10 +43,10 @@ class RoundedListItemDelegate(ListItemDelegate):
 
 
 class RoundedListItemDelegateDisplayTime(RoundedListItemDelegate):
-    def __init__(self, parent: QListView):
+    def __init__(self, parent: QListView) -> None:
         super().__init__(parent)
 
-    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex):
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         super().paint(painter, option, index)
         painter.save()
         rect = option.rect
@@ -56,7 +56,7 @@ class RoundedListItemDelegateDisplayTime(RoundedListItemDelegate):
         target_time = index.data(TaskListModel.TargetTimeRole)
 
         # Convert milliseconds to HH:MM format
-        def ms_to_hhmm(ms):
+        def ms_to_hhmm(ms) -> str:
             seconds = ms // 1000
             minutes = seconds // 60
             hours = minutes // 60
@@ -77,7 +77,7 @@ class RoundedListItemDelegateDisplayTime(RoundedListItemDelegate):
 
         painter.restore()
 
-    def updateEditorGeometry(self, editor: QWidget, option: QStyleOptionViewItem, index: QModelIndex):
+    def updateEditorGeometry(self, editor: QWidget, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         """
         re-implement this method since the parent method takes into account the original indicator,
         but we have a custom indicator

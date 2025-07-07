@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QApplication
 class QtSingleApplication(QApplication):
     messageReceived = Signal()
 
-    def __init__(self, uid, *argv):
+    def __init__(self, uid, *argv) -> None:
         super(QtSingleApplication, self).__init__(*argv)
         self._uid = uid
         self._activationWindow = None
@@ -41,11 +41,11 @@ class QtSingleApplication(QApplication):
     def activationWindow(self):
         return self._activationWindow
 
-    def setActivationWindow(self, activationWindow, activateOnMessage=True):
+    def setActivationWindow(self, activationWindow, activateOnMessage=True) -> None:
         self._activationWindow = activationWindow
         self._activateOnMessage = activateOnMessage
 
-    def activateWindow(self):
+    def activateWindow(self) -> None:
         if not self._activationWindow:
             return
         self._activationWindow.setWindowState(self._activationWindow.windowState() & ~Qt.WindowState.WindowMinimized)
@@ -61,7 +61,7 @@ class QtSingleApplication(QApplication):
             return self._outSocket.waitForBytesWritten()
         return False
 
-    def _onNewConnection(self):
+    def _onNewConnection(self) -> None:
         if self._inSocket:
             self._inSocket.readyRead.disconnect(self._onReadyRead)
         self._inSocket = self._server.nextPendingConnection()
@@ -73,7 +73,7 @@ class QtSingleApplication(QApplication):
         if self._activateOnMessage:
             self.activateWindow()
 
-    def _onReadyRead(self):
+    def _onReadyRead(self) -> None:
         while True:
             if self._inStream is not None:
                 msg = self._inStream.readLine()

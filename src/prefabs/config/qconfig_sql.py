@@ -17,12 +17,12 @@ from utils.db_utils import get_session
 
 
 class QConfigSQL(QConfig):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.file = Path(settings_file_path)
         self._cfg.file = Path(settings_file_path)
 
-    def set(self, item: Union[ConfigItemSQL, ConfigItem], value, save=True, copy=True):
+    def set(self, item: Union[ConfigItemSQL, ConfigItem], value, save=True, copy=True) -> None:
         """set the value of config item
 
         Parameters
@@ -52,7 +52,7 @@ class QConfigSQL(QConfig):
         if item.restart:
             self._cfg.appRestartSig.emit()
 
-    def saveToDB(self, item: ConfigItemSQL):
+    def saveToDB(self, item: ConfigItemSQL) -> None:
         with get_session() as session:
             db_table = item.db_table
             db_column = item.db_column
@@ -66,7 +66,7 @@ class QConfigSQL(QConfig):
                     setattr(record, db_column.name, item.value)
 
     @exceptionHandler()
-    def load(self, file=None, config=None):
+    def load(self, file=None, config=None) -> None:
         """load config
 
         Parameters
@@ -85,7 +85,7 @@ class QConfigSQL(QConfig):
 
         self.load_from_db()
 
-    def load_from_db(self, file=None, config=None):
+    def load_from_db(self, file=None, config=None) -> None:
         # load from database
         with get_session(is_read_only=True) as session:
             current_workspace = WorkspaceLookup.get_current_workspace_id()

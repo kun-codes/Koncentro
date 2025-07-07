@@ -18,7 +18,7 @@ class ConfigItemSQL(QObject):
         validator=None,
         serializer=None,
         restart=False,
-    ):
+    ) -> None:
         super().__init__()
         self.db_table = db_table
         self.db_column = db_column
@@ -34,7 +34,7 @@ class ConfigItemSQL(QObject):
         return self.__value
 
     @value.setter
-    def value(self, v):
+    def value(self, v) -> None:
         v = self.validator.correct(v)
         ov = self.__value
         self.__value = v
@@ -44,7 +44,7 @@ class ConfigItemSQL(QObject):
     def serialize(self):
         return self.serializer.serialize(self.value)
 
-    def deserializeFrom(self, value):
+    def deserializeFrom(self, value) -> None:
         self.value = self.serializer.deserialize(value)
 
 
@@ -56,5 +56,5 @@ class RangeConfigItemSQL(ConfigItemSQL):
         """get the available range of config"""
         return self.validator.range
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}[range={self.range}, value={self.value}]"

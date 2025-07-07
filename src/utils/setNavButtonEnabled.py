@@ -3,7 +3,9 @@ from qfluentwidgets import FluentWindow
 from constants import NavPanelButtonPosition
 
 
-def setNavButtonEnabled(main_window: FluentWindow, interface_position: NavPanelButtonPosition, is_enabled: bool):
+def setNavButtonEnabled(
+    main_window: FluentWindow, interface_position: NavPanelButtonPosition, is_enabled: bool
+) -> None:
     layout, position_in_layout = interface_position.value
 
     # Now you can use these variables to access the specific button

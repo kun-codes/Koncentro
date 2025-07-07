@@ -4,7 +4,7 @@ from qfluentwidgets import LineEdit, ListView
 
 
 class WorkspaceListView(ListView):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.current_editor = None
 
@@ -27,7 +27,7 @@ class WorkspaceListView(ListView):
             return True
         return super().edit(index, trigger, event)
 
-    def commitData(self, editor):
+    def commitData(self, editor) -> None:
         """Save edited workspace name"""
         index = self.currentIndex()
         self.model().setData(index, editor.text(), Qt.EditRole)
