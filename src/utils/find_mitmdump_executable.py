@@ -31,5 +31,9 @@ def get_mitmdump_path():
     if platform.system() == "Windows" and mitmdump_path is None:
         mitmdump_path = shutil.which("mitmdump.exe", path=path)
 
-    logger.debug(f"mitmdump path: {mitmdump_path}")
+    if mitmdump_path is None:
+        logger.error("mitmdump executable not found in PATH")
+    else:
+        logger.debug(f"mitmdump path: {mitmdump_path}")
+
     return mitmdump_path
