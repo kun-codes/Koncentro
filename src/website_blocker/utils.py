@@ -17,7 +17,7 @@ def exec_command(command) -> None:
     p.wait()
 
 
-def find_processes_by_name(name):
+def find_processes_by_name(name: str):
     "Return a list of processes matching 'name'."
     ls = []
     for p in psutil.process_iter(attrs=["name", "exe", "cmdline"]):

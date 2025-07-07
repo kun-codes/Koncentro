@@ -15,7 +15,7 @@ def apply_patches() -> bool:
 
         original_init = ToolTip.__init__
 
-        def patched_init(self, text="", parent=None) -> None:
+        def patched_init(self, text: str = "", parent=None) -> None:
             original_init(self, text, parent)
             if is_flatpak_sandbox():
                 self.setWindowFlags(Qt.FramelessWindowHint)

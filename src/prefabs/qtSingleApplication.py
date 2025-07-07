@@ -41,7 +41,7 @@ class QtSingleApplication(QApplication):
     def activationWindow(self):
         return self._activationWindow
 
-    def setActivationWindow(self, activationWindow, activateOnMessage=True) -> None:
+    def setActivationWindow(self, activationWindow, activateOnMessage: bool = True) -> None:
         self._activationWindow = activationWindow
         self._activateOnMessage = activateOnMessage
 

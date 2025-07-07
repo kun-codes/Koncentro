@@ -9,7 +9,7 @@ class TargetClickTeachingTip(TeachingTip):
     """Teaching tip that only closes when the target widget is clicked."""
 
     def __init__(
-        self, view, target, tailPosition=TeachingTipTailPosition.BOTTOM, parent=None, isDeleteOnClose=True
+        self, view, target, tailPosition=TeachingTipTailPosition.BOTTOM, parent=None, isDeleteOnClose: bool = True
     ) -> None:
         super().__init__(
             view, target, duration=-1, tailPosition=tailPosition, parent=parent, isDeleteOnClose=isDeleteOnClose

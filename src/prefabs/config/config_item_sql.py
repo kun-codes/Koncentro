@@ -17,7 +17,7 @@ class ConfigItemSQL(QObject):
         default,
         validator=None,
         serializer=None,
-        restart=False,
+        restart: bool = False,
     ) -> None:
         super().__init__()
         self.db_table = db_table

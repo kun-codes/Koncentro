@@ -56,7 +56,7 @@ class TaskListModel(QAbstractListModel):
             ]
         self.layoutChanged.emit()
 
-    def index(self, row, column=0, parent=QModelIndex()):
+    def index(self, row, column: int = 0, parent=QModelIndex()):
         return self.createIndex(row, column)
 
     def data(self, index, role=...):
@@ -83,7 +83,7 @@ class TaskListModel(QAbstractListModel):
 
         return None
 
-    def setData(self, index, value, role=..., update_db=True) -> bool:
+    def setData(self, index, value, role=..., update_db: bool = True) -> bool:
         if role == Qt.DisplayRole:
             row = index.row()
             task_name = value.strip()
@@ -350,7 +350,7 @@ class TaskListModel(QAbstractListModel):
     #     task_name = stream.readQString()
     #     return True
 
-    def insertRow(self, row, parent=QModelIndex(), task_name=None, task_type=TaskType.TODO) -> bool:
+    def insertRow(self, row, parent, task_name: str, task_type=TaskType.TODO) -> bool:
         """
         Used to insert a new task in the list
         """
@@ -383,7 +383,7 @@ class TaskListModel(QAbstractListModel):
         self.layoutChanged.emit()
         return True
 
-    def removeRows(self, row, count, parent=...) -> bool:
+    def removeRows(self, row, count: int, parent=...) -> bool:
         """
         remove rows but not delete from db
         This method can be called by Qt during drag operations.

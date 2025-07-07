@@ -10,10 +10,10 @@ class TransientPopupTeachingTip(PopupTeachingTip):
         self,
         view,
         target,
-        duration=1000,
+        duration: int = 1000,
         tailPosition=TeachingTipTailPosition.BOTTOM,
         parent=None,
-        isDeleteOnClose=True,
+        isDeleteOnClose: bool = True,
     ) -> None:
         super().__init__(view, target, duration, tailPosition, parent, isDeleteOnClose)
 
@@ -69,11 +69,11 @@ class TransientPopupTeachingTip(PopupTeachingTip):
         interface_type: InterfaceType,
         icon=None,
         image=None,
-        isClosable=True,
-        duration=1000,
+        isClosable: bool = True,
+        duration: int = 1000,
         tailPosition=TeachingTipTailPosition.BOTTOM,
         parent=None,
-        isDeleteOnClose=True,
+        isDeleteOnClose: bool = True,
     ):
         """Create a temporary popup teaching tip."""
         view = TeachingTipView(title, content, icon, image, isClosable, tailPosition)

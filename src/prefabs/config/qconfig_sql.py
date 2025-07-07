@@ -22,7 +22,7 @@ class QConfigSQL(QConfig):
         self.file = Path(settings_file_path)
         self._cfg.file = Path(settings_file_path)
 
-    def set(self, item: Union[ConfigItemSQL, ConfigItem], value, save=True, copy=True) -> None:
+    def set(self, item: Union[ConfigItemSQL, ConfigItem], value, save: bool = True, copy: bool = True) -> None:
         """set the value of config item
 
         Parameters

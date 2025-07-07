@@ -115,7 +115,7 @@ class PomodoroTimer(QObject):  # Inherit from QObject to support signals
         self.pomodoro_timer.stop()
         self.sessionPausedSignal.emit()
 
-    def durationEnded(self, isSkipped=False) -> None:
+    def durationEnded(self, isSkipped: bool = False) -> None:
         """
         Handles the end of the work session, break session or long break session
         """

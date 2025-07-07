@@ -623,7 +623,7 @@ class MainWindow(KoncentroFluentWindow):
         )
         logger.debug("Proxy settings have been reset successfully")
 
-    def setPauseResumeButtonsToPauseIcon(self, skip_delegate_button=False) -> None:
+    def setPauseResumeButtonsToPauseIcon(self, skip_delegate_button: bool = False) -> None:
         self.pomodoro_interface.pauseResumeButton.setIcon(FluentIcon.PAUSE)
         self.pomodoro_interface.pauseResumeButton.setChecked(True)
 
@@ -639,7 +639,7 @@ class MainWindow(KoncentroFluentWindow):
             checked=True, task_id=self.get_current_task_id()
         )
 
-    def setPauseResumeButtonsToPlayIcon(self, skip_delegate_button=False) -> None:
+    def setPauseResumeButtonsToPlayIcon(self, skip_delegate_button: bool = False) -> None:
         self.pomodoro_interface.pauseResumeButton.setIcon(FluentIcon.PLAY)
         self.pomodoro_interface.pauseResumeButton.setChecked(False)
 

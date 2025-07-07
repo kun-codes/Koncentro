@@ -170,7 +170,7 @@ class WebsiteBlockerManager(QObject):
             subprocess.Popen(args)
         return True
 
-    def _on_start_completed(self, success, message) -> None:
+    def _on_start_completed(self, success: bool, message) -> None:
         """Handle completion of start_blocking operation"""
         if success:
             self.blockingStarted.emit()
@@ -240,7 +240,7 @@ class WebsiteBlockerManager(QObject):
         kill_worker.start()
         return True
 
-    def _on_stop_completed(self, success, message) -> None:
+    def _on_stop_completed(self, success: bool, message) -> None:
         """Handle completion of stop_blocking operation"""
         if not success:
             self.operationError.emit(f"Warning during blocking shutdown: {message}")

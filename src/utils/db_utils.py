@@ -6,7 +6,7 @@ from models.db_tables import engine
 
 
 @contextmanager
-def get_session(is_read_only=False):
+def get_session(is_read_only: bool = False):
     Session = sessionmaker(bind=engine)
     session = Session()
     try:
