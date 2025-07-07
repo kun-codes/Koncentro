@@ -73,7 +73,7 @@
     <launchable type="desktop-id">koncentro.desktop</launchable>
 
     <releases>
-        <release version="0.8.1" date="2025-07-07">
+        <release version="0.9.0" date="2025-07-07">
         </release>
     </releases>
 </component>
