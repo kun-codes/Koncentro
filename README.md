@@ -41,6 +41,14 @@ You can install Koncentro on Windows using [winget](https://learn.microsoft.com/
 winget install --id=BishwaSaha.Koncentro -e
 ```
 
+#### Linux Installation
+
+You can install Koncentro on Linux using [Flathub](https://flathub.org):
+
+```sh
+flatpak install flathub com.bishwasaha.Koncentro
+````
+
 
 <details>
 <summary><strong>From Source (Advanced)</strong></summary>
