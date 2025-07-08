@@ -48,7 +48,7 @@ class CodeEditor(PlainTextEdit):
             """
         setCustomStyleSheet(self, qss, qss)
 
-    def line_number_area_width(self):
+    def line_number_area_width(self) -> int:
         digits = 1
         max_num = max(1, self.blockCount())
         while max_num >= 10:

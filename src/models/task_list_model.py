@@ -1,3 +1,5 @@
+from typing import List
+
 from loguru import logger
 from PySide6.QtCore import QAbstractListModel, QByteArray, QDataStream, QIODevice, QMimeData, QModelIndex, Qt, Signal
 from PySide6.QtGui import QColor
@@ -122,7 +124,7 @@ class TaskListModel(QAbstractListModel):
     def columnCount(self, parent) -> int:
         return 1
 
-    def rowCount(self, parent=...):
+    def rowCount(self, parent=...) -> int:
         return len(self.tasks)
 
     def supportedDropActions(self):
@@ -337,7 +339,7 @@ class TaskListModel(QAbstractListModel):
             | Qt.ItemFlag.ItemIsEditable
         )
 
-    def mimeTypes(self):
+    def mimeTypes(self) -> List[str]:
         return ["application/x-qabstractitemmodeldatalist"]
 
     # TODO: Implement insertRows method
@@ -350,7 +352,7 @@ class TaskListModel(QAbstractListModel):
     #     task_name = stream.readQString()
     #     return True
 
-    def insertRow(self, row, parent, task_name: str, task_type=TaskType.TODO) -> bool:
+    def insertRow(self, row, parent, task_name: str, task_type: TaskType = TaskType.TODO) -> bool:
         """
         Used to insert a new task in the list
         """
@@ -420,7 +422,7 @@ class TaskListModel(QAbstractListModel):
             # Force refresh to ensure view reflects actual data
             self.layoutChanged.emit()
 
-    def isDragInProgress(self):
+    def isDragInProgress(self) -> bool:
         """
         Check if a drag operation is currently in progress
         """

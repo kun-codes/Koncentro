@@ -76,7 +76,7 @@ class TargetClickTeachingTip(TeachingTip):
         tailPosition=TeachingTipTailPosition.BOTTOM,
         parent=None,
         customSignalToDestroy: Signal = None,
-    ):
+    ) -> "TargetClickTeachingTip":
         """Create a teaching tip that only closes when the target is clicked."""
         view = TeachingTipView(title, content, icon, image, False, tailPosition)
         tip = cls(view, target, tailPosition, parent, True)

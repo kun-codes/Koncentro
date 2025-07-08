@@ -74,7 +74,7 @@ class TransientPopupTeachingTip(PopupTeachingTip):
         tailPosition=TeachingTipTailPosition.BOTTOM,
         parent=None,
         isDeleteOnClose: bool = True,
-    ):
+    ) -> "TransientPopupTeachingTip":
         """Create a temporary popup teaching tip."""
         view = TeachingTipView(title, content, icon, image, isClosable, tailPosition)
         tip = cls(view, target, duration, tailPosition, parent, isDeleteOnClose)

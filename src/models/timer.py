@@ -155,7 +155,7 @@ class PomodoroTimer(QObject):  # Inherit from QObject to support signals
                 # if self.previous_timer_state != self.timer_state:
                 #     self.timerStateChangedSignal.emit(self.timer_state)
 
-    def skipDuration(self):
+    def skipDuration(self) -> None:
         # self.previous_timer_state = self.timer_state  # should I remove it???
         if self.remaining_time == 0 and not self.pomodoro_timer.isActive():
             # TODO: Implement skipping duration when timer is not doing anything
@@ -168,7 +168,7 @@ class PomodoroTimer(QObject):  # Inherit from QObject to support signals
 
         self.durationSkippedSignal.emit()
 
-    def setTimerDuration(self, duration) -> None:
+    def setTimerDuration(self, duration: int) -> None:
         """
         for setting the duration of the timer
         """
@@ -189,7 +189,7 @@ class PomodoroTimer(QObject):  # Inherit from QObject to support signals
 
         self.pomodoro_timer.start(self.timer_resolution)
 
-    def getRemainingTime(self):
+    def getRemainingTime(self) -> int:
         """
         Returns the remaining time in milliseconds for the duration
         """
@@ -212,10 +212,10 @@ class PomodoroTimer(QObject):  # Inherit from QObject to support signals
         self.sessionStoppedSignal.emit()
         logger.debug(f"Session Progress: {self.session_progress}")
 
-    def getSessionProgress(self):
+    def getSessionProgress(self) -> int:
         return self.session_progress
 
-    def getSessionsCompleted(self):
+    def getSessionsCompleted(self) -> int:
         return self.sessions_completed
 
     # def skipDuration(self):

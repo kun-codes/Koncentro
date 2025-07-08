@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from loguru import logger
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QSizePolicy, QSpacerItem, QWidget
@@ -146,7 +148,7 @@ class PomodoroView(QWidget, Ui_PomodoroView):
             # self.pomodoro_timer_obj.getSessionProgress() == 0  # not adding this condition as it is redundant
         )
 
-    def convert_milliseconds(self, milliseconds):
+    def convert_milliseconds(self, milliseconds) -> Tuple[int, int, int]:
         seconds, milliseconds = divmod(milliseconds, 1000)
         minutes, seconds = divmod(seconds, 60)
         hours, minutes = divmod(minutes, 60)

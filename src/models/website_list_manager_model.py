@@ -132,7 +132,7 @@ class WebsiteListManager(QObject):
         self.load_data(target_list)
 
     # helper function for validate_url()
-    def add_default_scheme(self, url):
+    def add_default_scheme(self, url) -> str:
         parsed_url = urlparse(url)
         if not parsed_url.scheme:
             return f"https://{url}"

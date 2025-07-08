@@ -60,7 +60,7 @@ class UpdateChecker(QObject):
         self._thread.quit()
 
     @staticmethod
-    def checkForUpdates():
+    def checkForUpdates() -> UpdateCheckResult:
         """Check for updates by comparing the current app version with the remote version."""
         current_app_version = get_app_version()
         logger.debug(f"App version: {current_app_version}")

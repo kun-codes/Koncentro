@@ -53,7 +53,7 @@ class WorkspaceListModel(QAbstractListModel):
             return Qt.ItemIsEnabled
         return super().flags(index) | Qt.ItemIsEditable
 
-    def rowCount(self, index=QModelIndex()):
+    def rowCount(self, index=QModelIndex()) -> int:
         return len(self.workspaces)
 
     def add_workspace(self, workspace) -> None:

@@ -16,4 +16,4 @@ settings_dir = os.path.dirname(setting_temp.fileName())
 root, _ = os.path.splitext(setting_temp.fileName())
 settings_file_path = root + ".json"
 
-db_path = os.path.join(settings_dir, f"{APPLICATION_NAME}.db")
+db_path: str = os.path.join(settings_dir, f"{APPLICATION_NAME}.db")
