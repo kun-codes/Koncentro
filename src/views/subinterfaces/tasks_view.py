@@ -22,14 +22,14 @@ class TaskListView(Ui_TaskView, QWidget):
     For tasks view of the app
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.setupUi(self)
         self.initLayout()
         self.connectSignalsToSlots()
         self.setupSelectionBehavior()
 
-    def initLayout(self):
+    def initLayout(self) -> None:
         label_size_policy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
 
         self.todoTasksLabel = TitleLabel()
@@ -80,12 +80,12 @@ class TaskListView(Ui_TaskView, QWidget):
             ToolTipFilter(self.editTaskTimeButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
 
-    def connectSignalsToSlots(self):
+    def connectSignalsToSlots(self) -> None:
         self.addTaskButton.clicked.connect(self.addTask)
         self.deleteTaskButton.clicked.connect(self.deleteTask)
         self.editTaskTimeButton.clicked.connect(self.editTaskTime)
 
-    def addTask(self):
+    def addTask(self) -> None:
         dialog = AddTaskDialog(self.window())
         # if user clicks on add task inside dialog
         if dialog.exec():
@@ -103,7 +103,7 @@ class TaskListView(Ui_TaskView, QWidget):
 
         return None
 
-    def deleteTask(self):
+    def deleteTask(self) -> None:
         # either one of the following will be selected
         todo_selected_index = self.todoTasksList.selectionModel().currentIndex()
         completed_selected_index = self.completedTasksList.selectionModel().currentIndex()
@@ -113,7 +113,7 @@ class TaskListView(Ui_TaskView, QWidget):
         elif self.completedTasksList.selectionModel().hasSelection():
             self.completedTasksList.model().deleteTask(completed_selected_index.row())
 
-    def editTaskTime(self):
+    def editTaskTime(self) -> None:
         row = None
         task_list_model = None
         if self.todoTasksList.selectionModel().hasSelection():
@@ -135,14 +135,14 @@ class TaskListView(Ui_TaskView, QWidget):
                 if estimated_time is not None:
                     task_list_model.setData(row, estimated_time, TaskListModel.TargetTimeRole, update_db=True)
 
-    def setupSelectionBehavior(self):
+    def setupSelectionBehavior(self) -> None:
         """
         To ensure that only one item is selected out of both the lists
         """
         self.todoTasksList.selectionModel().selectionChanged.connect(self.onTodoTasksSelectionChanged)
         self.completedTasksList.selectionModel().selectionChanged.connect(self.onCompletedTasksSelectionChanged)
 
-    def onTodoTasksSelectionChanged(self):
+    def onTodoTasksSelectionChanged(self) -> None:
         if self.todoTasksList.selectionModel().hasSelection():
             # disconnecting and connecting again so that the other SelectionChanged method is not called
             # when selection is cleared
@@ -150,7 +150,7 @@ class TaskListView(Ui_TaskView, QWidget):
             self.completedTasksList.clearSelection()
             self.completedTasksList.selectionModel().selectionChanged.connect(self.onCompletedTasksSelectionChanged)
 
-    def onCompletedTasksSelectionChanged(self):
+    def onCompletedTasksSelectionChanged(self) -> None:
         if self.completedTasksList.selectionModel().hasSelection():
             # disconnecting and connecting again so that the other SelectionChanged method is not called
             # when selection is cleared
@@ -158,11 +158,11 @@ class TaskListView(Ui_TaskView, QWidget):
             self.todoTasksList.clearSelection()
             self.todoTasksList.selectionModel().selectionChanged.connect(self.onTodoTasksSelectionChanged)
 
-    def onCurrentWorkspaceChanged(self):
+    def onCurrentWorkspaceChanged(self) -> None:
         self.todoTasksList.model().load_data()
         self.completedTasksList.model().load_data()
 
-    def autoSetCurrentTaskID(self):
+    def autoSetCurrentTaskID(self) -> None:
         if self.todoTasksList.model().currentTaskID() is not None:  # if current task is already set then return
             return
         # else set current task according to below rules

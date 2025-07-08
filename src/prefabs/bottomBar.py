@@ -5,13 +5,13 @@ from ui_py.ui_bottom_bar_widget import Ui_BottomBarWidget
 
 
 class BottomBar(Ui_BottomBarWidget, QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent=None)
         self.setupUi(self)
 
         self.initWidget()
 
-    def initWidget(self):
+    def initWidget(self) -> None:
         self.stopButton.setIcon(FluentIcon.CLOSE)
         self.pauseResumeButton.setIcon(FluentIcon.PLAY)
         self.skipButton.setIcon(FluentIcon.CHEVRON_RIGHT)

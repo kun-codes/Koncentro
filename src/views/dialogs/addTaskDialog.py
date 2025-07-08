@@ -7,7 +7,7 @@ class AddTaskDialog(MessageBoxBase):
     For the add task dialog in tasks view
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent=parent)
         self.titleLabel = SubtitleLabel("Add Task", self)
         self.taskEdit = LineEdit(self)
@@ -24,14 +24,14 @@ class AddTaskDialog(MessageBoxBase):
         self.yesButton.setDisabled(True)
         self.taskEdit.textChanged.connect(self.onTaskTextChanged)
 
-    def onTaskTextChanged(self):
+    def onTaskTextChanged(self) -> None:
         self.yesButton.setDisabled(self.taskEdit.text().strip() == "")
 
-    def showEvent(self, event):
+    def showEvent(self, event) -> None:
         super().showEvent(event)
         self.taskEdit.setFocus()
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event) -> None:
         if event.key() in [Qt.Key_Return, Qt.Key_Enter] and self.yesButton.isEnabled():
             self.yesButton.click()
         else:

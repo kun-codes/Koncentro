@@ -2,5 +2,5 @@
 __version__ = "0.9.0"
 
 
-def get_app_version():
+def get_app_version() -> str:
     return __version__

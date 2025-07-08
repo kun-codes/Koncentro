@@ -9,14 +9,14 @@ from constants import InterfaceType
 
 
 class InterfaceTutorial(QObject):
-    def __init__(self, main_window: FluentWindow, interface_type: InterfaceType):
+    def __init__(self, main_window: FluentWindow, interface_type: InterfaceType) -> None:
         self.main_window = main_window
         self.current_step = 0
         self.interface_type = interface_type
         self.tutorial_steps: List[Callable[[], None]] = []
         self.teaching_tips = []
 
-    def start(self):
+    def start(self) -> None:
         if self.current_step < len(self.tutorial_steps):
             if self.current_step == 0:
                 QTimer.singleShot(1000, self.tutorial_steps[self.current_step])  # wait for 1 second before showing
@@ -24,7 +24,7 @@ class InterfaceTutorial(QObject):
             else:
                 self.tutorial_steps[self.current_step]()
 
-    def next_step(self):
+    def next_step(self) -> None:
         logger.debug(f"Next step: {self.current_step}")
         self.current_step += 1
         self.start()

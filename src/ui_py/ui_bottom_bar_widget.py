@@ -22,7 +22,7 @@ from prefabs.elidedLabel import ElidedStrongBodyLabel
 from qfluentwidgets import (PillToolButton, StrongBodyLabel, ToggleToolButton, ToolButton)
 
 class Ui_BottomBarWidget(object):
-    def setupUi(self, BottomBarWidget):
+    def setupUi(self, BottomBarWidget) -> None:
         if not BottomBarWidget.objectName():
             BottomBarWidget.setObjectName(u"BottomBarWidget")
         BottomBarWidget.resize(778, 64)
@@ -101,7 +101,7 @@ class Ui_BottomBarWidget(object):
         QMetaObject.connectSlotsByName(BottomBarWidget)
     # setupUi
 
-    def retranslateUi(self, BottomBarWidget):
+    def retranslateUi(self, BottomBarWidget) -> None:
         BottomBarWidget.setWindowTitle(QCoreApplication.translate("BottomBarWidget", u"Form", None))
         self.timerLabel.setText(QCoreApplication.translate("BottomBarWidget", u"Strong body label", None))
     # retranslateUi

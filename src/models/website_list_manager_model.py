@@ -11,7 +11,7 @@ from utils.db_utils import get_session
 
 
 class WebsiteListManager(QObject):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.blocklist_urls = set()
@@ -24,7 +24,7 @@ class WebsiteListManager(QObject):
         self.load_website_block_type()
         self.load_data()
 
-    def load_data(self, target_list: URLListType = None):
+    def load_data(self, target_list: URLListType = None) -> None:
         with get_session(is_read_only=True) as session:
             current_workspace_id = WorkspaceLookup.get_current_workspace_id()
 
@@ -83,12 +83,12 @@ class WebsiteListManager(QObject):
                     .all()
                 }
 
-    def load_website_block_type(self):
+    def load_website_block_type(self) -> None:
         with get_session(is_read_only=True) as session:
             current_workspace_id = WorkspaceLookup.get_current_workspace_id()
             self.website_block_type = session.query(Workspace).get(current_workspace_id).website_block_type
 
-    def set_website_block_type(self, website_block_type: WebsiteBlockType):
+    def set_website_block_type(self, website_block_type: WebsiteBlockType) -> None:
         with get_session() as session:
             current_workspace = WorkspaceLookup.get_current_workspace()
             current_workspace.website_block_type = website_block_type
@@ -98,7 +98,7 @@ class WebsiteListManager(QObject):
     def get_website_block_type(self):
         return self.website_block_type
 
-    def update_target_list_urls(self, target_list: URLListType, target_list_urls: set):
+    def update_target_list_urls(self, target_list: URLListType, target_list_urls: set) -> None:
         """
         This method updates the target list of urls with the new set of urls. It assumes that all urls are valid.
         Use validate_urls() to check if the urls are valid before calling this method.
@@ -132,7 +132,7 @@ class WebsiteListManager(QObject):
         self.load_data(target_list)
 
     # helper function for validate_url()
-    def add_default_scheme(self, url):
+    def add_default_scheme(self, url) -> str:
         parsed_url = urlparse(url)
         if not parsed_url.scheme:
             return f"https://{url}"
@@ -158,12 +158,12 @@ class WebsiteListManager(QObject):
             return True, None  # returning None as there are no invalid urls
 
     # helper function for update_target_list_urls()
-    def add_urls(self, session, urls: set, target_class):
+    def add_urls(self, session, urls: set, target_class) -> None:
         for url in urls:
             session.add(target_class(workspace_id=WorkspaceLookup.get_current_workspace_id(), url=url))
 
     # helper function for update_target_list_urls()
-    def remove_urls(self, session, urls: set, target_class):
+    def remove_urls(self, session, urls: set, target_class) -> None:
         session.query(target_class).filter(
             target_class.url.in_(urls), target_class.workspace_id == WorkspaceLookup.get_current_workspace_id()
         ).delete(synchronize_session=False)

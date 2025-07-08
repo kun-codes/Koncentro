@@ -21,7 +21,7 @@ from utils.patch_tooltip import apply_patches
 from utils.update_app_version_in_db import updateAppVersionInDB
 
 
-def handle_signal(signal, frame):
+def handle_signal(signal, frame) -> None:
     if mainWindow:
         mainWindow.close()
 
@@ -30,7 +30,7 @@ def handle_signal(signal, frame):
 
 
 # https://alembic.sqlalchemy.org/en/latest/cookbook.html#building-an-up-to-date-database-from-scratch
-def run_alembic_upgrade():
+def run_alembic_upgrade() -> None:
     if is_nuitka():
         # from: https://nuitka.net/user-documentation/common-issue-solutions.html#onefile-finding-files
         alembic_ini_path = os.path.join(os.path.dirname(sys.argv[0]), "alembic.ini")
@@ -41,7 +41,7 @@ def run_alembic_upgrade():
     command.upgrade(alembic_cfg, "head")
 
 
-def substitute_fonts():
+def substitute_fonts() -> None:
     # Windows already has Segoe UI, so no need to substitute fonts
     if not os.name == "nt":
         fonts = [
@@ -60,7 +60,7 @@ def substitute_fonts():
         QFont.insertSubstitutions("Segoe UI", ["Selawik", "Selawik Light", "Selawik Semibold", "Selawik Semilight"])
 
 
-def check_desktop_environment():
+def check_desktop_environment() -> bool:
     desktop_env = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
     if any(env in desktop_env for env in ["budgie", "gnome", "kde", "cinnamon", "mate", "unity", "pantheon"]):
         logger.info(

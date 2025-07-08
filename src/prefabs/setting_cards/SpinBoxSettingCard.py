@@ -7,7 +7,7 @@ from prefabs.setting_cards.SpinBoxSettingCardSQL import SpinBoxSettingCardSQL
 
 
 class SpinBoxSettingCard(SpinBoxSettingCardSQL):
-    def __init__(self, configItem, icon: Union[str, QIcon, FluentIconBase], title, content=None, parent=None):
+    def __init__(self, configItem, icon: Union[str, QIcon, FluentIconBase], title, content=None, parent=None) -> None:
         """
         Parameters
         ----------
@@ -28,6 +28,6 @@ class SpinBoxSettingCard(SpinBoxSettingCardSQL):
         """
         super().__init__(configItem, icon, title, content, parent)
 
-    def setValue(self, value):
+    def setValue(self, value) -> None:
         qconfig.set(self.configItem, value)
         self.spinBox.setValue(value)

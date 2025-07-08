@@ -21,7 +21,7 @@ class TaskListItemDelegate(ListItemDelegate):
 
     pauseResumeButtonClicked = Signal(int, bool)  # task_id of clicked button, checked state of clicked button
 
-    def __init__(self, parent: QListView):
+    def __init__(self, parent: QListView) -> None:
         super().__init__(parent)
         self.buttons = {}  # Store buttons for each row
         self.button_size = 24  # Size of the tool button
@@ -32,7 +32,7 @@ class TaskListItemDelegate(ListItemDelegate):
 
         self._pomodoro_interface = None
 
-    def deleteAllButtons(self):
+    def deleteAllButtons(self) -> None:
         """Delete all buttons when there are no tasks"""
         for button in list(self.buttons.values()):
             button.deleteLater()
@@ -75,7 +75,7 @@ class TaskListItemDelegate(ListItemDelegate):
         # find child of parent with name pomodoro_interface
         return parent.findChild(QWidget, "pomodoro_interface", options=Qt.FindChildOption.FindChildrenRecursively)
 
-    def onButtonClicked(self, checked, task_id):
+    def onButtonClicked(self, checked, task_id) -> None:
         """Handle button clicks using task_id"""
         if self.parent().objectName() == "completedTasksList":
             return
@@ -128,13 +128,13 @@ class TaskListItemDelegate(ListItemDelegate):
             model.setCurrentTaskID(task_id)
             self.parent().viewport().update()
 
-    def setCheckedStateOfButton(self, task_id, checked):
+    def setCheckedStateOfButton(self, task_id, checked) -> None:
         button = self.buttons.get(task_id)
         if button:
             button.setChecked(checked)
             button.setIcon(FluentIcon.PAUSE if checked else FluentIcon.PLAY)
 
-    def paint(self, painter, option, index):
+    def paint(self, painter, option, index) -> None:
         painter.save()
         painter.setPen(Qt.NoPen)
         painter.setRenderHint(QPainter.Antialiasing)
@@ -243,7 +243,7 @@ class TaskListItemDelegate(ListItemDelegate):
 
         QStyledItemDelegate.paint(self, painter, adjusted_option, index)
 
-    def updateEditorGeometry(self, editor: QWidget, option: QStyleOptionViewItem, index: QModelIndex):
+    def updateEditorGeometry(self, editor: QWidget, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         rect = option.rect
         y = rect.y() + (rect.height() - editor.height()) // 2
 
@@ -269,11 +269,11 @@ class TaskListItemDelegate(ListItemDelegate):
         lineEdit.setText(option.text)
         return lineEdit
 
-    def setEditorData(self, editor, index):
+    def setEditorData(self, editor, index) -> None:
         text = self.parent().model().data(index, Qt.ItemDataRole.DisplayRole)
         editor.setText(text)
 
-    def setModelData(self, editor, model, index):
+    def setModelData(self, editor, model, index) -> None:
         text = editor.text()
         if text:
             model.setData(index, text, Qt.ItemDataRole.DisplayRole)

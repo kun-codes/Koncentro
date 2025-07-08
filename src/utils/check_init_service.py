@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 from utils.check_flatpak_sandbox import is_flatpak_sandbox
 
 
-def check_init_service():
+def check_init_service() -> bool:
     try:
         if is_flatpak_sandbox():
             result = subprocess.run(
