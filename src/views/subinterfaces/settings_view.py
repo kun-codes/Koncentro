@@ -155,7 +155,7 @@ class SettingsView(QWidget, Ui_SettingsView):
         self.setup_group = SettingCardGroup("Setup", self.scrollArea)
         self.setup_app_card = PrimaryPushSettingCard(
             f"Setup {APPLICATION_NAME}",
-            FluentIcon.VPN,
+            CustomFluentIcon.SETUP_AGAIN,
             f"Setup {APPLICATION_NAME} again",
             f"Click to setup {APPLICATION_NAME} again",
             self.setup_group,
@@ -165,7 +165,7 @@ class SettingsView(QWidget, Ui_SettingsView):
             operating_system = "macOS"
         self.reset_proxy_settings = PrimaryPushSettingCard(
             "Reset Proxy",
-            FluentIcon.VPN,
+            CustomFluentIcon.RESET_PROXY,
             "Reset Proxy Settings",
             f"Click to reset proxy settings for {APPLICATION_NAME} and {operating_system}",
             self.setup_group,
