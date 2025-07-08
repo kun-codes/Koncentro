@@ -35,7 +35,7 @@ Installers for Koncentro are available for Windows, macOS and Linux. You can dow
 
 #### Windows Installation
 
-You can install Koncentro on Windows using [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/):
+You can install Koncentro on Windows using [WinGet](https://learn.microsoft.com/en-us/windows/package-manager/winget/):
 
 ```sh
 winget install --id=BishwaSaha.Koncentro -e
