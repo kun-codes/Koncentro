@@ -165,7 +165,7 @@ class SettingsView(QWidget, Ui_SettingsView):
             operating_system = "macOS"
         self.reset_proxy_settings = PrimaryPushSettingCard(
             "Reset Proxy",
-            FluentIcon.VPN,
+            CustomFluentIcon.RESET_PROXY,
             "Reset Proxy Settings",
             f"Click to reset proxy settings for {APPLICATION_NAME} and {operating_system}",
             self.setup_group,

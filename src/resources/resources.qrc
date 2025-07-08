@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="iconsPrefix">
+    <file>icons/reset_proxy_black.svg</file>
+    <file>icons/reset_proxy_white.svg</file>
     <file>icons/setup_again_black.svg</file>
     <file>icons/setup_again_white.svg</file>
     <file>icons/text_add_black.svg</file>
