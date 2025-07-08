@@ -83,6 +83,9 @@ class Ui_WebsiteBlockView(object):
 
         self.verticalLayout.addWidget(self.allowListTextEdit)
 
+        for textEdit in [self.blockListTextEdit, self.allowListTextEdit]:
+            textEdit.setPlaceholderText("Enter one URL per line.")
+
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
