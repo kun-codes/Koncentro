@@ -10,6 +10,7 @@
 
   [![wakatime](https://wakatime.com/badge/github/kun-codes/koncentro.svg?style=flat-square)](https://wakatime.com/badge/github/kun-codes/koncentro)
   ![WinGet Package Version](https://img.shields.io/winget/v/BishwaSaha.Koncentro?style=flat-square)
+  ![Flathub Version](https://img.shields.io/flathub/v/com.bishwasaha.Koncentro?style=flat-square)
   [![Hosted By: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=flat-square)](https://cloudsmith.com)
 
 </div>
