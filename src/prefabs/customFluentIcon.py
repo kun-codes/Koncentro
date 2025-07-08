@@ -23,6 +23,7 @@ class CustomFluentIcon(FluentIconBase, Enum):
     EXIT = "exit"
     CLICK = "click"
     TEXT_ADD = "text_add"
+    SETUP_AGAIN = "setup_again"
 
     def path(self, theme=Theme.AUTO) -> str:
         # getIconColor() return "white" or "black" according to current theme
