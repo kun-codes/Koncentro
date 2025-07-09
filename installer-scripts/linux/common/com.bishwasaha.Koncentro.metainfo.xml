@@ -49,24 +49,19 @@
 
     <screenshots>
       <screenshot type="default">
-        <image>https://github.com/kun-codes/Koncentro/blob/0d776746815227e879d39bb88b9d0c5d3c0102bc/screenshots/linux_tasks_list.png?raw=true</image>
-        <caption>Tasks List View</caption>
+          <image>https://github.com/kun-codes/Koncentro/blob/7fc995eeb9d2f64debad6b7f5a753f2c977f4539/screenshots/linux_tasks_list.png?raw=true</image>
       </screenshot>
       <screenshot>
-        <image>https://github.com/kun-codes/Koncentro/blob/0d776746815227e879d39bb88b9d0c5d3c0102bc/screenshots/linux_pomodoro_timer.png?raw=true</image>
-        <caption>Pomodoro Timer</caption>
+          <image>https://github.com/kun-codes/Koncentro/blob/7fc995eeb9d2f64debad6b7f5a753f2c977f4539/screenshots/linux_pomodoro_timer.png?raw=true</image>
       </screenshot>
       <screenshot>
-        <image>https://github.com/kun-codes/Koncentro/blob/0d776746815227e879d39bb88b9d0c5d3c0102bc/screenshots/linux_website_blocker.png?raw=true</image>
-        <caption>Website Blocker</caption>
+          <image>https://github.com/kun-codes/Koncentro/blob/7fc995eeb9d2f64debad6b7f5a753f2c977f4539/screenshots/linux_website_blocker.png?raw=true</image>
       </screenshot>
       <screenshot>
-        <image>https://github.com/kun-codes/Koncentro/blob/0d776746815227e879d39bb88b9d0c5d3c0102bc/screenshots/linux_workspace_manager.png?raw=true</image>
-        <caption>Workspace Manager</caption>
+          <image>https://github.com/kun-codes/Koncentro/blob/7fc995eeb9d2f64debad6b7f5a753f2c977f4539/screenshots/linux_workspace_manager.png?raw=true</image>
       </screenshot>
       <screenshot>
-        <image>https://github.com/kun-codes/Koncentro/blob/0d776746815227e879d39bb88b9d0c5d3c0102bc/screenshots/linux_workspace_manager.png?raw=true</image>
-        <caption>Settings</caption>
+          <image>https://github.com/kun-codes/Koncentro/blob/7fc995eeb9d2f64debad6b7f5a753f2c977f4539/screenshots/linux_settings.png?raw=true</image>
       </screenshot>
     </screenshots>
 
