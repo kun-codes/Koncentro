@@ -15,7 +15,7 @@ tag_template = "v{new_version}"
 
 [[before_commit]]
 name = "Update release date in metainfo.xml"
-cmd = "python dev-setup/update-metainfo-date.py"
+cmd = "python dev/update-metainfo-date.py"
 
 [[file]]
 src = "pyproject.toml"
