@@ -3,7 +3,7 @@ Version:        ${KONCENTRO_VERSION}
 Release:        1
 Summary:        A productivity app with Pomodoro, tasks, and website blocking
 
-License:        GPL-3.0
+License:        GPL-3.0-or-later
 URL:            https://github.com/kun-codes/Koncentro
 Source0:        %{name}-%{version}.tar.gz
 
