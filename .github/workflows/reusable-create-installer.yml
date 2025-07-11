@@ -1,4 +1,4 @@
-name: Create Installer
+name: Create Installer (Reusable)
 
 on:
     workflow_call:
