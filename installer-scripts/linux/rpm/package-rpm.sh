@@ -86,6 +86,12 @@ EOF
 chmod +x rpm/usr/bin/koncentro
 echo "4. Created a wrapper script in /usr/bin"
 
+ls -alh build/rpm/
+
+# Strip binaries to reduce size
+strip build/rpm/usr/bin/koncentro || true
+strip build/rpm/usr/lib/koncentro/* || true
+
 # 5. Create a desktop shortcut
 mkdir -p rpm/usr/share/applications
 export KONCENTRO_AUTOSTART_ARGS=""
@@ -114,9 +120,15 @@ case "$DISTRO" in
         --depends "xcb-util-cursor" \
         --depends "xcb-util-keysyms" \
         --depends "xcb-util-wm" \
+        --exclude "*.a" \
+        --exclude "*.la" \
+        --exclude "*.debug" \
+        --exclude "*.pdb" \
+        --exclude "usr/share/doc" \
+        --exclude "usr/share/man" \
         -p dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}-Fedora.rpm \
         usr
-    echo "Built Fedora RPM package"
+    echo "Built optimized Fedora RPM package"
     ;;
 
   opensuse|*)
@@ -136,9 +148,15 @@ case "$DISTRO" in
         --depends "libxcb-cursor0" \
         --depends "libxcb-keysyms1" \
         --depends "libxcb-icccm4" \
+        --exclude "*.a" \
+        --exclude "*.la" \
+        --exclude "*.debug" \
+        --exclude "*.pdb" \
+        --exclude "usr/share/doc" \
+        --exclude "usr/share/man" \
         -p dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}-openSUSE.rpm \
         usr
-    echo "Built openSUSE RPM package"
+    echo "Built optimized openSUSE RPM package"
     ;;
 esac
 
