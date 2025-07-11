@@ -11,5 +11,6 @@ jobs:
         steps:
             -   name: Checkout code
                 uses: actions/checkout@v4
-            -   name: astral-sh/ruff-action@v3
+            -   name: Setup Ruff
+                uses: astral-sh/ruff-action@v3
 
