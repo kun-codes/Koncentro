@@ -86,11 +86,11 @@ EOF
 chmod +x rpm/usr/bin/koncentro
 echo "4. Created a wrapper script in /usr/bin"
 
-ls -alh build/rpm/
-
-# Strip binaries to reduce size
-strip build/rpm/usr/bin/koncentro || true
-strip build/rpm/usr/lib/koncentro/* || true
+#ls -alh build/rpm/
+#
+## Strip binaries to reduce size
+#strip build/rpm/usr/bin/koncentro || true
+#strip build/rpm/usr/lib/koncentro/* || true
 
 # 5. Create a desktop shortcut
 mkdir -p rpm/usr/share/applications
