@@ -115,6 +115,7 @@ case "$DISTRO" in
         --depends "xcb-util-cursor" \
         --depends "xcb-util-keysyms" \
         --depends "xcb-util-wm" \
+        --depends "glib2" \
         -p dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}-Fedora.rpm \
         usr
     echo "Built Fedora RPM package"
