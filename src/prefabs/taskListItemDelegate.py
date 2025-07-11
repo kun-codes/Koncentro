@@ -266,10 +266,16 @@ class TaskListItemDelegate(ListItemDelegate):
         lineEdit = LineEdit(parent.parent())
         lineEdit.setProperty("transparent", False)
         lineEdit.setStyle(QApplication.style())
-        lineEdit.setText(option.text)
         return lineEdit
 
     def setEditorData(self, editor, index) -> None:
+        """
+        Is also called every time the elapsed time of a task is updated which resets the task name in the editor
+        when editing is in progress. Hence the below check is necessary to avoid interrupting user input.
+        """
+        if editor.hasFocus():
+            return
+
         text = self.parent().model().data(index, Qt.ItemDataRole.DisplayRole)
         editor.setText(text)
 
