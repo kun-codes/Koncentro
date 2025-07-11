@@ -10,8 +10,8 @@ Source0:        %{name}-%{version}.tar.gz
 BuildArch:      ${ARCHITECTURE}
 Requires:       libxcb-cursor0 libxcb-keysyms1 libxcb-icccm4
 
-%global _binary_payload w7.zstdio
-%global _source_payload w7.zstdio
+%global _binary_payload w7.xzdio
+%global _source_payload w7.xzdio
 
 %description
 Koncentro - Focus manager and website blocker
