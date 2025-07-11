@@ -110,6 +110,7 @@ case "$DISTRO" in
         --category "Productivity" \
         --maintainer "Bishwa Saha" \
         --rpm-summary "Focus manager and website blocker" \
+        --rpm-compression "xz" \
         --architecture "$ARCHITECTURE" \
         --depends "xcb-util-cursor" \
         --depends "xcb-util-keysyms" \
@@ -132,6 +133,7 @@ case "$DISTRO" in
         --category "Productivity" \
         --maintainer "Bishwa Saha" \
         --rpm-summary "Focus manager and website blocker" \
+        --rpm-compression "xz" \
         --architecture "$ARCHITECTURE" \
         --depends "libxcb-cursor0" \
         --depends "libxcb-keysyms1" \
