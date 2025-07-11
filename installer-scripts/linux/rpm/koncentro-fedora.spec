@@ -1,7 +1,7 @@
 Name:           koncentro
 Version:        ${KONCENTRO_VERSION}
 Release:        1%{?dist}
-Summary:        Focus manager and website blocker
+Summary:        A productivity app with Pomodoro, tasks, and website blocking
 
 License:        GPL-3.0
 URL:            https://github.com/kun-codes/Koncentro
