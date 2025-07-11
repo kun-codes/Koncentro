@@ -14,7 +14,7 @@ Requires:       libxcb-cursor0 libxcb-keysyms1 libxcb-icccm4
 %global _source_payload w7.xzdio
 
 %description
-Koncentro - Focus manager and website blocker
+Koncentro - A productivity app with Pomodoro, tasks, and website blocking
 
 %prep
 %setup -q -c

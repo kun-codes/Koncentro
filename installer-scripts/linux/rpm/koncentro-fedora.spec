@@ -14,7 +14,7 @@ Requires:       xcb-util-cursor xcb-util-keysyms xcb-util-wm
 %global _source_payload w7.zstdio
 
 %description
-Koncentro - Focus manager and website blocker
+Koncentro - A productivity app with Pomodoro, tasks, and website blocking
 
 %prep
 %setup -q -c
