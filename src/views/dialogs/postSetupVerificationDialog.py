@@ -9,7 +9,7 @@ from constants import APPLICATION_NAME
 
 
 class PostSetupVerificationDialog(MessageBoxBase):
-    def __init__(self, parent=None, is_setup_first_time: bool = True):
+    def __init__(self, parent=None, is_setup_first_time: bool = True) -> None:
         super().__init__(parent=parent)
         self.titleLabel = SubtitleLabel("Are you sure you have set up website blocking correctly?", parent=self)
         self.bodyLabel = BodyLabel(
@@ -60,7 +60,7 @@ class PostSetupVerificationDialog(MessageBoxBase):
 
         self.initWidget()
 
-    def initWidget(self):
+    def initWidget(self) -> None:
         for widget in [self.bodyLabel, self.bodyLabel3]:
             widget.setTextInteractionFlags(Qt.TextBrowserInteraction)
             widget.setOpenExternalLinks(True)

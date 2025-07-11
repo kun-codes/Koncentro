@@ -1,5 +1,5 @@
 [version]
-current = "0.7.3"
+current = "0.10.0"
 
 regex = '''
   (?P<major>\d+)
@@ -13,6 +13,10 @@ regex = '''
 message_template = "feat(version): bump version to {new_version}"
 tag_template = "v{new_version}"
 
+[[before_commit]]
+name = "Update release date in metainfo.xml"
+cmd = "python dev/update-metainfo-date.py"
+
 [[file]]
 src = "pyproject.toml"
 search = 'version = "{current_version}"'
@@ -20,3 +24,7 @@ search = 'version = "{current_version}"'
 [[file]]
 src = "src/utils/get_app_version.py"
 search = '__version__ = "{current_version}"'
+
+[[file]]
+src = "installer-scripts/linux/common/com.bishwasaha.Koncentro.metainfo.xml"
+search = 'release version="{current_version}"'

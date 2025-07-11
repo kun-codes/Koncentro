@@ -96,7 +96,7 @@ def theme_override(self, t):
     self._theme = t
 
 
-def apply_qconfig_theme_patch():
+def apply_qconfig_theme_patch() -> None:
     """Apply the patch to QConfig to override the theme property."""
     if platform.system().lower() == "linux":
         qconfig.__class__.theme = theme_override

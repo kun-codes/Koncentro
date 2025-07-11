@@ -12,7 +12,7 @@ class SpinBoxSettingCardSQL(SettingCard):
 
     valueChanged = Signal(int)
 
-    def __init__(self, configItem, icon: Union[str, QIcon, FluentIconBase], title, content=None, parent=None):
+    def __init__(self, configItem, icon: Union[str, QIcon, FluentIconBase], title, content=None, parent=None) -> None:
         """
         Parameters
         ----------
@@ -47,11 +47,11 @@ class SpinBoxSettingCardSQL(SettingCard):
         configItem.valueChanged.connect(self.setValue)
         self.spinBox.valueChanged.connect(self.__onValueChanged)
 
-    def __onValueChanged(self, value: int):
+    def __onValueChanged(self, value: int) -> None:
         """spin box value changed slot"""
         self.setValue(value)
         self.valueChanged.emit(value)
 
-    def setValue(self, value):
+    def setValue(self, value) -> None:
         qconfig_custom.set(self.configItem, value)
         self.spinBox.setValue(value)

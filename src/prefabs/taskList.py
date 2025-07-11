@@ -8,7 +8,7 @@ from ui_py.ui_tasks_list_view import Ui_TaskView
 
 
 class TaskList(ListView):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setDragEnabled(True)
         self.setAcceptDrops(True)
@@ -41,7 +41,7 @@ class TaskList(ListView):
         self._dragSuccessTimer.setSingleShot(True)
         self._dragSuccessTimer.timeout.connect(self._checkDragResult)
 
-    def paintEvent(self, event):
+    def paintEvent(self, event) -> None:
         """
         Override the paint event to add custom drop indicator drawing
         source: https://oglop.gitbooks.io/pyqt-pyside-cookbook/content/tree/drop_indicator.html
@@ -57,7 +57,7 @@ class TaskList(ListView):
             painter = QPainter(self.viewport())
             self.paintDropIndicator(painter)
 
-    def paintDropIndicator(self, painter):
+    def paintDropIndicator(self, painter) -> None:
         """
         Draw a custom white drop indicator
         source: https://oglop.gitbooks.io/pyqt-pyside-cookbook/content/tree/drop_indicator.html
@@ -84,7 +84,7 @@ class TaskList(ListView):
                 painter.setPen(pen)
                 painter.drawRect(rect)
 
-    def dragMoveEvent(self, event):
+    def dragMoveEvent(self, event) -> None:
         """
         Update the drop indicator position during drag move events
         source: https://oglop.gitbooks.io/pyqt-pyside-cookbook/content/tree/drop_indicator.html
@@ -119,7 +119,7 @@ class TaskList(ListView):
         # Force a repaint to update the indicator
         self.viewport().update()
 
-    def startDrag(self, supportedActions):
+    def startDrag(self, supportedActions) -> None:
         """
         Override startDrag to track drag operations and handle failed drops properly
         """
@@ -144,7 +144,7 @@ class TaskList(ListView):
         self._draggedIndexes = []
         self._dragSuccessTimer.stop()
 
-    def _checkDragResult(self):
+    def _checkDragResult(self) -> None:
         """
         Called by timer to check if drag operation completed successfully
         """
@@ -152,7 +152,7 @@ class TaskList(ListView):
             # Drag is still in progress, extend the timer
             self._dragSuccessTimer.start(100)
 
-    def _handleFailedDrag(self):
+    def _handleFailedDrag(self) -> None:
         """
         Handle the case where a drag operation failed (e.g., dropped on invalid target)
         This ensures the task doesn't disappear from the original list
@@ -182,7 +182,7 @@ class TaskList(ListView):
                 break
             parent_view = parent_view.parentWidget()
 
-    def dragEnterEvent(self, event):
+    def dragEnterEvent(self, event) -> None:
         """
         Override dragEnterEvent to handle drag operations properly
         """
@@ -193,7 +193,7 @@ class TaskList(ListView):
         else:
             event.ignore()
 
-    def dragLeaveEvent(self, event):
+    def dragLeaveEvent(self, event) -> None:
         """
         Override dragLeaveEvent to clean up drop indicators
         """
@@ -202,7 +202,7 @@ class TaskList(ListView):
         self.dropIndicatorRect = QRect()
         self.viewport().update()
 
-    def resizeEvent(self, event):
+    def resizeEvent(self, event) -> None:
         """
         Instead of just resizing editor using itemDelegate's updateEditorGeometry method, I am resizing the editor here
         because this seems faster, although I am not able to disable the resizing behaviour of updateEditorGeometry
@@ -230,7 +230,7 @@ class TaskList(ListView):
 
         QWidget.mousePressEvent(self, e)
 
-    def mouseReleaseEvent(self, e):
+    def mouseReleaseEvent(self, e) -> None:
         """
         This method modifies the behaviour of ListView according to which items are selected when mouse is pressed on
         them.
@@ -250,7 +250,7 @@ class TaskList(ListView):
         self._mousePressedOnItem = False
         super().mouseReleaseEvent(e)
 
-    def dropEvent(self, e):
+    def dropEvent(self, e) -> None:
         """
         This method is called when an item is dropped onto a TaskList. This will go through a while loop till it finds
         TaskView class's object and then set the pressed row of both todoTasksList and completedTasksList to -1. This
@@ -290,7 +290,7 @@ class TaskList(ListView):
             parent_view = parent_view.parentWidget()
         super().dropEvent(e)
 
-    def mouseMoveEvent(self, e):
+    def mouseMoveEvent(self, e) -> None:
         """
         This method is called when mouse is moved over the TaskList. This will set the hover row of the delegate to the
         row over which mouse is hovering. This is done because in qfluentwidgets if mouse is moved away from an already
@@ -305,7 +305,7 @@ class TaskList(ListView):
             self._setHoverRow(new_hover_row)
         super().mouseMoveEvent(e)
 
-    def _setHoverRow(self, row: int):
+    def _setHoverRow(self, row: int) -> None:
         delegate = self.itemDelegate()
         if isinstance(delegate, ListItemDelegate):
             delegate.setHoverRow(row)

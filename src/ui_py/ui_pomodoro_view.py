@@ -22,7 +22,7 @@ from qfluentwidgets import (PillToolButton, ProgressBar, ProgressRing, TitleLabe
     ToggleToolButton, ToolButton)
 
 class Ui_PomodoroView(object):
-    def setupUi(self, PomodoroView):
+    def setupUi(self, PomodoroView) -> None:
         if not PomodoroView.objectName():
             PomodoroView.setObjectName(u"PomodoroView")
         PomodoroView.resize(486, 489)
@@ -106,7 +106,7 @@ class Ui_PomodoroView(object):
         QMetaObject.connectSlotsByName(PomodoroView)
     # setupUi
 
-    def retranslateUi(self, PomodoroView):
+    def retranslateUi(self, PomodoroView) -> None:
         PomodoroView.setWindowTitle(QCoreApplication.translate("PomodoroView", u"Form", None))
         self.pomodoroLabel.setText(QCoreApplication.translate("PomodoroView", u"Pomodoro", None))
     # retranslateUi

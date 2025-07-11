@@ -244,3 +244,6 @@ fabric.properties
 
 # Exlclude ruff.xml
 .idea/ruff.xml
+
+# Exclude files ending with _rc.py
+*_rc.py

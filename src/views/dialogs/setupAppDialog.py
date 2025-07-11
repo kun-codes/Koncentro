@@ -17,7 +17,7 @@ from website_blocker.website_blocker_manager import WebsiteBlockerManager
 
 
 class SetupAppDialog(MessageBoxBase):
-    def __init__(self, parent=None, is_setup_first_time: bool = True):
+    def __init__(self, parent=None, is_setup_first_time: bool = True) -> None:
         super().__init__(parent=parent)
 
         self.is_setup_first_time = is_setup_first_time
@@ -57,7 +57,7 @@ class SetupAppDialog(MessageBoxBase):
         self.initWidget()
         self.initTemporaryWebsiteBlockerManager()
 
-    def initWidget(self):
+    def initWidget(self) -> None:
         self.titleLabel.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
         self.bodyLabel.setWordWrap(True)
@@ -70,7 +70,7 @@ class SetupAppDialog(MessageBoxBase):
 
         self.__connectSignalsToSlots()
 
-    def __connectSignalsToSlots(self):
+    def __connectSignalsToSlots(self) -> None:
         # disconnecting from the default slots as done in the parent class, so that self.accept() and self.reject()
         # are not called
         self.yesButton.clicked.disconnect()
@@ -79,11 +79,11 @@ class SetupAppDialog(MessageBoxBase):
         self.cancelButton.clicked.connect(self.onCloseButtonClicked)
         self.backButton.clicked.connect(self.onBackButtonClicked)
 
-    def onWebsiteBlockSetupButtonClicked(self):
+    def onWebsiteBlockSetupButtonClicked(self) -> None:
         url = QUrl("http://mitm.it/")
         QDesktopServices.openUrl(url)
 
-    def onCloseButtonClicked(self):
+    def onCloseButtonClicked(self) -> None:
         confirmation_dialog = PostSetupVerificationDialog(self, self.is_setup_first_time)
 
         if confirmation_dialog.exec():
@@ -91,11 +91,11 @@ class SetupAppDialog(MessageBoxBase):
             # because this function will only be triggered after confirmation_dialog is accepted
             self.accept()
 
-    def onBackButtonClicked(self):
+    def onBackButtonClicked(self) -> None:
         self.temporary_website_blocker_manager.stop_blocking(delete_proxy=True)
         self.reject()
 
-    def initTemporaryWebsiteBlockerManager(self):
+    def initTemporaryWebsiteBlockerManager(self) -> None:
         self.temporary_website_blocker_manager = WebsiteBlockerManager()
         self.temporary_website_blocker_manager.start_blocking(
             listening_port=ConfigValues.PROXY_PORT,

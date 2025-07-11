@@ -15,12 +15,12 @@ from mitmproxy import ctx, http
 from website_blocker.constants import BLOCK_HTML_MESSAGE, MITMDUMP_SHUTDOWN_URL
 
 
-def load(loader):
+def load(loader) -> None:
     loader.add_option("addresses_str", str, "", "Concatenated addresses.")
     loader.add_option("block_type", str, "", "Allowlist or blocklist.")
 
 
-def request(flow):
+def request(flow) -> None:
     # https://docs.mitmproxy.org/stable/addons-examples/#shutdown
     if flow.request.pretty_url == MITMDUMP_SHUTDOWN_URL:
         print("Shutting down mitmdump...")

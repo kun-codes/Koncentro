@@ -3,24 +3,24 @@ from qfluentwidgets.multimedia import VideoWidget
 
 
 class AutoLoopVideoWidget(VideoWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent=parent)
 
         self.playBar.hide()
 
         self.player.setLoops(QMediaPlayer.Loops.Infinite)  # type: StandardMediaPlayBar
 
-    def enterEvent(self, e):
+    def enterEvent(self, e) -> None:
         pass
 
-    def leaveEvent(self, e):
+    def leaveEvent(self, e) -> None:
         pass
 
-    def hideEvent(self, e):
+    def hideEvent(self, e) -> None:
         self.stop()
         e.accept()
 
-    def showEvent(self, e):
+    def showEvent(self, e) -> None:
         self.play()
         e.accept()
 

@@ -12,12 +12,12 @@ import psutil
 from loguru import logger
 
 
-def exec_command(command):
+def exec_command(command) -> None:
     p = subprocess.Popen(shlex.split(command))
     p.wait()
 
 
-def find_processes_by_name(name):
+def find_processes_by_name(name: str):
     "Return a list of processes matching 'name'."
     ls = []
     for p in psutil.process_iter(attrs=["name", "exe", "cmdline"]):
@@ -32,7 +32,7 @@ def find_processes_by_name(name):
     return ls
 
 
-def kill_process():
+def kill_process() -> None:
     logger.debug("Inside kill_process().")
     if os.name == "nt":
         processes = find_processes_by_name("mitmdump.exe") + find_processes_by_name("mitmproxy.exe")

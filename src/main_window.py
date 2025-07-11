@@ -59,7 +59,7 @@ from website_blocker.website_blocker_manager import WebsiteBlockerManager
 
 
 class MainWindow(KoncentroFluentWindow):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.initial_launch = True  # this keeps track of whether the window is showing for the first time or not
         # when app is un-minimized after minimizing the app, self.showEvent() will still be called which will trigger
@@ -120,7 +120,7 @@ class MainWindow(KoncentroFluentWindow):
 
         self.remainingFontSubstitutions()
 
-    def initNavigation(self):
+    def initNavigation(self) -> None:
         # Add sub interface
         self.addSubInterface(self.task_interface, CustomFluentIcon.TASKS_VIEW, "Tasks")
         self.addSubInterface(self.pomodoro_interface, FluentIcon.STOP_WATCH, "Pomodoro")
@@ -138,14 +138,14 @@ class MainWindow(KoncentroFluentWindow):
         )
         self.addSubInterface(self.settings_interface, FluentIcon.SETTING, "Settings", NavigationItemPosition.BOTTOM)
 
-    def initWindow(self):
+    def initWindow(self) -> None:
         self.setMinimumWidth(715)
         self.setWindowTitle(APPLICATION_NAME)
         self.setWindowIcon(QIcon(":/logosPrefix/logos/logo.svg"))
 
         self.setMicaEffectEnabled(app_settings.get(app_settings.mica_enabled))
 
-    def initSystemTray(self):
+    def initSystemTray(self) -> None:
         """Initialize system tray icon and notifications"""
         self.tray = QSystemTrayIcon(self)
 
@@ -210,12 +210,12 @@ class MainWindow(KoncentroFluentWindow):
         self.tray.setIcon(initial_icon)
         self.tray.setVisible(True)
 
-    def remainingFontSubstitutions(self):
+    def remainingFontSubstitutions(self) -> None:
         # This was unaffected by font substitution in __main__.py
         font = QFont("Selawik", 14)
         self.pomodoro_interface.ProgressRing.setFont(font)
 
-    def updateSystemTrayIcon(self):
+    def updateSystemTrayIcon(self) -> None:
         logger.debug("Updating system tray icon")
         # context menu of Windows 10 system tray icon is always in light mode for qt apps.
         desktop = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
@@ -245,7 +245,7 @@ class MainWindow(KoncentroFluentWindow):
             self.tray_menu_skip_action.setIcon(FluentIcon.CHEVRON_RIGHT.icon(Theme.LIGHT))
             self.tray_menu_quit_action.setIcon(CustomFluentIcon.EXIT.icon(Theme.LIGHT))
 
-    def updateSystemTrayActions(self, timerState):
+    def updateSystemTrayActions(self, timerState) -> None:
         if timerState in [TimerState.WORK, TimerState.BREAK, TimerState.LONG_BREAK]:
             self.tray_menu_pause_resume_action.setEnabled(True)
             self.tray_menu_start_action.setEnabled(False)
@@ -254,7 +254,7 @@ class MainWindow(KoncentroFluentWindow):
             self.tray_menu_start_action.setEnabled(True)
 
     # below 2 methods are for the bottom bar
-    def initBottomBar(self):
+    def initBottomBar(self) -> None:
         self.update_bottom_bar_timer_label()
 
         self.bottomBar.skipButton.setEnabled(self.pomodoro_interface.skipButton.isEnabled())
@@ -267,7 +267,7 @@ class MainWindow(KoncentroFluentWindow):
 
         self.bottomBar.taskLabel.setText("Current Task: None")
 
-    def bottomBarPauseResumeButtonClicked(self):
+    def bottomBarPauseResumeButtonClicked(self) -> None:
         # Sync state with pomodoro view button
         self.pomodoro_interface.pauseResumeButton.setChecked(self.bottomBar.pauseResumeButton.isChecked())
         logger.debug(f"Window state: {self.windowState()}")
@@ -279,7 +279,7 @@ class MainWindow(KoncentroFluentWindow):
         else:
             self.bottomBar.pauseResumeButton.setIcon(FluentIcon.PAUSE)
 
-    def showNotifications(self, timerState, isSkipped):
+    def showNotifications(self, timerState, isSkipped) -> None:
         title = ""
         message = ""
 
@@ -327,7 +327,7 @@ class MainWindow(KoncentroFluentWindow):
                 5000,
             )
 
-    def onWorkspaceManagerClicked(self):
+    def onWorkspaceManagerClicked(self) -> None:
         if self.manage_workspace_dialog is None:
             self.manage_workspace_dialog = ManageWorkspaceDialog(
                 parent=self.window(), workspaceListModel=self.workplace_list_model
@@ -336,7 +336,7 @@ class MainWindow(KoncentroFluentWindow):
         self.manage_workspace_dialog.show()
         self.showWorkspaceManagerTutorial()
 
-    def toggleUIElementsBasedOnTimerState(self, timerState, _):
+    def toggleUIElementsBasedOnTimerState(self, timerState, _) -> None:
         # TODO: show a tip to stop the timer before changing settings when timer is running
         workspace_selector_button = self.navigationInterface.panel.widget("WorkspaceSelector")
         if timerState in [TimerState.WORK, TimerState.BREAK, TimerState.LONG_BREAK]:
@@ -344,6 +344,7 @@ class MainWindow(KoncentroFluentWindow):
             workspace_selector_button.setDisabled(True)
             self.settings_interface.proxy_port_card.setDisabled(True)
             self.settings_interface.setup_app_card.setDisabled(True)
+            self.settings_interface.reset_proxy_settings.setDisabled(True)
             self.pomodoro_interface.skipButton.setEnabled(True)
             self.bottomBar.skipButton.setEnabled(True)
         else:
@@ -351,10 +352,11 @@ class MainWindow(KoncentroFluentWindow):
             workspace_selector_button.setDisabled(False)
             self.settings_interface.proxy_port_card.setDisabled(False)
             self.settings_interface.setup_app_card.setDisabled(False)
+            self.settings_interface.reset_proxy_settings.setDisabled(False)
             self.pomodoro_interface.skipButton.setEnabled(False)
             self.bottomBar.skipButton.setEnabled(False)
 
-    def toggle_website_blocking(self, timerState):
+    def toggle_website_blocking(self, timerState) -> None:
         if not ConfigValues.ENABLE_WEBSITE_BLOCKER:
             logger.debug("Website blocking is disabled, so not starting website blocking")
             self.website_blocker_manager.stop_blocking(delete_proxy=True)
@@ -419,7 +421,7 @@ class MainWindow(KoncentroFluentWindow):
         """
         return self.task_interface.todoTasksList.itemDelegate()
 
-    def spawnTaskStartedInfoBar(self, triggering_button: PushButton):
+    def spawnTaskStartedInfoBar(self, triggering_button: PushButton) -> None:
         if self.get_current_task_id() is None:
             return  # current task index can be None only when there is no tasks in todo list since when timer starts
         # a task would be automatically selected as the current task if any number of tasks other than zero are present
@@ -439,7 +441,7 @@ class MainWindow(KoncentroFluentWindow):
                 parent=self,
             )
 
-    def check_current_task_deleted(self, task_id):
+    def check_current_task_deleted(self, task_id) -> None:
         if self.get_current_task_id() is not None and self.get_current_task_id() == task_id:
             self.task_interface.todoTasksList.model().setCurrentTaskID(None)
             if self.pomodoro_interface.pomodoro_timer_obj.getTimerState() in [
@@ -464,7 +466,7 @@ class MainWindow(KoncentroFluentWindow):
                 )
                 logger.debug("Current Task has been deleted")
 
-    def check_current_task_moved(self, task_id, task_type: TaskType):
+    def check_current_task_moved(self, task_id, task_type: TaskType) -> None:
         if self.get_current_task_id() is not None:
             current_task_id = self.get_current_task_id()
         else:
@@ -496,7 +498,7 @@ class MainWindow(KoncentroFluentWindow):
 
             logger.debug("Current Task has been moved")
 
-    def updateTaskTime(self):
+    def updateTaskTime(self) -> None:
         if self.get_current_task_id() is not None:
             if self.pomodoro_interface.pomodoro_timer_obj.getTimerState() in [TimerState.BREAK, TimerState.LONG_BREAK]:
                 return
@@ -514,7 +516,7 @@ class MainWindow(KoncentroFluentWindow):
             if final_elapsed_time % 5000 == 0:
                 self.updateTaskTimeDB()
 
-    def updateTaskTimeDB(self):
+    def updateTaskTimeDB(self) -> None:
         # since sessionStoppedSignal is emitted when the timer is stopped, we have to check if the current task index
         # is valid or not. Current Task Index can be invalid due to it being None when there are no tasks in todo list
         # when timer began or when current task is deleted and session is stopped automatically
@@ -530,7 +532,7 @@ class MainWindow(KoncentroFluentWindow):
         )
         logger.debug(f"Updated DB with elapsed time: {final_elapsed_time}")
 
-    def connectSignalsToSlots(self):
+    def connectSignalsToSlots(self) -> None:
         self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(
             self.toggleUIElementsBasedOnTimerState
         )
@@ -603,8 +605,25 @@ class MainWindow(KoncentroFluentWindow):
         )
 
         self.settings_interface.setup_app_card.clicked.connect(lambda: self.preSetupMitmproxy(False))
+        self.settings_interface.reset_proxy_settings.clicked.connect(self.resetProxySettings)
 
-    def setPauseResumeButtonsToPauseIcon(self, skip_delegate_button=False):
+    def resetProxySettings(self) -> None:
+        logger.debug("Reset proxy settings button clicked")
+        self.website_blocker_manager.stop_blocking(delete_proxy=True)
+        self.settings_interface.proxy_port_card.setValue(8080)
+
+        InfoBar.success(
+            title="Proxy Settings Reset",
+            content="Proxy settings have been reset successfully.",
+            orient=Qt.Orientation.Vertical,
+            isClosable=True,
+            duration=5000,
+            position=InfoBarPosition.TOP_RIGHT,
+            parent=self,
+        )
+        logger.debug("Proxy settings have been reset successfully")
+
+    def setPauseResumeButtonsToPauseIcon(self, skip_delegate_button: bool = False) -> None:
         self.pomodoro_interface.pauseResumeButton.setIcon(FluentIcon.PAUSE)
         self.pomodoro_interface.pauseResumeButton.setChecked(True)
 
@@ -620,7 +639,7 @@ class MainWindow(KoncentroFluentWindow):
             checked=True, task_id=self.get_current_task_id()
         )
 
-    def setPauseResumeButtonsToPlayIcon(self, skip_delegate_button=False):
+    def setPauseResumeButtonsToPlayIcon(self, skip_delegate_button: bool = False) -> None:
         self.pomodoro_interface.pauseResumeButton.setIcon(FluentIcon.PLAY)
         self.pomodoro_interface.pauseResumeButton.setChecked(False)
 
@@ -635,7 +654,7 @@ class MainWindow(KoncentroFluentWindow):
             checked=False, task_id=self.get_current_task_id()
         )
 
-    def showTutorial(self, index: int):
+    def showTutorial(self, index: int) -> None:
         self.isSafeToShowTutorial = True
 
         if (
@@ -664,19 +683,19 @@ class MainWindow(KoncentroFluentWindow):
             )
             self.websiteBlockerInterfaceTutorial.start()
 
-    def showWorkspaceManagerTutorial(self):
+    def showWorkspaceManagerTutorial(self) -> None:
         self.isSafeToShowTutorial = True
 
         if not ConfigValues.HAS_COMPLETED_WORKSPACE_MANAGER_DIALOG_TUTORIAL and self.isSafeToShowTutorial:
             self.workspaceManagerTutorial = WorkspaceManagerDialogTutorial(self, InterfaceType.DIALOG)
             self.workspaceManagerTutorial.start()
 
-    def on_website_block_enabled_setting_changed(self):
+    def on_website_block_enabled_setting_changed(self) -> None:
         enable_website_block_setting_value = ConfigValues.ENABLE_WEBSITE_BLOCKER
 
         self.website_blocker_interface.setEnabled(enable_website_block_setting_value)
 
-    def onStackedWidgetClicked(self, event):
+    def onStackedWidgetClicked(self, event) -> None:
         if self.stackedWidget.currentIndex() == 2 and not self.website_blocker_interface.isEnabled():
             # show an infobar to inform the user that website blocker is disabled and how it can be enabled
             InfoBar.warning(
@@ -689,10 +708,10 @@ class MainWindow(KoncentroFluentWindow):
                 parent=self,
             )
 
-    def update_proxy_port(self):
+    def update_proxy_port(self) -> None:
         self.website_blocker_manager.proxy.port = ConfigValues.PROXY_PORT
 
-    def update_bottom_bar_timer_label(self):
+    def update_bottom_bar_timer_label(self) -> None:
         # check if timer is running
         current_timer_state = self.pomodoro_interface.pomodoro_timer_obj.getTimerState()
         if current_timer_state in [TimerState.WORK, TimerState.BREAK, TimerState.LONG_BREAK]:
@@ -727,7 +746,7 @@ class MainWindow(KoncentroFluentWindow):
             self.bottomBar.timerLabel.setText(timer_text)
             self.tray_menu_timer_status_action.setText(timer_text)
 
-    def check_first_run(self):
+    def check_first_run(self) -> bool:
         settings_dir_path = Path(settings_dir)
         first_run_dotfile_path = settings_dir_path.joinpath(FIRST_RUN_DOTFILE_NAME)
 
@@ -743,7 +762,7 @@ class MainWindow(KoncentroFluentWindow):
 
         return False
 
-    def hasInternet(self):
+    def hasInternet(self) -> bool:
         try:
             socket.setdefaulttimeout(2)
             socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(("194.242.2.2", 53))  # using mullvad dns service
@@ -753,14 +772,14 @@ class MainWindow(KoncentroFluentWindow):
         except OSError:
             return False
 
-    def preSetupMitmproxy(self, setup_first_time: bool = True):
+    def preSetupMitmproxy(self, setup_first_time: bool = True) -> None:
         self.checkInternetWorker = CheckInternetWorker()
         self.checkInternetWorker.internetCheckCompleted.connect(
             lambda has_internet: self.setupMitmproxy(has_internet, setup_first_time)
         )
         self.checkInternetWorker.start()
 
-    def setupMitmproxy(self, has_internet: bool, setup_first_time: bool = True):
+    def setupMitmproxy(self, has_internet: bool, setup_first_time: bool = True) -> None:
         logger.debug("Setting up mitmproxy")
 
         logger.debug(f"has_internet: {has_internet}")
@@ -802,7 +821,7 @@ class MainWindow(KoncentroFluentWindow):
             # gave permission already
             self.setupAppDialog.show()
 
-    def onSetupAppConfirmationDialogRejected(self):
+    def onSetupAppConfirmationDialogRejected(self) -> None:
         # delete the first run file so that the setup dialog is shown again when the app is started next time
         settings_dir_path = Path(settings_dir)
         first_run_dotfile_path = settings_dir_path.joinpath(FIRST_RUN_DOTFILE_NAME)
@@ -812,7 +831,7 @@ class MainWindow(KoncentroFluentWindow):
 
         self.quitApplication()
 
-    def handleUpdates(self):
+    def handleUpdates(self) -> None:
         # Using the threaded update checker to avoid freezing the GUI
         if not self.update_checker:
             self.update_checker = UpdateChecker()
@@ -822,7 +841,7 @@ class MainWindow(KoncentroFluentWindow):
         # Start the update check in a background thread
         self.update_checker.start()
 
-    def onUpdateCheckComplete(self, result):
+    def onUpdateCheckComplete(self, result) -> None:
         """Handle the result of the update check from the background thread."""
         # The result is now already an UpdateCheckResult enum instance, no conversion needed
 
@@ -855,7 +874,7 @@ class MainWindow(KoncentroFluentWindow):
         elif result == UpdateCheckResult.UPDATE_URL_DOES_NOT_EXIST or UpdateCheckResult.RATE_LIMITED:
             self.showTutorial(InterfaceType.TASK_INTERFACE.value)
 
-    def showEvent(self, event):
+    def showEvent(self, event) -> None:
         logger.debug("MainWindow showEvent")
         super().showEvent(event)
 
@@ -868,12 +887,12 @@ class MainWindow(KoncentroFluentWindow):
         elif self.updateDialog is not None:
             self.updateDialog.show()
 
-    def quitApplication(self):
+    def quitApplication(self) -> None:
         logger.debug("Quitting application...")
         app_instance = QApplication.instance()
         app_instance.exit()
 
-    def closeEvent(self, event):
+    def closeEvent(self, event) -> None:
         self.saveWindowGeometry()
 
         # Accept the event immediately to close the window
@@ -886,7 +905,7 @@ class MainWindow(KoncentroFluentWindow):
         )
         cleanup_thread.start()
 
-    def _cleanup_background_tasks(self):
+    def _cleanup_background_tasks(self) -> None:
         logger.debug("Running cleanup tasks in background thread...")
         try:
             self.updateTaskTimeDB()
@@ -900,12 +919,12 @@ class MainWindow(KoncentroFluentWindow):
         finally:
             self.quitApplication()
 
-    def saveWindowGeometry(self):
+    def saveWindowGeometry(self) -> None:
         settings.setValue(WindowGeometryKeys.GEOMETRY.value, self.saveGeometry())
         settings.setValue(WindowGeometryKeys.IS_MAXIMIZED.value, self.isMaximized())
         settings.sync()
 
-    def restoreWindowGeometry(self):
+    def restoreWindowGeometry(self) -> None:
         # set default size depending on the screen size
         screen = QApplication.primaryScreen()
         screen_geometry = screen.availableGeometry()

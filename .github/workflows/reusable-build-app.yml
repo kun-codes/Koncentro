@@ -1,4 +1,4 @@
-name: Build Application
+name: Build Application (Reusable)
 
 on:
     workflow_call:
@@ -131,6 +131,11 @@ jobs:
                 run: |
                     brew remove --force --ignore-dependencies openssl@3
                     brew cleanup openssl@3
+
+            -   name: Generate Python RC files
+                shell: bash
+                run: |
+                    dev/generate-python-rc-files.sh
 
             -   name: Build Executable (All Platforms)
                 uses: Nuitka/Nuitka-Action@main

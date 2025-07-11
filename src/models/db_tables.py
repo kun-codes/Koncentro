@@ -8,13 +8,13 @@ from sqlalchemy.orm import declarative_base, relationship
 
 from config_paths import db_path, settings_dir
 from constants import (
-    AUTOSTART_BREAK,
-    AUTOSTART_WORK,
-    BREAK_DURATION,
-    ENABLE_WEBSITE_BLOCKER,
-    LONG_BREAK_DURATION,
-    WORK_DURATION,
-    WORK_INTERVALS,
+    DEFAULT_AUTOSTART_BREAK,
+    DEFAULT_AUTOSTART_WORK,
+    DEFAULT_BREAK_DURATION,
+    DEFAULT_ENABLE_WEBSITE_BLOCKER,
+    DEFAULT_LONG_BREAK_DURATION,
+    DEFAULT_WORK_DURATION,
+    DEFAULT_WORK_INTERVALS,
     URLListType,
     WebsiteBlockType,
 )
@@ -36,7 +36,7 @@ Base = declarative_base()
 # from: https://docs.sqlalchemy.org/en/20/dialects/sqlite.html#foreign-key-support
 # for supporting foreign keys in sqlite as they are disabled by default as per: https://www.sqlite.org/foreignkeys.html
 @event.listens_for(Engine, "connect")
-def set_sqlite_pragma(dbapi_connection, connection_record):
+def set_sqlite_pragma(dbapi_connection, connection_record) -> None:
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
@@ -87,13 +87,13 @@ class Workspace(Base):
 
     id = Column(Integer, primary_key=True)
     workspace_name = Column(String, nullable=False)
-    work_duration = Column(Integer, default=WORK_DURATION)
-    break_duration = Column(Integer, default=BREAK_DURATION)
-    long_break_duration = Column(Integer, default=LONG_BREAK_DURATION)
-    work_intervals = Column(Integer, default=WORK_INTERVALS)
-    autostart_work = Column(Boolean, default=AUTOSTART_WORK)
-    autostart_break = Column(Boolean, default=AUTOSTART_BREAK)
-    enable_website_blocker = Column(Boolean, default=ENABLE_WEBSITE_BLOCKER)
+    work_duration = Column(Integer, default=DEFAULT_WORK_DURATION)
+    break_duration = Column(Integer, default=DEFAULT_BREAK_DURATION)
+    long_break_duration = Column(Integer, default=DEFAULT_LONG_BREAK_DURATION)
+    work_intervals = Column(Integer, default=DEFAULT_WORK_INTERVALS)
+    autostart_work = Column(Boolean, default=DEFAULT_AUTOSTART_WORK)
+    autostart_break = Column(Boolean, default=DEFAULT_AUTOSTART_BREAK)
+    enable_website_blocker = Column(Boolean, default=DEFAULT_ENABLE_WEBSITE_BLOCKER)
     website_block_type = Column(SQLEnum(WebsiteBlockType), default=WebsiteBlockType.BLOCKLIST)
 
     blocklist_urls = relationship("BlocklistURL", back_populates="workspace", cascade="all, delete-orphan")

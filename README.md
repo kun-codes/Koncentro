@@ -10,6 +10,7 @@
 
   [![wakatime](https://wakatime.com/badge/github/kun-codes/koncentro.svg?style=flat-square)](https://wakatime.com/badge/github/kun-codes/koncentro)
   ![WinGet Package Version](https://img.shields.io/winget/v/BishwaSaha.Koncentro?style=flat-square)
+  ![Flathub Version](https://img.shields.io/flathub/v/com.bishwasaha.Koncentro?style=flat-square)
   [![Hosted By: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=flat-square)](https://cloudsmith.com)
 
 </div>
@@ -31,6 +32,23 @@
 ### Installer
 
 Installers for Koncentro are available for Windows, macOS and Linux. You can download the latest install from the [releases page](https://github.com/kun-codes/Koncentro/releases/latest)
+
+#### Windows Installation
+
+You can install Koncentro on Windows using [WinGet](https://learn.microsoft.com/en-us/windows/package-manager/winget/):
+
+```sh
+winget install --id=BishwaSaha.Koncentro -e
+```
+
+#### Linux Installation
+
+You can install Koncentro on Linux using [Flathub](https://flathub.org):
+
+```sh
+flatpak install flathub com.bishwasaha.Koncentro
+````
+
 
 <details>
 <summary><strong>From Source (Advanced)</strong></summary>

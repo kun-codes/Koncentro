@@ -1,4 +1,4 @@
-name: Release Koncentro
+name: Release Koncentro (Reusable)
 
 on:
     workflow_call:

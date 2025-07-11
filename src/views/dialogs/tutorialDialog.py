@@ -17,7 +17,7 @@ from prefabs.autoLoopVideoWidget import AutoLoopVideoWidget
 
 
 class TutorialDialog(MessageBoxBase):
-    def __init__(self, parent, title: str):
+    def __init__(self, parent, title: str) -> None:
         super().__init__(parent=parent)
 
         self.title = SubtitleLabel(title, parent=self)
@@ -71,11 +71,11 @@ class TutorialDialog(MessageBoxBase):
         self.__connectSignalsToSlots()
         self.updateNavigationButtons()
 
-    def resizeEvent(self, event):
+    def resizeEvent(self, event) -> None:
         super().resizeEvent(event)
         self.updateSizes()
 
-    def updateSizes(self):
+    def updateSizes(self) -> None:
         parent_width = self.parent().width()
         parent_height = self.parent().height()
 
@@ -83,7 +83,7 @@ class TutorialDialog(MessageBoxBase):
         widget_size = max(int(0.75 * min(parent_width, parent_height)), 500)
         self.widget.setFixedSize(widget_size, widget_size)
 
-    def __connectSignalsToSlots(self):
+    def __connectSignalsToSlots(self) -> None:
         # disconnecting yesButton and cancelButton from the default slots, as they were connected in the parent class
         self.yesButton.clicked.disconnect()
         self.cancelButton.clicked.disconnect()
@@ -91,7 +91,7 @@ class TutorialDialog(MessageBoxBase):
         self.cancelButton.clicked.connect(self.oncancelButtonClicked)
         self.stackedWidget.currentChanged.connect(self.onStackedWidgetCurrentChanged)
 
-    def oncancelButtonClicked(self):
+    def oncancelButtonClicked(self) -> None:
         if self.stackedWidget.currentIndex() == self.stackedWidget.count() - 1:
             # Stop all videos before closing
             for i in range(self.stackedWidget.count()):
@@ -115,7 +115,7 @@ class TutorialDialog(MessageBoxBase):
                 isDeleteOnClose=True,
             )
 
-    def addVideo(self, videoPath: QUrl, captionText: str):
+    def addVideo(self, videoPath: QUrl, captionText: str) -> None:
         containerWidget = QWidget(parent=self)
         containerWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
@@ -136,7 +136,7 @@ class TutorialDialog(MessageBoxBase):
 
         self.stackedWidget.addWidget(containerWidget)
 
-    def showPreviousVideo(self):
+    def showPreviousVideo(self) -> None:
         currentIndex = self.stackedWidget.currentIndex()
 
         self.hideVideoWidget(currentIndex)  # hide the current video widget because it would be switched
@@ -145,7 +145,7 @@ class TutorialDialog(MessageBoxBase):
             self.stackedWidget.setCurrentIndex(currentIndex - 1)
             self.updateNavigationButtons()
 
-    def showNextVideo(self):
+    def showNextVideo(self) -> None:
         currentIndex = self.stackedWidget.currentIndex()
 
         self.hideVideoWidget(currentIndex)  # hide the current video widget because it would be switched
@@ -154,21 +154,21 @@ class TutorialDialog(MessageBoxBase):
             self.stackedWidget.setCurrentIndex(currentIndex + 1)
             self.updateNavigationButtons()
 
-    def hideVideoWidget(self, index):
+    def hideVideoWidget(self, index) -> None:
         currentVideoWidget = self.stackedWidget.widget(index).findChild(VideoWidget)
         if currentVideoWidget:
             currentVideoWidget.hide()
 
-    def show(self):
+    def show(self) -> None:
         super().show()
         self.stackedWidget.setCurrentIndex(0)
         self.updateNavigationButtons()
 
-    def updateNavigationButtons(self):
+    def updateNavigationButtons(self) -> None:
         currentIndex = self.stackedWidget.currentIndex()
         self.leftButton.setEnabled(currentIndex > 0)
         self.rightButton.setEnabled(currentIndex < self.stackedWidget.count() - 1)
 
-    def onStackedWidgetCurrentChanged(self, index: int):
+    def onStackedWidgetCurrentChanged(self, index: int) -> None:
         logger.debug(f"Inside onStackedWidgetCurrentChanged: {index}")
         self.stackedWidget.widget(index).findChild(VideoWidget).show()

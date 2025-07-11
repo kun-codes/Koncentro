@@ -32,7 +32,7 @@ from prefabs.workspaceListView import WorkspaceListView
 
 
 class ManageWorkspaceDialog(MaskDialogBase):
-    def __init__(self, workspaceListModel: WorkspaceListModel, parent=None):
+    def __init__(self, workspaceListModel: WorkspaceListModel, parent=None) -> None:
         super().__init__(parent=parent)
         self.buttonGroup = QFrame(self.widget)
 
@@ -64,7 +64,7 @@ class ManageWorkspaceDialog(MaskDialogBase):
 
         self.__initWidget()
 
-    def __initWidget(self):
+    def __initWidget(self) -> None:
         self.__setQss()
         self.__initLayout()
 
@@ -80,7 +80,7 @@ class ManageWorkspaceDialog(MaskDialogBase):
 
         self.__connectSignalsToSlots()
 
-    def __initLayout(self):
+    def __initLayout(self) -> None:
         self._hBoxLayout.removeWidget(self.widget)
         self._hBoxLayout.addWidget(self.widget, 1, Qt.AlignCenter)
 
@@ -102,7 +102,7 @@ class ManageWorkspaceDialog(MaskDialogBase):
         # self.buttonLayout.addWidget(self.yesButton, 1, Qt.AlignVCenter)
         # self.buttonLayout.addWidget(self.cancelButton, 1, Qt.AlignVCenter)
 
-    def __setQss(self):
+    def __setQss(self) -> None:
         self.buttonGroup.setObjectName("buttonGroup")
         dialog_qss = f"""
             {__class__.__name__} #buttonGroup,
@@ -120,7 +120,7 @@ class ManageWorkspaceDialog(MaskDialogBase):
         # setStyleSheet()
         setCustomStyleSheet(self, dialog_qss, dialog_qss)
 
-    def __connectSignalsToSlots(self):
+    def __connectSignalsToSlots(self) -> None:
         self.closeDialogButton.clicked.connect(lambda: self.close())
         self.addWorkspaceButton.clicked.connect(self.onAddWorkspaceButtonClicked)
         self.deleteWorkspaceButton.clicked.connect(self.onDeleteWorkspaceButtonClicked)
@@ -135,18 +135,18 @@ class ManageWorkspaceDialog(MaskDialogBase):
         self.model.current_workspace_changed.connect(self.spawnInfoBar)
         self.model.current_workspace_deleted.connect(self.onCurrentWorkspaceDeleted)
 
-    def keyPressEvent(self, event: QKeyEvent):
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         """
         Override keyPressEvent to ignore escape key so that the dialog doesn't get closed when escape key is pressed
         """
         if event.key() == Qt.Key.Key_Escape:
             event.ignore()
 
-    def showEvent(self, event):
+    def showEvent(self, event) -> None:
         self.preselect_current_workspace()
         super().showEvent(event)
 
-    def preselect_current_workspace(self):
+    def preselect_current_workspace(self) -> None:
         current_workspace_id = WorkspaceLookup.get_current_workspace_id()
         logger.debug(f"Current workspace id: {current_workspace_id}")
         for workspace in self.model.workspaces:
@@ -160,17 +160,17 @@ class ManageWorkspaceDialog(MaskDialogBase):
                 # self.workspaceList.selectionModel().select(index, QItemSelectionModel.SelectionFlag.Select)
                 self.workspaceList.selectionModel().setCurrentIndex(index, QItemSelectionModel.SelectionFlag.Select)
 
-    def onWorkspaceTextChanged(self):
+    def onWorkspaceTextChanged(self) -> None:
         self.addWorkspaceButton.setDisabled(self.newWorkspaceLineEdit.text().strip() == "")
 
-    def onAddWorkspaceButtonClicked(self):
+    def onAddWorkspaceButtonClicked(self) -> None:
         new_workspace_name = self.newWorkspaceLineEdit.text().strip()
         if new_workspace_name:
             workspace = Workspace(workspace_name=new_workspace_name)
             self.model.add_workspace(workspace)
             self.newWorkspaceLineEdit.clear()
 
-    def onDeleteWorkspaceButtonClicked(self):
+    def onDeleteWorkspaceButtonClicked(self) -> None:
         selected_index = self.workspaceList.currentIndex()
         no_of_workspaces = self.model.rowCount()
         if selected_index.isValid() and no_of_workspaces > 1:  # only delete if there is more than one workspace
@@ -187,7 +187,7 @@ class ManageWorkspaceDialog(MaskDialogBase):
                 parent=self.parent(),
             )
 
-    def onWorkspaceSelectionChanged(self, selected, deselected):
+    def onWorkspaceSelectionChanged(self, selected, deselected) -> None:
         selected_index = selected.indexes()
         if selected_index:
             selected_index = selected_index[0]
@@ -201,7 +201,7 @@ class ManageWorkspaceDialog(MaskDialogBase):
             # TODO: if app is closed before before selecting a workspace, automatically select a workspace on next start
             #   or if there is no workspace make a sample workspace automatically and set it as the current workspace
 
-    def spawnInfoBar(self):
+    def spawnInfoBar(self) -> None:
         workspace_id = WorkspaceLookup.get_current_workspace_id()
         logger.debug(f"Current workspace id: {workspace_id}")
         workspace_name = self.model.get_workspace_name_by_id(workspace_id)
@@ -216,10 +216,10 @@ class ManageWorkspaceDialog(MaskDialogBase):
             parent=self.parent(),
         )
 
-    def onCurrentWorkspaceChanged(self):
+    def onCurrentWorkspaceChanged(self) -> None:
         logger.debug(f"Current workspace change {WorkspaceLookup.get_current_workspace_id()}")
 
-    def onCurrentWorkspaceDeleted(self):
+    def onCurrentWorkspaceDeleted(self) -> None:
         logger.debug("Current workspace deleted")
 
 

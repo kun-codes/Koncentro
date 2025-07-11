@@ -8,7 +8,9 @@ from constants import InterfaceType
 class TargetClickTeachingTip(TeachingTip):
     """Teaching tip that only closes when the target widget is clicked."""
 
-    def __init__(self, view, target, tailPosition=TeachingTipTailPosition.BOTTOM, parent=None, isDeleteOnClose=True):
+    def __init__(
+        self, view, target, tailPosition=TeachingTipTailPosition.BOTTOM, parent=None, isDeleteOnClose: bool = True
+    ) -> None:
         super().__init__(
             view, target, duration=-1, tailPosition=tailPosition, parent=parent, isDeleteOnClose=isDeleteOnClose
         )
@@ -28,13 +30,13 @@ class TargetClickTeachingTip(TeachingTip):
         self.interface_type: InterfaceType = None
         self.customSignalToDestroy: Signal = False
 
-    def connectSignalsToSlots(self):
+    def connectSignalsToSlots(self) -> None:
         logger.debug(f"Inside connectSignalsToSlots of {self.__class__.__name__}")
         self.mainWindow.stackedWidget.currentChanged.connect(self.onTabChanged)
         if self.customSignalToDestroy is not None:
             self.customSignalToDestroy.connect(self._fadeOut)
 
-    def onTabChanged(self, index):
+    def onTabChanged(self, index) -> None:
         logger.debug(f"Tab changed to index: {index}")
 
         if self.interface_type.value == InterfaceType.DIALOG.value:  # no need to hide or show teaching tip
@@ -74,7 +76,7 @@ class TargetClickTeachingTip(TeachingTip):
         tailPosition=TeachingTipTailPosition.BOTTOM,
         parent=None,
         customSignalToDestroy: Signal = None,
-    ):
+    ) -> "TargetClickTeachingTip":
         """Create a teaching tip that only closes when the target is clicked."""
         view = TeachingTipView(title, content, icon, image, False, tailPosition)
         tip = cls(view, target, tailPosition, parent, True)
@@ -90,10 +92,10 @@ class TargetClickTeachingTip(TeachingTip):
         tip.show()
         return tip
 
-    def fadeOut(self):
+    def fadeOut(self) -> None:
         self._fadeOut()
 
-    def temporaryHide(self):
+    def temporaryHide(self) -> None:
         """Hide the teaching tip with fade animation without closing it"""
         logger.debug(f"Temporary hide {self.__class__.__name__}")
         # only animate if visible
@@ -107,7 +109,7 @@ class TargetClickTeachingTip(TeachingTip):
             self.hideAni.finished.connect(self.hide)
             self.hideAni.start()
 
-    def temporaryShow(self):
+    def temporaryShow(self) -> None:
         """Show the teaching tip with fade animation"""
         # only proceed if it's hidden
         if not self.isVisible():

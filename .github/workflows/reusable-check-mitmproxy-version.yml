@@ -1,4 +1,4 @@
-name: Check Mitmproxy Version Compatibility
+name: Check Mitmproxy Version Compatibility (Reusable)
 
 on:
     workflow_call:

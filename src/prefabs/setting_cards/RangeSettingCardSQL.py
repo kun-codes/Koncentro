@@ -8,7 +8,7 @@ from prefabs.config.qconfig_sql import qconfig_custom
 
 
 class RangeSettingCardSQL(RangeSettingCard):
-    def __init__(self, configItem, icon: Union[str, QIcon, FluentIconBase], title, content=None, parent=None):
+    def __init__(self, configItem, icon: Union[str, QIcon, FluentIconBase], title, content=None, parent=None) -> None:
         super().__init__(configItem, icon, title, content, parent)
 
         # Timer to buffer database writes
@@ -27,7 +27,7 @@ class RangeSettingCardSQL(RangeSettingCard):
         self.slider.valueChanged.disconnect(self._RangeSettingCard__onValueChanged)
         self.slider.valueChanged.connect(self._onValueChangedBuffered)
 
-    def _onValueChangedBuffered(self, value: int):
+    def _onValueChangedBuffered(self, value: int) -> None:
         """Update UI immediately, buffer database writes"""
         # Update visual label immediately
         self.valueLabel.setNum(value)
@@ -36,12 +36,12 @@ class RangeSettingCardSQL(RangeSettingCard):
         self._save_timer.stop()
         self._save_timer.start(300)  # 300ms delay
 
-    def _saveToDatabase(self):
+    def _saveToDatabase(self) -> None:
         """Save current value to database"""
         current_value = self.slider.value()
         self._RangeSettingCard__onValueChanged(current_value)
 
-    def setValue(self, value):
+    def setValue(self, value) -> None:
         qconfig_custom.set(self.configItem, value)
         self.valueLabel.setNum(value)
         self.slider.setValue(value)

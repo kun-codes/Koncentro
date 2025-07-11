@@ -5,7 +5,7 @@ from models.task_lookup import TaskLookup
 
 
 class EditTaskTimeDialog(MessageBoxBase):
-    def __init__(self, parent=None, task_id=None):
+    def __init__(self, parent, task_id: int) -> None:
         super().__init__(parent=parent)
 
         self.elapsedTimeLabel = SubtitleLabel("Elapsed Time", self)
@@ -35,10 +35,10 @@ class EditTaskTimeDialog(MessageBoxBase):
         self.elapsedTimePicker.timeChanged.connect(lambda: self.setElapsedTimeChanged(True))
         self.estimateTimePicker.timeChanged.connect(lambda: self.setTargetTimeChanged(True))
 
-    def setElapsedTimeChanged(self, value):
+    def setElapsedTimeChanged(self, value: bool) -> None:
         self.elapsed_time_changed = value
 
-    def setTargetTimeChanged(self, value):
+    def setTargetTimeChanged(self, value: bool) -> None:
         self.target_time_changed = value
 
     def convertMsToQTime(self, ms):
@@ -58,14 +58,3 @@ class EditTaskTimeDialog(MessageBoxBase):
             time = self.estimateTimePicker.getTime()
             return (time.hour() * 60 * 60 + time.minute() * 60 + time.second()) * 1000
         return None
-
-
-if __name__ == "__main__":
-    import sys
-
-    from PySide6.QtWidgets import QApplication
-
-    app = QApplication(sys.argv)
-    dialog = EditTaskTimeDialog()
-    dialog.exec()
-    sys.exit(app.exec())

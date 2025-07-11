@@ -10,22 +10,22 @@ class TransientPopupTeachingTip(PopupTeachingTip):
         self,
         view,
         target,
-        duration=1000,
+        duration: int = 1000,
         tailPosition=TeachingTipTailPosition.BOTTOM,
         parent=None,
-        isDeleteOnClose=True,
-    ):
+        isDeleteOnClose: bool = True,
+    ) -> None:
         super().__init__(view, target, duration, tailPosition, parent, isDeleteOnClose)
 
         self.mainWindow: FluentWindow = None
         self.interface_type: InterfaceType = None
 
-    def connectSignalsToSlots(self):
+    def connectSignalsToSlots(self) -> None:
         if self.mainWindow and hasattr(self.mainWindow, "stackedWidget"):
             self.mainWindow.stackedWidget.currentChanged.connect(self.onTabChanged)
             logger.debug(f"Connected stackedWidget.currentChanged in {self.__class__.__name__}")
 
-    def onTabChanged(self, index):
+    def onTabChanged(self, index) -> None:
         logger.debug(f"Tab changed to index: {index}")
 
         if self.interface_type.value == InterfaceType.DIALOG.value:  # no need to hide or show teaching tip
@@ -37,7 +37,7 @@ class TransientPopupTeachingTip(PopupTeachingTip):
         else:
             self.temporaryHide()
 
-    def temporaryHide(self):
+    def temporaryHide(self) -> None:
         """Hide the teaching tip with fade animation without closing it"""
         if self.isVisible():
             self.hideAni = QPropertyAnimation(self, b"windowOpacity", self)
@@ -47,7 +47,7 @@ class TransientPopupTeachingTip(PopupTeachingTip):
             self.hideAni.finished.connect(self.hide)
             self.hideAni.start()
 
-    def temporaryShow(self):
+    def temporaryShow(self) -> None:
         """Show the teaching tip with fade animation"""
         if not self.isVisible():
             self.setWindowOpacity(0)
@@ -69,12 +69,12 @@ class TransientPopupTeachingTip(PopupTeachingTip):
         interface_type: InterfaceType,
         icon=None,
         image=None,
-        isClosable=True,
-        duration=1000,
+        isClosable: bool = True,
+        duration: int = 1000,
         tailPosition=TeachingTipTailPosition.BOTTOM,
         parent=None,
-        isDeleteOnClose=True,
-    ):
+        isDeleteOnClose: bool = True,
+    ) -> "TransientPopupTeachingTip":
         """Create a temporary popup teaching tip."""
         view = TeachingTipView(title, content, icon, image, isClosable, tailPosition)
         tip = cls(view, target, duration, tailPosition, parent, isDeleteOnClose)

@@ -3,7 +3,7 @@ from utils.db_utils import get_session
 from utils.get_app_version import get_app_version
 
 
-def checkValidDB():
+def checkValidDB() -> None:
     with get_session() as session:
         # Initialize version info if not exists
         # todo: make a upgrade db function too for future app versions

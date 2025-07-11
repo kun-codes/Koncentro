@@ -4,14 +4,14 @@ from qfluentwidgets import BoolValidator, ConfigItem, QConfig, RangeConfigItem, 
 from config_paths import settings_file_path
 from constants import (
     APPLICATION_NAME,
-    AUTOSTART_BREAK,
-    AUTOSTART_WORK,
-    BREAK_DURATION,
-    ENABLE_WEBSITE_BLOCKER,
-    LONG_BREAK_DURATION,
+    DEFAULT_AUTOSTART_BREAK,
+    DEFAULT_AUTOSTART_WORK,
+    DEFAULT_BREAK_DURATION,
+    DEFAULT_ENABLE_WEBSITE_BLOCKER,
+    DEFAULT_LONG_BREAK_DURATION,
+    DEFAULT_WORK_DURATION,
+    DEFAULT_WORK_INTERVALS,
     ORGANIZATION_NAME,
-    WORK_DURATION,
-    WORK_INTERVALS,
 )
 from models.db_tables import Workspace
 from prefabs.config.config_item_sql import ConfigItemSQL, RangeConfigItemSQL
@@ -26,16 +26,22 @@ class WorkspaceSettings(QConfigSQL):
     Documentation for QConfig is here: https://qfluentwidgets.com/pages/components/config/#usage
     """
 
-    work_duration = RangeConfigItemSQL(Workspace, Workspace.work_duration, WORK_DURATION, RangeValidator(1, 240))
-    break_duration = RangeConfigItemSQL(Workspace, Workspace.break_duration, BREAK_DURATION, RangeValidator(1, 60))
-    long_break_duration = RangeConfigItemSQL(
-        Workspace, Workspace.long_break_duration, LONG_BREAK_DURATION, RangeValidator(1, 60)
+    work_duration = RangeConfigItemSQL(
+        Workspace, Workspace.work_duration, DEFAULT_WORK_DURATION, RangeValidator(1, 240)
     )
-    work_intervals = RangeConfigItemSQL(Workspace, Workspace.work_intervals, WORK_INTERVALS, RangeValidator(1, 10))
-    autostart_work = ConfigItemSQL(Workspace, Workspace.autostart_work, AUTOSTART_WORK, BoolValidator())
-    autostart_break = ConfigItemSQL(Workspace, Workspace.autostart_break, AUTOSTART_BREAK, BoolValidator())
+    break_duration = RangeConfigItemSQL(
+        Workspace, Workspace.break_duration, DEFAULT_BREAK_DURATION, RangeValidator(1, 60)
+    )
+    long_break_duration = RangeConfigItemSQL(
+        Workspace, Workspace.long_break_duration, DEFAULT_LONG_BREAK_DURATION, RangeValidator(1, 60)
+    )
+    work_intervals = RangeConfigItemSQL(
+        Workspace, Workspace.work_intervals, DEFAULT_WORK_INTERVALS, RangeValidator(1, 10)
+    )
+    autostart_work = ConfigItemSQL(Workspace, Workspace.autostart_work, DEFAULT_AUTOSTART_WORK, BoolValidator())
+    autostart_break = ConfigItemSQL(Workspace, Workspace.autostart_break, DEFAULT_AUTOSTART_BREAK, BoolValidator())
     enable_website_blocker = ConfigItemSQL(
-        Workspace, Workspace.enable_website_blocker, ENABLE_WEBSITE_BLOCKER, BoolValidator()
+        Workspace, Workspace.enable_website_blocker, DEFAULT_ENABLE_WEBSITE_BLOCKER, BoolValidator()
     )
 
 
@@ -67,12 +73,12 @@ settings = QSettings(QSettings.Format.NativeFormat, QSettings.Scope.UserScope, O
 app_settings.themeMode.value = Theme.AUTO
 
 
-def load_workspace_settings():
+def load_workspace_settings() -> None:
     qconfig_custom.load("", workspace_specific_settings)  # passing empty string as the path as function asks for path
     # to json file which stores settings and we are using db to store settings
 
 
-def load_app_settings():
+def load_app_settings() -> None:
     qconfig.load(settings_file_path, app_settings)
 
 

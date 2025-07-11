@@ -23,7 +23,9 @@ class CustomFluentIcon(FluentIconBase, Enum):
     EXIT = "exit"
     CLICK = "click"
     TEXT_ADD = "text_add"
+    SETUP_AGAIN = "setup_again"
+    RESET_PROXY = "reset_proxy"
 
-    def path(self, theme=Theme.AUTO):
+    def path(self, theme=Theme.AUTO) -> str:
         # getIconColor() return "white" or "black" according to current theme
         return f":/iconsPrefix/icons/{self.value}_{getIconColor(theme)}.svg"

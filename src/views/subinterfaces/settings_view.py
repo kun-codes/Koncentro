@@ -1,3 +1,5 @@
+import platform
+
 from loguru import logger
 from PySide6.QtCore import Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
@@ -39,7 +41,7 @@ class SettingsView(QWidget, Ui_SettingsView):
 
     micaEnableChanged = Signal(bool)
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.setupUi(self)
 
@@ -50,7 +52,7 @@ class SettingsView(QWidget, Ui_SettingsView):
         self.initQss()
         self.onValueChanged()
 
-    def initSettings(self):
+    def initSettings(self) -> None:
         # Pomodoro Settings
         self.pomodoro_settings_group = SettingCardGroup("Pomodoro", self.scrollArea)
         self.work_duration_card = RangeSettingCardSQL(
@@ -153,9 +155,19 @@ class SettingsView(QWidget, Ui_SettingsView):
         self.setup_group = SettingCardGroup("Setup", self.scrollArea)
         self.setup_app_card = PrimaryPushSettingCard(
             f"Setup {APPLICATION_NAME}",
-            FluentIcon.VPN,
+            CustomFluentIcon.SETUP_AGAIN,
             f"Setup {APPLICATION_NAME} again",
             f"Click to setup {APPLICATION_NAME} again",
+            self.setup_group,
+        )  # connected in main_window.py
+        operating_system = platform.system()
+        if operating_system == "Darwin":
+            operating_system = "macOS"
+        self.reset_proxy_settings = PrimaryPushSettingCard(
+            "Reset Proxy",
+            CustomFluentIcon.RESET_PROXY,
+            "Reset Proxy Settings",
+            f"Click to reset proxy settings for {APPLICATION_NAME} and {operating_system}",
             self.setup_group,
         )  # connected in main_window.py
 
@@ -171,7 +183,7 @@ class SettingsView(QWidget, Ui_SettingsView):
 
         self.__connectSignalToSlot()
 
-    def initLayout(self):
+    def initLayout(self) -> None:
         # Pomodoro Settings
         self.pomodoro_settings_group.addSettingCard(self.work_duration_card)
         self.pomodoro_settings_group.addSettingCard(self.break_duration_card)
@@ -202,13 +214,14 @@ class SettingsView(QWidget, Ui_SettingsView):
 
         # Setup Group
         self.setup_group.addSettingCard(self.setup_app_card)
+        self.setup_group.addSettingCard(self.reset_proxy_settings)
         self.scrollAreaWidgetContents.layout().addWidget(self.setup_group)
 
         # About Group
         self.about_group.addSettingCard(self.check_for_updates_now_card)
         self.scrollAreaWidgetContents.layout().addWidget(self.about_group)
 
-    def initQss(self):
+    def initQss(self) -> None:
         # increase size of contentLabel to improve readability
         qss_light = """
         QLabel#contentLabel {
@@ -225,7 +238,7 @@ class SettingsView(QWidget, Ui_SettingsView):
         for card in settingCards:
             setCustomStyleSheet(card, qss_light, qss_dark)
 
-    def onValueChanged(self):
+    def onValueChanged(self) -> None:
         workspace_specific_settings.work_duration.valueChanged.connect(self.updateWorkDuration)
         workspace_specific_settings.break_duration.valueChanged.connect(self.updateBreakDuration)
         workspace_specific_settings.long_break_duration.valueChanged.connect(self.updateLongBreakDuration)
@@ -237,19 +250,19 @@ class SettingsView(QWidget, Ui_SettingsView):
         app_settings.proxy_port.valueChanged.connect(self.updateProxyPort)
         app_settings.check_for_updates_on_start.valueChanged.connect(self.updateCheckForUpdatesOnStart)
 
-    def updateBreakDuration(self):
+    def updateBreakDuration(self) -> None:
         ConfigValues.BREAK_DURATION = workspace_specific_settings.get(workspace_specific_settings.break_duration)
         logger.debug(
             f"Updated Break Duration to: {workspace_specific_settings.get(workspace_specific_settings.break_duration)}"
         )
 
-    def updateWorkDuration(self):
+    def updateWorkDuration(self) -> None:
         ConfigValues.WORK_DURATION = workspace_specific_settings.get(workspace_specific_settings.work_duration)
         logger.debug(
             f"Updated Work Duration to: {workspace_specific_settings.get(workspace_specific_settings.work_duration)}"
         )
 
-    def updateLongBreakDuration(self):
+    def updateLongBreakDuration(self) -> None:
         ConfigValues.LONG_BREAK_DURATION = workspace_specific_settings.get(
             workspace_specific_settings.long_break_duration
         )
@@ -258,26 +271,26 @@ class SettingsView(QWidget, Ui_SettingsView):
             f"{workspace_specific_settings.get(workspace_specific_settings.long_break_duration)}"
         )
 
-    def updateWorkIntervals(self):
+    def updateWorkIntervals(self) -> None:
         ConfigValues.WORK_INTERVALS = workspace_specific_settings.get(workspace_specific_settings.work_intervals)
         logger.debug(
             f"Updated Work Intervals to: {workspace_specific_settings.get(workspace_specific_settings.work_intervals)}"
         )
 
-    def updateAutostartWork(self):
+    def updateAutostartWork(self) -> None:
         ConfigValues.AUTOSTART_WORK = workspace_specific_settings.get(workspace_specific_settings.autostart_work)
         logger.debug(
             f"Updated Autostart Work to: {workspace_specific_settings.get(workspace_specific_settings.autostart_work)}"
         )
 
-    def updateAutostartBreak(self):
+    def updateAutostartBreak(self) -> None:
         ConfigValues.AUTOSTART_BREAK = workspace_specific_settings.get(workspace_specific_settings.autostart_break)
         logger.debug(
             f"Updated Autostart Break to: "
             f"{workspace_specific_settings.get(workspace_specific_settings.autostart_break)}"
         )
 
-    def updateEnableWebsiteBlocker(self):
+    def updateEnableWebsiteBlocker(self) -> None:
         ConfigValues.ENABLE_WEBSITE_BLOCKER = workspace_specific_settings.get(
             workspace_specific_settings.enable_website_blocker
         )
@@ -287,15 +300,15 @@ class SettingsView(QWidget, Ui_SettingsView):
             }"
         )
 
-    def updateProxyPort(self):
+    def updateProxyPort(self) -> None:
         ConfigValues.PROXY_PORT = app_settings.get(app_settings.proxy_port)
         logger.debug(f"Proxy Port: {app_settings.get(app_settings.proxy_port)}")
 
-    def updateCheckForUpdatesOnStart(self):
+    def updateCheckForUpdatesOnStart(self) -> None:
         ConfigValues.CHECK_FOR_UPDATES_ON_START = app_settings.get(app_settings.check_for_updates_on_start)
         logger.debug(f"Check For Updates On Start: {app_settings.get(app_settings.check_for_updates_on_start)}")
 
-    def checkForUpdatesNow(self):
+    def checkForUpdatesNow(self) -> None:
         """Check for updates using the UpdateChecker class"""
         # Show a small info message to let the user know we're checking for updates
         InfoBar.info(
@@ -316,7 +329,7 @@ class SettingsView(QWidget, Ui_SettingsView):
         # Start the update check in a background thread
         self.update_checker.start()
 
-    def onUpdateCheckComplete(self, result):
+    def onUpdateCheckComplete(self, result) -> None:
         """Handle the result of the update check from the background thread."""
         if result == UpdateCheckResult.UPDATE_AVAILABLE:
             infoBar = InfoBar.new(
@@ -355,7 +368,7 @@ class SettingsView(QWidget, Ui_SettingsView):
                 parent=self,
             )
 
-    def __connectSignalToSlot(self):
+    def __connectSignalToSlot(self) -> None:
         self.theme_card.optionChanged.connect(lambda ci: setTheme(workspace_specific_settings.get(ci)))
         self.theme_color_card.colorChanged.connect(lambda c: setThemeColor(c))
         if isWin11():

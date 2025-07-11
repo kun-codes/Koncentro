@@ -17,7 +17,7 @@ from views.dialogs.editTaskTimeDialog import EditTaskTimeDialog
 
 
 class TaskInterfaceTutorial(InterfaceTutorial):
-    def __init__(self, main_window: FluentWindow, interface_type: InterfaceType):
+    def __init__(self, main_window: FluentWindow, interface_type: InterfaceType) -> None:
         super().__init__(main_window, interface_type)
 
         self.tutorial_steps.append(self._first_step)
@@ -38,7 +38,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.tutorial_steps.append(self._enable_buttons)
         self.tutorial_steps.append(self._last_step)
 
-    def _first_step(self):
+    def _first_step(self) -> None:
         self.main_window.isSafeToShowTutorial = False  # block tutorials of other interfaces from showing
 
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.BACK_BUTTON, False)
@@ -50,7 +50,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
 
         self.next_step()
 
-    def _todo_task_list_step(self):
+    def _todo_task_list_step(self) -> None:
         self._todo_task_list_step_tip = TransientPopupTeachingTip.create(
             target=self.main_window.task_interface.todoTasksList,
             title="This card contains all the tasks which you have to do",
@@ -66,7 +66,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self._todo_task_list_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._todo_task_list_step_tip)
 
-    def _completed_task_list_step(self):
+    def _completed_task_list_step(self) -> None:
         self._completed_task_list_step_tip = TransientPopupTeachingTip.create(
             target=self.main_window.task_interface.completedTasksList,
             title="This card contains all the tasks which you have completed",
@@ -82,7 +82,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self._completed_task_list_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._completed_task_list_step_tip)
 
-    def _select_first_task_step(self):
+    def _select_first_task_step(self) -> None:
         # Get the todo task list
         todo_task_list = self.main_window.task_interface.todoTasksList
         first_index = todo_task_list.model().index(0, 0)
@@ -111,7 +111,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self._select_first_task_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._select_first_task_step_tip)
 
-    def _invoke_first_task_edit_task_time_step(self):
+    def _invoke_first_task_edit_task_time_step(self) -> None:
         self.main_window.task_interface.editTaskTimeButton.setDisabled(False)
 
         self._invoke_first_task_edit_task_time_step_tip = TargetClickTeachingTip.create(
@@ -127,14 +127,14 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self._invoke_first_task_edit_task_time_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._invoke_first_task_edit_task_time_step_tip)
 
-    def _edit_first_task_elapsed_time_step(self):
+    def _edit_first_task_elapsed_time_step(self) -> None:
         edit_task_time_dialog = self.main_window.task_interface.window().findChild(EditTaskTimeDialog)
 
         # User has to change the time, there is no other choice
         edit_task_time_dialog.cancelButton.setDisabled(True)
         edit_task_time_dialog.yesButton.setDisabled(True)
 
-        def on_key_press(event):
+        def on_key_press(event) -> None:
             if event.key() in [Qt.Key_Escape, Qt.Key_Return, Qt.Key_Enter]:
                 event.ignore()
             else:
@@ -157,7 +157,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self._edit_first_task_time_elapsed_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._edit_first_task_time_elapsed_step_tip)
 
-    def _edit_first_task_estimate_time_step(self):
+    def _edit_first_task_estimate_time_step(self) -> None:
         edit_task_time_dialog = self.main_window.task_interface.window().findChild(EditTaskTimeDialog)
         self._edit_first_task_time_estimate_step_tip = TargetClickTeachingTip.create(
             target=edit_task_time_dialog.estimateTimePicker,
@@ -174,7 +174,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self._edit_first_task_time_estimate_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._edit_first_task_time_estimate_step_tip)
 
-    def _edit_first_task_save_changed_time_step(self):
+    def _edit_first_task_save_changed_time_step(self) -> None:
         edit_task_time_dialog = self.main_window.task_interface.window().findChild(EditTaskTimeDialog)
 
         edit_task_time_dialog.yesButton.setDisabled(False)
@@ -192,7 +192,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self._edit_first_task_save_changed_time_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._edit_first_task_save_changed_time_step_tip)
 
-    def _delete_first_task_step(self):
+    def _delete_first_task_step(self) -> None:
         self.main_window.task_interface.editTaskTimeButton.setDisabled(True)
         self.main_window.task_interface.deleteTaskButton.setDisabled(False)
 
@@ -209,7 +209,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self._delete_first_task_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._delete_first_task_step_tip)
 
-    def _invoke_add_new_task_dialog_step(self):
+    def _invoke_add_new_task_dialog_step(self) -> None:
         self.main_window.task_interface.deleteTaskButton.setDisabled(True)
         self.main_window.task_interface.addTaskButton.setDisabled(False)
 
@@ -226,12 +226,12 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self._invoke_add_new_task_dialog_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._invoke_add_new_task_dialog_step_tip)
 
-    def _name_new_task_step(self):
+    def _name_new_task_step(self) -> None:
         add_task_dialog = self.main_window.task_interface.window().findChild(AddTaskDialog)
         add_task_dialog.cancelButton.setDisabled(True)
         add_task_dialog.yesButton.setDisabled(True)
 
-        def on_key_press(event):
+        def on_key_press(event) -> None:
             if event.key() in [Qt.Key_Escape, Qt.Key_Return, Qt.Key_Enter]:
                 event.ignore()
             else:
@@ -255,7 +255,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self._name_new_task_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._name_new_task_step_tip)
 
-    def _save_new_task_step(self):
+    def _save_new_task_step(self) -> None:
         todo_task_list = self.main_window.task_interface.todoTasksList
 
         add_task_dialog = self.main_window.task_interface.window().findChild(AddTaskDialog)
@@ -276,7 +276,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self._save_new_task_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._save_new_task_step_tip)
 
-    def _start_first_task_step(self):
+    def _start_first_task_step(self) -> None:
         self.main_window.task_interface.addTaskButton.setDisabled(True)
 
         todo_task_list = self.main_window.task_interface.todoTasksList
@@ -310,7 +310,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
             logger.debug("No tasks in todo list, skipping step")
             self.next_step()
 
-    def _move_to_completed_task_list_step(self):
+    def _move_to_completed_task_list_step(self) -> None:
         # Get the completed task list
         todo_task_list = self.main_window.task_interface.todoTasksList
         completed_task_list = self.main_window.task_interface.completedTasksList
@@ -342,7 +342,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
             logger.debug("No tasks in todo list, skipping step")
             self.next_step()
 
-    def _stop_timer_step(self):
+    def _stop_timer_step(self) -> None:
         # Get the completed task list
         bottom_bar = self.main_window.bottomBar
 
@@ -362,14 +362,14 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         else:
             self.next_step()
 
-    def _enable_buttons(self):
+    def _enable_buttons(self) -> None:
         self.main_window.task_interface.editTaskTimeButton.setDisabled(False)
         self.main_window.task_interface.deleteTaskButton.setDisabled(False)
         self.main_window.task_interface.addTaskButton.setDisabled(False)
 
         self.next_step()
 
-    def _last_step(self):
+    def _last_step(self) -> None:
         # this is the last step
         app_settings.set(app_settings.has_completed_task_view_tutorial, True)
         ConfigValues.HAS_COMPLETED_TASK_VIEW_TUTORIAL = True
