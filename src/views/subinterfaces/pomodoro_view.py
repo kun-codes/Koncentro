@@ -36,8 +36,6 @@ class PomodoroView(QWidget, Ui_PomodoroView):
         self.pomodoro_timer_obj = PomodoroTimer()
         self.pomodoro_timer_obj.timerStateChangedSignal.connect(self.initProgressRing)
         self.pomodoro_timer_obj.pomodoro_timer.timeout.connect(self.updateProgressRing)
-        self.pomodoro_timer_obj.sessionStoppedSignal.connect(self.resetPauseResumeButton)
-        self.pomodoro_timer_obj.waitForUserInputSignal.connect(self.resetPauseResumeButton)
 
         self.stopButton.setToolTip("Stop")
         self.stopButton.installEventFilter(
@@ -136,10 +134,6 @@ class PomodoroView(QWidget, Ui_PomodoroView):
         self.pomodoro_timer_obj.skipDuration()
         self.pauseResumeButton.setIcon(FluentIcon.PAUSE)
         self.pauseResumeButton.setChecked(True)
-
-    def resetPauseResumeButton(self) -> None:
-        self.pauseResumeButton.setChecked(False)
-        self.pauseResumeButton.setIcon(FluentIcon.PLAY)
 
     def isInitialWorkSession(self):
         return (
