@@ -11,9 +11,10 @@ from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtWidgets import QApplication, QMessageBox
 
 import resources.fonts_rc
-from constants import APPLICATION_NAME, APPLICATION_UID, ORGANIZATION_NAME
+from constants import APPLICATION_NAME, APPLICATION_UID, FLATPAK_APP_ID, ORGANIZATION_NAME
 from main_window import MainWindow
 from prefabs.qtSingleApplication import QtSingleApplication
+from utils.check_flatpak_sandbox import is_flatpak_sandbox
 from utils.check_init_service import check_init_service
 from utils.check_valid_db import checkValidDB
 from utils.is_nuitka import is_nuitka
@@ -111,6 +112,10 @@ if __name__ == "__main__":
     app.setApplicationName(APPLICATION_NAME)
     app.setOrganizationName(ORGANIZATION_NAME)
     app.setApplicationDisplayName(APPLICATION_NAME)
+
+    if is_flatpak_sandbox():
+        app.setDesktopFileName(FLATPAK_APP_ID)  # so that "python" isn't shown in the app name on hover
+        # in KDE's task manager (KDE equivalent of Windows task bar)
 
     mainWindow = MainWindow()
     mainWindow.show()

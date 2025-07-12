@@ -4,6 +4,8 @@ from enum import Enum
 ORGANIZATION_NAME = "Koncentro"
 APPLICATION_NAME = "Koncentro"
 
+FLATPAK_APP_ID = "com.bishwasaha.Koncentro"
+
 # for pomodoro timer of new workspaces
 DEFAULT_WORK_DURATION = 25
 DEFAULT_BREAK_DURATION = 5
