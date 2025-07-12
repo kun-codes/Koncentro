@@ -115,6 +115,7 @@ case "$DISTRO" in
         --depends "xcb-util-cursor" \
         --depends "xcb-util-keysyms" \
         --depends "xcb-util-wm" \
+        --depends "glib2" \
         -p dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}-Fedora.rpm \
         usr
     echo "Built Fedora RPM package"
@@ -138,6 +139,7 @@ case "$DISTRO" in
         --depends "libxcb-cursor0" \
         --depends "libxcb-keysyms1" \
         --depends "libxcb-icccm4" \
+        --depends "libgthread-2_0-0" \
         -p dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}-openSUSE.rpm \
         usr
     echo "Built openSUSE RPM package"
