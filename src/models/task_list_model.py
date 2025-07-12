@@ -92,7 +92,7 @@ class TaskListModel(QAbstractListModel):
             if task_name:
                 self.tasks[row]["task_name"] = task_name
                 self.update_db()
-                self.dataChanged.emit(index, index)
+                self.dataChanged.emit(index, index, [Qt.DisplayRole])
                 return True
         elif role == self.ElapsedTimeRole:
             row = index.row()
@@ -100,20 +100,20 @@ class TaskListModel(QAbstractListModel):
             self.tasks[row]["elapsed_time"] = elapsed_time
             if update_db:
                 self.update_db()
-            self.dataChanged.emit(index, index)
+            self.dataChanged.emit(index, index, [self.ElapsedTimeRole])
             return True
         elif role == self.TargetTimeRole:
             row = index.row()
             target_time = value
             self.tasks[row]["target_time"] = target_time
             self.update_db()
-            self.dataChanged.emit(index, index)
+            self.dataChanged.emit(index, index, [self.TargetTimeRole])
             return True
         elif role == self.IconRole:
             row = index.row()
             icon = value
             self.tasks[row]["icon"] = icon
-            self.dataChanged.emit(index, index)
+            self.dataChanged.emit(index, index, [self.IconRole])
             return True
         return False
 
