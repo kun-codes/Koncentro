@@ -4,7 +4,7 @@ Section: utils
 Priority: optional
 Architecture: $DEB_ARCHITECTURE
 Maintainer: Bishwa Saha
-Depends: libxcb-cursor0, libxcb-keysyms1, libxcb-icccm4
+Depends: libxcb-cursor0, libxcb-keysyms1, libxcb-icccm4, libglib2.0-0 | libglib2.0-0t64
 Description: Koncentro - Focus manager and website blocker
  Koncentro helps you stay focused by blocking distracting websites
  and managing your work sessions.
