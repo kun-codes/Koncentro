@@ -99,5 +99,6 @@ echo "6. Created metadata"
 cat deb/DEBIAN/control
 
 # 7. Build DEB file
-dpkg-deb --build deb ../dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}.deb
+# default compression level for xz is 6 (changed with -z9) and default compression algorithm is xz (specified with -Zxz)
+dpkg-deb -Zxz -z9 --build deb ../dist/koncentro-${KONCENTRO_VERSION}-Linux-${ARCHITECTURE}.deb
 echo "7. Built DEB file"
