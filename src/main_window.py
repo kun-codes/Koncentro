@@ -4,7 +4,7 @@ import threading
 from pathlib import Path
 
 from loguru import logger
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QModelIndex, QSize, Qt
 from PySide6.QtGui import QFont, QIcon
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 from qfluentwidgets import (
@@ -582,6 +582,7 @@ class MainWindow(KoncentroFluentWindow):
                 f"Current Task: {self.task_interface.todoTasksList.model().getTaskNameById(task_id)}"
             )
         )
+        self.task_interface.todoTasksList.model().dataChanged.connect(self.updateBottomBarTaskLabel)
         self.themeListener.systemThemeChanged.connect(self.updateSystemTrayIcon)
         # for system tray
         self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(self.updateSystemTrayActions)
@@ -653,6 +654,17 @@ class MainWindow(KoncentroFluentWindow):
         self.get_todo_task_list_item_delegate().setCheckedStateOfButton(
             checked=False, task_id=self.get_current_task_id()
         )
+
+    def updateBottomBarTaskLabel(self, topLeft: QModelIndex, bottomRight: QModelIndex, roles) -> None:
+        # if task name has been updated and only one index is updated (topLeft == bottomRight)
+        if Qt.ItemDataRole.DisplayRole in roles and topLeft == bottomRight:
+            triggeredTaskID = self.task_interface.todoTasksList.model().data(topLeft, TaskListModel.IDRole)
+            # and if the current task ID is the same as the triggered task ID
+            if self.get_current_task_id() == triggeredTaskID:
+                # then update the bottom bar task label
+                self.bottomBar.taskLabel.setText(
+                    f"Current Task: {self.task_interface.todoTasksList.model().getTaskNameById(triggeredTaskID)}"
+                )
 
     def showTutorial(self, index: int) -> None:
         self.isSafeToShowTutorial = True
