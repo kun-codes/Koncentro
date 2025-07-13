@@ -1,6 +1,6 @@
 [project]
 name = "Koncentro"
-version = "0.10.0"
+version = "0.10.1"
 description = ""
 authors = [
     { name = "kun-codes", email = "77796630+kun-codes@users.noreply.github.com" }
