@@ -78,7 +78,7 @@ cat > rpm/usr/bin/koncentro << EOF
 
 #
 # Koncentro - Focus manager and website blocker
-# Copyright (c) 2025 Kunal
+# Copyright (c) 2025 Bishwa Saha
 #
 
 PYTHONPATH=/usr/lib/koncentro /usr/lib/koncentro/koncentro \$@
