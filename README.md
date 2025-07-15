@@ -108,7 +108,10 @@ This project is licensed under the [GPL-3.0-or-later license](LICENSE).
 
 ## Sponsor
 
+[<img src="screenshots/repoflow_logo.svg" alt="RepoFlow" height="32"/>](https://www.repoflow.io/)
 
+- Thanks to [RepoFlow](https://www.repoflow.io/) for providing a license for hosting linux repositories.
+ 
 ## Credits
 
 - [Super Productivity](https://github.com/johannesjo/super-productivity): The app is inspired by Super Productivity.
