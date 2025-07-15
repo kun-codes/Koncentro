@@ -106,7 +106,7 @@ poetry run python src
 ## License
 This project is licensed under the [GPL-3.0-or-later license](LICENSE).
 
-## Sponsor
+## Supporter
 
 <div align="center">
   <a href="https://www.repoflow.io/">
