@@ -11,7 +11,6 @@
   [![wakatime](https://wakatime.com/badge/github/kun-codes/koncentro.svg?style=flat-square)](https://wakatime.com/badge/github/kun-codes/koncentro)
   ![WinGet Package Version](https://img.shields.io/winget/v/BishwaSaha.Koncentro?style=flat-square)
   ![Flathub Version](https://img.shields.io/flathub/v/com.bishwasaha.Koncentro?style=flat-square)
-  [![Hosted By: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=flat-square)](https://cloudsmith.com)
 
 </div>
 
@@ -109,10 +108,6 @@ This project is licensed under the [GPL-3.0-or-later license](LICENSE).
 
 ## Sponsor
 
-Package repository hosting is graciously provided by  [Cloudsmith](https://cloudsmith.com).
-Cloudsmith is the only fully hosted, cloud-native, universal package management solution, that
-enables your organization to create, store and share packages in any format, to any place, with total
-confidence.
 
 ## Credits
 
