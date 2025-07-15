@@ -108,7 +108,11 @@ This project is licensed under the [GPL-3.0-or-later license](LICENSE).
 
 ## Sponsor
 
-[<img src="screenshots/repoflow_logo.svg" alt="RepoFlow" height="32"/>](https://www.repoflow.io/)
+<div align="center">
+  <a href="https://www.repoflow.io/">
+    <img src="screenshots/repoflow_logo.svg" alt="RepoFlow" height="48"/>
+  </a>
+</div>
 
 - Thanks to [RepoFlow](https://www.repoflow.io/) for providing a license for hosting linux repositories.
  
