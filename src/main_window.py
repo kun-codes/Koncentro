@@ -211,7 +211,7 @@ class MainWindow(KoncentroFluentWindow):
         self.tray.setVisible(True)
 
     def remainingFontSubstitutions(self) -> None:
-        # This was unaffected by font substitution in __main__.py
+        # This was unaffected by font substitution in koncentro.py
         font = QFont("Selawik", 14)
         self.pomodoro_interface.ProgressRing.setFont(font)
 

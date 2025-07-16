@@ -142,7 +142,7 @@ jobs:
                 with:
                     nuitka-version: 'main'
                     script-name: |
-                        src/__main__.py
+                        src/koncentro.py
                     mode: ${{ (matrix.os == 'macos-latest' || matrix.os == 'macos-13') && 'app' || 'standalone' }}
                     enable-plugins: 'pyside6'
                     product-name: 'Koncentro'
