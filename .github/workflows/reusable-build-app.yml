@@ -94,36 +94,6 @@ jobs:
                     pip list
                     poetry show
 
-            -   name: Download latest version of mitmproxy (Linux)
-                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
-                run: |
-                    cd ..
-                    wget https://downloads.mitmproxy.org/${{ env.MITMPROXY_LATEST_VERSION }}/mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-linux-${{ env.ARCHITECTURE }}.tar.gz
-                    tar -xvf mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-linux-${{ env.ARCHITECTURE }}.tar.gz
-                    cp mitmdump Koncentro/mitmdump
-                    cd Koncentro
-
-            -   name: Download latest version of mitmproxy (MacOS)
-                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                run: |
-                    cd ..
-                    gh release download --repo kun-codes/mitmproxy-nuitka-binaries --pattern "mitmdump-macos-${{ env.ARCHITECTURE }}*.zip" --dir .
-                    unzip mitmdump-macos*.zip
-                    cp mitmdump-macos*/mitmdump Koncentro/mitmdump
-                    chmod +x Koncentro/mitmdump
-                    cd Koncentro
-
-            -   name: Download latest version of mitmproxy (Windows)
-                if: matrix.os == 'windows-latest'
-                run: |
-                    cd ..
-                    Invoke-WebRequest -Uri "https://downloads.mitmproxy.org/${{ env.MITMPROXY_LATEST_VERSION }}/mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-windows-x86_64.zip" -OutFile "mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-windows-x86_64.zip"
-                    Expand-Archive -Path "mitmproxy-${{ env.MITMPROXY_LATEST_VERSION }}-windows-x86_64.zip" -DestinationPath .
-                    Copy-Item -Path "mitmdump.exe" -Destination "Koncentro\mitmdump.exe"
-                    cd "Koncentro"
-
             # Remove problematic brew libs if Intel Mac
             # https://github.com/Nuitka/Nuitka/issues/2853#issuecomment-2119520735
             -   name: Remove problematic brew libs
