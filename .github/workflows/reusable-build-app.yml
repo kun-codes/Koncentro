@@ -137,6 +137,25 @@ jobs:
                 run: |
                     dev/generate-python-rc-files.sh
 
+            -   name: Debug pwd
+                shell: bash
+                run: |
+                    pwd
+                    ls -la
+
+            -   name: Clone Mitmproxy Repository
+                uses: actions/checkout@v4
+                with:
+                    repository: mitmproxy/mitmproxy
+                    fetch-depth: '0'
+                    ref: 'v${{ inputs.mitmproxy-version }}'
+
+            -   name: Debug pwd
+                shell: bash
+                run: |
+                    pwd
+                    ls -la
+
             -   name: Build Executable (All Platforms)
                 uses: Nuitka/Nuitka-Action@main
                 with:
