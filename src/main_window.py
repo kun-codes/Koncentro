@@ -46,6 +46,7 @@ from utils.check_for_updates import UpdateChecker
 from utils.check_internet_worker import CheckInternetWorker
 from utils.detect_windows_version import isWin10OrEarlier
 from utils.find_mitmdump_executable import get_mitmdump_path
+from utils.isMitmdumpRunning import isMitmdumpRunning
 from utils.time_conversion import convert_ms_to_hh_mm_ss
 from views.dialogs.preSetupConfirmationDialog import PreSetupConfirmationDialog
 from views.dialogs.setupAppDialog import SetupAppDialog
@@ -358,11 +359,13 @@ class MainWindow(KoncentroFluentWindow):
 
     def on_session_resumed(self) -> None:
         """Only for cases when autostart work/break is disabled and session is resumed manually"""
-        # todo: find out if mitmproxy is already running and if so, don't start it again
         current_timer_state = self.pomodoro_interface.pomodoro_timer_obj.getTimerState()
         if current_timer_state == TimerState.WORK and not ConfigValues.AUTOSTART_WORK:
-            logger.debug("Work session resumed and autostart work is off, starting website blocking")
-            self.start_website_blocking()
+            if not isMitmdumpRunning():
+                logger.debug("Work session resumed and autostart work is off, starting website blocking")
+                self.start_website_blocking()
+            else:
+                logger.debug("Work session resumed and autostart work is off, mitmdump is already running")
         elif current_timer_state in [TimerState.BREAK, TimerState.LONG_BREAK] and not ConfigValues.AUTOSTART_BREAK:
             logger.debug("Break session resumed and autostart break is off, stopping website blocking")
             self.stop_website_blocking()

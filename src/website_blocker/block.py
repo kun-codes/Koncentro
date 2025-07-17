@@ -12,7 +12,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from mitmproxy import ctx, http
 
-from website_blocker.constants import BLOCK_HTML_MESSAGE, MITMDUMP_SHUTDOWN_URL
+from website_blocker.constants import BLOCK_HTML_MESSAGE, MITMDUMP_CHECK_URL, MITMDUMP_SHUTDOWN_URL
 
 
 def load(loader) -> None:
@@ -27,6 +27,11 @@ def request(flow) -> None:
         # Send confirmation response before shutdown
         flow.response = http.Response.make(200, b"Shutting down mitmproxy...\n", {"Content-Type": "text/plain"})
         ctx.master.shutdown()
+        return
+
+    if flow.request.method != MITMDUMP_CHECK_URL:
+        print("Mitmdump is running, sending back confirmation response.")
+        flow.response = http.Response.make(200, b"Mitmdump is running.\n", {"Content-Type": "text/plain"})
         return
 
     def strip_www(domain):
