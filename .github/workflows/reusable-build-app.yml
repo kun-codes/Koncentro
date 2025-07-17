@@ -212,8 +212,8 @@ jobs:
             -   name: Create tar archive (Linux)
                 if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
                 run: |
-                    cd build
-                    tar -czf koncentro-linux-${{ env.ARCHITECTURE }}.tar.gz koncentro.dist/
+                    cd build/koncentro.dist
+                    tar -czf ../koncentro-linux-${{ env.ARCHITECTURE }}.tar.gz *
 
             -   name: Create tar archive (MacOS)
                 if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
@@ -224,8 +224,8 @@ jobs:
             -   name: Create tar archive (Windows)
                 if: matrix.os == 'windows-latest'
                 run: |
-                    cd build
-                    tar -czf koncentro-windows-x86_64.tar.gz koncentro.dist/
+                    cd build/koncentro.dist
+                    tar -czf ../koncentro-windows-x86_64.tar.gz *
                 shell: bash
 
             -   name: Upload artifacts Linux
