@@ -167,13 +167,15 @@ jobs:
                         ./src/migrations/versions/*.py=./src/migrations/versions/
                         ./LICENSE=./LICENSE
 
-            -   name: Symlink koncentro to mitmdump target
+            -   name: Symlink Koncentro to Mitmdump target (Linux and MacOS)
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                 run: |
-                    if [ -f "build/koncentro.dist/mitmdump" ]; then
-                        ln -s "build/koncentro.dist/koncentro" "build/koncentro.dist/mitmdump"
-                    elif [ -f "build/koncentro.dist/mitmdump.exe" ]; then
-                        cmd /c mklink "build\koncentro.dist\mitmdump.exe" "build\koncentro.dist\koncentro.exe"
-                    fi
+                    ln -s "build/koncentro.dist/koncentro" "build/koncentro.dist/mitmdump"
+
+            -   name: Symlink Koncentro to Mitmdump target (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    New-Item -ItemType SymbolicLink -Path "build\koncentro.dist\mitmdump.exe" -Target "build\koncentro.dist\koncentro.exe"
 
             -   name: Install tree (MacOS)
                 if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
