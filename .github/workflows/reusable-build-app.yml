@@ -127,6 +127,10 @@ jobs:
                     pwd
                     ls -la
 
+            # for mitmdump, `nofollow-import-to` is set as per
+            # https://github.com/mitmproxy/mitmproxy/blob/810ea46073e97e59a5a00576b3446053630e2317/release/specs/mitmdump
+            # platform specific modules have to be built for mitmproxy which are specified in the `include-module` option
+            # using nuitka multidist mode
             -   name: Build Executable (All Platforms)
                 uses: Nuitka/Nuitka-Action@main
                 with:
@@ -167,11 +171,13 @@ jobs:
                         ./src/migrations/versions/*.py=./src/migrations/versions/
                         ./LICENSE=./LICENSE
 
+            # symlink so mitmdump can run from the same binary
             -   name: Symlink Koncentro to Mitmdump target (Linux and MacOS)
                 if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm' || matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                 run: |
                     ln -s "build/koncentro.dist/koncentro" "build/koncentro.dist/mitmdump"
 
+            # symlink so mitmdump can run from the same binary
             -   name: Symlink Koncentro to Mitmdump target (Windows)
                 if: matrix.os == 'windows-latest'
                 run: |
