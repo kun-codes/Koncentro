@@ -163,7 +163,6 @@ jobs:
                     include-data-files: |
                         ./src/website_blocker/block.py=./website_blocker/block.py
                         ./src/website_blocker/constants.py=./website_blocker/constants.py
-                        ${{ (matrix.os == 'windows-latest') && './mitmdump.exe=./mitmdump.exe' || './mitmdump=./mitmdump' }}
                         ./alembic.ini=./alembic.ini
                         ./src/migrations/*.py=./src/migrations/
                         ./src/migrations/versions/*.py=./src/migrations/versions/
