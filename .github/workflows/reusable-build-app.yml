@@ -208,26 +208,43 @@ jobs:
                 run: |
                     tree dist/
 
+            # create tarballs to preserve symlinks
+            -   name: Create tar archive (Linux)
+                if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
+                run: |
+                    cd build
+                    tar -czf koncentro-linux-${{ env.ARCHITECTURE }}.tar.gz koncentro.dist/
+
+            -   name: Create tar archive (MacOS)
+                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                run: |
+                    cd dist
+                    tar -czf koncentro-macos-${{ env.ARCHITECTURE }}.tar.gz Koncentro.app
+
+            -   name: Create tar archive (Windows)
+                if: matrix.os == 'windows-latest'
+                run: |
+                    cd build
+                    tar -czf koncentro-windows-x86_64.tar.gz koncentro.dist/
+                shell: bash
+
             -   name: Upload artifacts Linux
                 if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
                 uses: actions/upload-artifact@v4
                 with:
                     name: 'Linux_${{ env.ARCHITECTURE }}-build'
-                    path: 'build/koncentro.dist/'
-                    include-hidden-files: 'true'
+                    path: 'build/koncentro-linux-${{ env.ARCHITECTURE }}.tar.gz'
 
             -   name: Upload artifacts MacOS
                 if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                 uses: actions/upload-artifact@v4
                 with:
                     name: 'macOS_${{ env.ARCHITECTURE }}-build'
-                    path: 'dist'
-                    include-hidden-files: 'true'
+                    path: 'dist/koncentro-macos-${{ env.ARCHITECTURE }}.tar.gz'
 
             -   name: Upload artifacts Windows
                 if: matrix.os == 'windows-latest'
                 uses: actions/upload-artifact@v4
                 with:
                     name: 'Windows_${{ env.ARCHITECTURE }}-build'
-                    path: 'build\koncentro.dist\'
-                    include-hidden-files: 'true'
+                    path: 'build/koncentro-windows-x86_64.tar.gz'
