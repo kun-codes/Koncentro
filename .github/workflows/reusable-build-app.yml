@@ -132,6 +132,7 @@ jobs:
                     nuitka-version: 'main'
                     script-name: |
                         src/koncentro.py
+                        mitmproxy/release/specs/mitmdump
                     mode: ${{ (matrix.os == 'macos-latest' || matrix.os == 'macos-13') && 'app' || 'standalone' }}
                     enable-plugins: 'pyside6'
                     product-name: 'Koncentro'
@@ -148,10 +149,16 @@ jobs:
                     deployment: ${{ inputs.deployment }}
                     include-module: |
                         logging.config
+                            logging.config
+                            ${{ matrix.os == 'macos-latest' || matrix.os == 'macos-13' && 'mitmproxy_macos' || '' }}
+                            ${{ (matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm') && 'mitmproxy_linux' || '' }}
+                            ${{ matrix.os == 'windows-latest' && 'mitmproxy_windows' || '' }}
                     nofollow-import-to: |
                         sqlalchemy.dialects.oracle
                         sqlalchemy.dialects.mssql
                         sqlalchemy.dialects.mysql
+                        mitmproxy.tools.web
+                        mitmproxy.tools.console
                     include-data-files: |
                         ./src/website_blocker/block.py=./website_blocker/block.py
                         ./src/website_blocker/constants.py=./website_blocker/constants.py
@@ -160,6 +167,14 @@ jobs:
                         ./src/migrations/*.py=./src/migrations/
                         ./src/migrations/versions/*.py=./src/migrations/versions/
                         ./LICENSE=./LICENSE
+
+            -   name: Symlink koncentro to mitmdump target
+                run: |
+                    if [ -f "build/koncentro.dist/mitmdump" ]; then
+                        ln -s "build/koncentro.dist/koncentro" "build/koncentro.dist/mitmdump"
+                    elif [ -f "build/koncentro.dist/mitmdump.exe" ]; then
+                        cmd /c mklink "build\koncentro.dist\mitmdump.exe" "build\koncentro.dist\koncentro.exe"
+                    fi
 
             -   name: Install tree (MacOS)
                 if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
@@ -179,7 +194,7 @@ jobs:
                 if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
                 run: |
                     mkdir -p dist/
-                    mv build/__main__.app dist/Koncentro.app
+                    mv build/koncentro.app dist/Koncentro.app
 
             -   name: tree command (MacOS)
                 if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
@@ -191,7 +206,7 @@ jobs:
                 uses: actions/upload-artifact@v4
                 with:
                     name: 'Linux_${{ env.ARCHITECTURE }}-build'
-                    path: 'build/__main__.dist/'
+                    path: 'build/koncentro.dist/'
                     include-hidden-files: 'true'
 
             -   name: Upload artifacts MacOS
@@ -207,5 +222,5 @@ jobs:
                 uses: actions/upload-artifact@v4
                 with:
                     name: 'Windows_${{ env.ARCHITECTURE }}-build'
-                    path: 'build\__main__.dist\'
+                    path: 'build\koncentro.dist\'
                     include-hidden-files: 'true'
