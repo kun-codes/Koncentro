@@ -150,8 +150,8 @@ jobs:
                     deployment: ${{ inputs.deployment }}
                     include-module: |
                         logging.config
-                        ${{ matrix.os == 'macos-latest' || matrix.os == 'macos-13' && 'mitmproxy_macos' || '' }}
-                        ${{ matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm' && 'mitmproxy_linux' || '' }}
+                        ${{ (matrix.os == 'macos-latest' || matrix.os == 'macos-13') && 'mitmproxy_macos' || '' }}
+                        ${{ (matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm') && 'mitmproxy_linux' || '' }}
                         ${{ matrix.os == 'windows-latest' && 'mitmproxy_windows' || '' }}
                     nofollow-import-to: |
                         sqlalchemy.dialects.oracle
