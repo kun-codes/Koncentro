@@ -118,6 +118,7 @@ jobs:
                 with:
                     repository: mitmproxy/mitmproxy
                     fetch-depth: '0'
+                    path: mitmproxy
                     ref: 'v${{ inputs.mitmproxy-version }}'
 
             -   name: Debug pwd
