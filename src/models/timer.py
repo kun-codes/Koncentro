@@ -13,12 +13,16 @@ class PomodoroTimer(QObject):  # Inherit from QObject to support signals
     Core functionality of the Pomodoro Timer
     """
 
-    # first argument for current timer state
-    timerStateChangedSignal = Signal(TimerState, bool)  # bool is for saying is for saying if timer state has
+    # emitted every time the timer state changes, regardless of whether it is due to skipping the duration or not
+    # first argument for current timer state, bool is for saying is for saying if timer state has
     # changed due to skipping the duration or not, true if duration is skipped, false otherwise
+    timerStateChangedSignal = Signal(TimerState, bool)
     sessionStoppedSignal = Signal()
+    # only emitted when the timer state changes and corresponding autostart setting is set to false
     waitForUserInputSignal = Signal()
     sessionPausedSignal = Signal()
+    # emitted when the session is resumed after being paused or after manually starting the session when
+    # corresponding autostart setting is set to false
     sessionStartedSignal = Signal()
     durationSkippedSignal = Signal()
 

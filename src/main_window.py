@@ -46,6 +46,7 @@ from utils.check_for_updates import UpdateChecker
 from utils.check_internet_worker import CheckInternetWorker
 from utils.detect_windows_version import isWin10OrEarlier
 from utils.find_mitmdump_executable import get_mitmdump_path
+from utils.isMitmdumpRunning import isMitmdumpRunning
 from utils.time_conversion import convert_ms_to_hh_mm_ss
 from views.dialogs.preSetupConfirmationDialog import PreSetupConfirmationDialog
 from views.dialogs.setupAppDialog import SetupAppDialog
@@ -356,13 +357,40 @@ class MainWindow(KoncentroFluentWindow):
             self.pomodoro_interface.skipButton.setEnabled(False)
             self.bottomBar.skipButton.setEnabled(False)
 
-    def toggle_website_blocking(self, timerState) -> None:
+    def on_session_resumed(self) -> None:
+        """Only for cases when autostart work/break is disabled and session is resumed manually"""
+        current_timer_state = self.pomodoro_interface.pomodoro_timer_obj.getTimerState()
+        if current_timer_state == TimerState.WORK and not ConfigValues.AUTOSTART_WORK:
+            if not isMitmdumpRunning():
+                logger.debug("Work session resumed and autostart work is off, starting website blocking")
+                self.start_website_blocking()
+            else:
+                logger.debug("Work session resumed and autostart work is off, mitmdump is already running")
+        elif current_timer_state in [TimerState.BREAK, TimerState.LONG_BREAK] and not ConfigValues.AUTOSTART_BREAK:
+            logger.debug("Break session resumed and autostart break is off, stopping website blocking")
+            self.stop_website_blocking()
+
+    def on_timer_state_changed(self, timerState: TimerState, _):
+        """For cases when autostart work/break is enabled"""
+        if timerState == TimerState.WORK and ConfigValues.AUTOSTART_WORK:
+            logger.debug("Work session started and autostart work is on, starting website blocking")
+            self.start_website_blocking()
+        elif timerState in [TimerState.BREAK, TimerState.LONG_BREAK] and ConfigValues.AUTOSTART_BREAK:
+            logger.debug("Break session started and autostart break is on, stopping website blocking")
+            self.stop_website_blocking()
+
+    def on_session_stopped(self) -> None:
+        """Handle session stopped signal - stop website blocking"""
+        logger.debug("Session stopped, stopping website blocking")
+        self.stop_website_blocking()
+
+    def start_website_blocking(self) -> None:
+        """Start website blocking with current settings"""
         if not ConfigValues.ENABLE_WEBSITE_BLOCKER:
             logger.debug("Website blocking is disabled, so not starting website blocking")
-            self.website_blocker_manager.stop_blocking(delete_proxy=True)
             return
 
-        logger.debug("Website blocking is enabled, so starting website blocking")
+        logger.debug("Starting website blocking")
         website_block_type = self.website_blocker_interface.model.get_website_block_type()
         logger.debug(f"website_block_type: {website_block_type}")
 
@@ -384,15 +412,27 @@ class MainWindow(KoncentroFluentWindow):
             joined_urls = ",".join(urls)
 
         mitmdump_path = get_mitmdump_path()
+        self.website_blocker_manager.start_blocking(ConfigValues.PROXY_PORT, joined_urls, block_type, mitmdump_path)
 
-        if timerState == TimerState.WORK:
-            # todo: check if the timer is running before starting the website blocking, because in case autostart work
-            # is off, the website block would start even when the timer is not running
-            logger.debug("Starting website blocking")
-            self.website_blocker_manager.start_blocking(ConfigValues.PROXY_PORT, joined_urls, block_type, mitmdump_path)
+    def stop_website_blocking(self) -> None:
+        """Stop website blocking"""
+        logger.debug("Stopping website blocking")
+        self.website_blocker_manager.stop_blocking(delete_proxy=True)
+
+    def handle_website_blocker_settings_change(self) -> None:
+        """Handle changes to website blocker settings - restart blocking if currently in a work session"""
+        current_timer_state = self.pomodoro_interface.pomodoro_timer_obj.getTimerState()
+        is_timer_running = self.pomodoro_interface.pomodoro_timer_obj.pomodoro_timer.isActive()
+
+        if current_timer_state == TimerState.WORK and is_timer_running:
+            # Only restart blocking if we're in a work session and timer is actually running
+            logger.debug("Website blocker settings changed during active work session, restarting blocking")
+            self.stop_website_blocking()
+            self.start_website_blocking()
         else:
-            logger.debug("Stopping website blocking")
-            self.website_blocker_manager.stop_blocking(delete_proxy=True)
+            # Just stop blocking if we're not in an active work session
+            logger.debug("Website blocker settings changed, stopping blocking")
+            self.stop_website_blocking()
 
     def is_task_beginning(self):
         current_state = self.pomodoro_interface.pomodoro_timer_obj.getTimerState()
@@ -536,7 +576,12 @@ class MainWindow(KoncentroFluentWindow):
         self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(
             self.toggleUIElementsBasedOnTimerState
         )
-        self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(self.toggle_website_blocking)
+
+        # handle website blocking start and stop
+        self.pomodoro_interface.pomodoro_timer_obj.sessionStartedSignal.connect(self.on_session_resumed)
+        self.pomodoro_interface.pomodoro_timer_obj.sessionStoppedSignal.connect(self.on_session_stopped)
+        self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(self.on_timer_state_changed)
+
         # Auto set current task whenever a work session begins. current task won't be overwritten if it is already set
         self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(
             lambda timerState: self.task_interface.autoSetCurrentTaskID() if timerState == TimerState.WORK else None
@@ -554,10 +599,10 @@ class MainWindow(KoncentroFluentWindow):
         self.pomodoro_interface.pomodoro_timer_obj.durationSkippedSignal.connect(self.updateTaskTimeDB)
         self.pomodoro_interface.pomodoro_timer_obj.sessionPausedSignal.connect(self.updateTaskTimeDB)
         self.website_blocker_interface.blockTypeComboBox.currentIndexChanged.connect(
-            lambda: self.toggle_website_blocking(self.pomodoro_interface.pomodoro_timer_obj.getTimerState())
+            lambda: self.handle_website_blocker_settings_change()
         )
         self.website_blocker_interface.saveButton.clicked.connect(
-            lambda: self.toggle_website_blocking(self.pomodoro_interface.pomodoro_timer_obj.getTimerState())
+            lambda: self.handle_website_blocker_settings_change()
         )  # todo: check if the list has changed before restarting the blocking
         self.workplace_list_model.current_workspace_changed.connect(load_workspace_settings)
         self.workplace_list_model.current_workspace_changed.connect(
@@ -572,7 +617,7 @@ class MainWindow(KoncentroFluentWindow):
             self.on_website_block_enabled_setting_changed
         )
         workspace_specific_settings.enable_website_blocker.valueChanged.connect(
-            lambda: self.toggle_website_blocking(self.pomodoro_interface.pomodoro_timer_obj.getTimerState())
+            lambda: self.handle_website_blocker_settings_change()
         )
         self.stackedWidget.mousePressEvent = self.onStackedWidgetClicked
         self.settings_interface.proxy_port_card.valueChanged.connect(self.update_proxy_port)
