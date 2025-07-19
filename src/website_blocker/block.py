@@ -29,7 +29,7 @@ def request(flow) -> None:
         ctx.master.shutdown()
         return
 
-    if flow.request.method != MITMDUMP_CHECK_URL:
+    if flow.request.method == MITMDUMP_CHECK_URL:
         print("Mitmdump is running, sending back confirmation response.")
         flow.response = http.Response.make(200, b"Mitmdump is running.\n", {"Content-Type": "text/plain"})
         return
