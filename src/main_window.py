@@ -46,7 +46,7 @@ from utils.check_for_updates import UpdateChecker
 from utils.check_internet_worker import CheckInternetWorker
 from utils.detect_windows_version import isWin10OrEarlier
 from utils.find_mitmdump_executable import get_mitmdump_path
-from utils.isMitmdumpRunning import isMitmdumpRunning
+from utils.isMitmdumpRunning import isMitmdumpRunningWorker
 from utils.time_conversion import convert_ms_to_hh_mm_ss
 from views.dialogs.preSetupConfirmationDialog import PreSetupConfirmationDialog
 from views.dialogs.setupAppDialog import SetupAppDialog
@@ -73,6 +73,7 @@ class MainWindow(KoncentroFluentWindow):
         # if current alembic revision is older than latest alembic revision then update db
 
         self.update_checker = None
+        self.mitmdump_check_worker = None
 
         self.workplace_list_model = WorkspaceListModel()
 
@@ -361,11 +362,24 @@ class MainWindow(KoncentroFluentWindow):
         """Only for cases when autostart work/break is disabled and session is resumed manually"""
         current_timer_state = self.pomodoro_interface.pomodoro_timer_obj.getTimerState()
         if current_timer_state == TimerState.WORK and not ConfigValues.AUTOSTART_WORK:
-            if not isMitmdumpRunning():
-                logger.debug("Work session resumed and autostart work is off, starting website blocking")
-                self.start_website_blocking()
-            else:
-                logger.debug("Work session resumed and autostart work is off, mitmdump is already running")
+            logger.debug("Work session resumed and autostart work is off, checking if mitmdump is running...")
+
+            # clean up any existing worker
+            if self.mitmdump_check_worker and self.mitmdump_check_worker.isRunning():
+                self.mitmdump_check_worker.quit()
+                self.mitmdump_check_worker.wait()
+
+            self.mitmdump_check_worker = isMitmdumpRunningWorker()
+            self.mitmdump_check_worker.checkCompleted.connect(
+                # using a tuple to combine multiple expressions into one as a lambda function
+                # only accepts one expression
+                lambda is_running: (
+                    self.start_website_blocking() if not is_running else logger.debug("Mitmdump is already running"),
+                    self.mitmdump_check_worker.deleteLater() if self.mitmdump_check_worker else None,
+                    setattr(self, "mitmdump_check_worker", None),
+                )[-1]  # Return None from the tuple as setattr always returns None
+            )
+            self.mitmdump_check_worker.start()
         elif current_timer_state in [TimerState.BREAK, TimerState.LONG_BREAK] and not ConfigValues.AUTOSTART_BREAK:
             logger.debug("Break session resumed and autostart break is off, stopping website blocking")
             self.stop_website_blocking()
