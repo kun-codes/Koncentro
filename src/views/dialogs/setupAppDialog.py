@@ -30,8 +30,10 @@ class MitmproxyCertificateInstallerWindowsWorker(QThread):
             url = QUrl("http://mitm.it/")
             QDesktopServices.openUrl(url)
         else:
-            command = f'certutil.exe -addstore root "{certPath}"'
-            powershellCommand = f"Start-Process cmd -ArgumentList '/c {command}' -Verb RunAs"
+            powershellCommand = (
+                f"Start-Process certutil.exe -ArgumentList '-addstore root \"{certPath}\"' "
+                f"-Verb RunAs -WindowStyle Hidden"
+            )
 
             # will run the automatic way of installing the certificate on windows
             subprocess.run(["powershell.exe", "-Command", powershellCommand], check=True)
