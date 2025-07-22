@@ -1,4 +1,8 @@
-from PySide6.QtCore import Qt, QUrl
+import os
+import platform
+import subprocess
+
+from PySide6.QtCore import Qt, QThread, QUrl
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import QSizePolicy
 from qfluentwidgets import (
@@ -16,6 +20,23 @@ from views.dialogs.postSetupVerificationDialog import PostSetupVerificationDialo
 from website_blocker.website_blocker_manager import WebsiteBlockerManager
 
 
+class MitmproxyCertificateInstallerWindowsWorker(QThread):
+    def run(self):
+        username = os.getlogin()
+        certPath = os.path.join("C:\\Users", username, ".mitmproxy", "mitmproxy-ca-cert.cer")
+
+        if not os.path.exists(certPath):
+            # fall back to linux way of installing the certificate
+            url = QUrl("http://mitm.it/")
+            QDesktopServices.openUrl(url)
+        else:
+            command = f'certutil.exe -addstore root "{certPath}"'
+            powershellCommand = f"Start-Process cmd -ArgumentList '/c {command}' -Verb RunAs"
+
+            # will run the automatic way of installing the certificate on windows
+            subprocess.run(["powershell.exe", "-Command", powershellCommand], check=True)
+
+
 class SetupAppDialog(MessageBoxBase):
     def __init__(self, parent=None, is_setup_first_time: bool = True) -> None:
         super().__init__(parent=parent)
@@ -26,7 +47,10 @@ class SetupAppDialog(MessageBoxBase):
         titleText += " for the first time" if self.is_setup_first_time else ""
         self.titleLabel = SubtitleLabel(titleText, parent=self)
 
-        bodyText = "Click the below button to visit the webpage to set up system-wide website blocking. "
+        if platform.system().lower() == "windows":
+            bodyText = "Click the below button to install the mitmproxy certificate to your system."
+        else:
+            bodyText = "Click the below button to visit the webpage to set up system-wide website blocking. "
 
         self.bodyLabel = BodyLabel(
             bodyText,
@@ -80,8 +104,13 @@ class SetupAppDialog(MessageBoxBase):
         self.backButton.clicked.connect(self.onBackButtonClicked)
 
     def onWebsiteBlockSetupButtonClicked(self) -> None:
-        url = QUrl("http://mitm.it/")
-        QDesktopServices.openUrl(url)
+        if platform.system().lower() == "windows":
+            # automated installation of mitmproxy certificate on windows
+            self.certificateInstallerWorker = MitmproxyCertificateInstallerWindowsWorker()
+            self.certificateInstallerWorker.start()
+        else:
+            url = QUrl("http://mitm.it/")
+            QDesktopServices.openUrl(url)
 
     def onCloseButtonClicked(self) -> None:
         confirmation_dialog = PostSetupVerificationDialog(self, self.is_setup_first_time)
