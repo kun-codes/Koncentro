@@ -23,6 +23,15 @@ FIRST_RUN_DOTFILE_NAME = ".first_run"
 UPDATE_CHECK_URL = "https://api.github.com/repos/kun-codes/koncentro/releases/latest"
 NEW_RELEASE_URL = "https://github.com/kun-codes/koncentro/releases/latest"
 
+CHECK_CERTIFICATE_WINDOWS_COMMAND = (
+    r'Get-ChildItem -Path "Cert:\CurrentUser\Root" | Where-Object { $_.Subject -like "*mitmproxy*" }'
+)
+
+UNINSTALL_CERTIFICATE_WINDOWS_COMMAND = r"""
+    $storePath = "Cert:\CurrentUser\Root"
+    Get-ChildItem -Path $storePath | Where-Object { $_.Subject -like "*mitmproxy*" } | Remove-Item
+    """
+
 
 class WebsiteBlockType(Enum):
     BLOCKLIST = 0
@@ -85,3 +94,11 @@ class WindowGeometryKeys(Enum):
 
     GEOMETRY = "MainWindow/geometry"
     IS_MAXIMIZED = "MainWindow/isMaximized"
+
+
+class UninstallMitmproxyCertificateResult(Enum):
+    SUCCESS = "Mitmproxy certificate uninstalled successfully!"
+    FAILURE = "Failed to uninstall certificate"
+    TIMEOUT = "Operation timed out"
+    ERROR = "An error occurred while uninstalling the certificate"
+    NOT_INSTALLED = "Mitmproxy certificate is not installed"
