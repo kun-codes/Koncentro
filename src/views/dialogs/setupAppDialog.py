@@ -186,26 +186,22 @@ class SetupAppDialog(MessageBoxBase):
 
     def onWebsiteBlockSetupButtonClicked(self) -> None:
         if platform.system().lower() == "windows":
-            # Use worker thread for certificate installation
             if self.certificate_worker and self.certificate_worker.isRunning():
                 return
 
-            # Clean up any existing worker
+            # clean up any existing worker
             if self.certificate_worker:
                 self.certificate_worker.finished.disconnect()
                 self.certificate_worker.deleteLater()
                 self.certificate_worker = None
 
-            # Create certificate path using os.path.join for better readability
             username = os.getlogin()
             certPath = os.path.join("C:\\Users", username, ".mitmproxy", "mitmproxy-ca-cert.cer")
 
-            # Create PowerShell command
             powershell_command = (
                 f'Import-Certificate -FilePath "{certPath}" -CertStoreLocation Cert:\\CurrentUser\\Root'
             )
 
-            # Create and start certificate installation worker
             self.certificate_worker = CertificateInstallWindowsWorker(powershell_command)
             self.certificate_worker.finished.connect(self.onCertificateInstallFinished)
             self.certificate_worker.start()
