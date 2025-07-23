@@ -1,4 +1,5 @@
 import os
+import platform
 import socket
 import threading
 from pathlib import Path
@@ -346,6 +347,8 @@ class MainWindow(KoncentroFluentWindow):
             workspace_selector_button.setDisabled(True)
             self.settings_interface.proxy_port_card.setDisabled(True)
             self.settings_interface.setup_app_card.setDisabled(True)
+            if platform.system().lower() == "windows":
+                self.settings_interface.uninstall_mitmproxy_certificate_card.setDisabled(True)
             self.settings_interface.reset_proxy_settings.setDisabled(True)
             self.pomodoro_interface.skipButton.setEnabled(True)
             self.bottomBar.skipButton.setEnabled(True)
@@ -353,6 +356,8 @@ class MainWindow(KoncentroFluentWindow):
             self.settings_interface.pomodoro_settings_group.setDisabled(False)
             workspace_selector_button.setDisabled(False)
             self.settings_interface.proxy_port_card.setDisabled(False)
+            if platform.system().lower() == "windows":
+                self.settings_interface.uninstall_mitmproxy_certificate_card.setDisabled(False)
             self.settings_interface.setup_app_card.setDisabled(False)
             self.settings_interface.reset_proxy_settings.setDisabled(False)
             self.pomodoro_interface.skipButton.setEnabled(False)
