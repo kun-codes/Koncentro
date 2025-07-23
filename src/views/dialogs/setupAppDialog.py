@@ -79,6 +79,11 @@ class SetupAppDialog(MessageBoxBase):
 
         if platform.system().lower() == "windows":
             bodyText = "Click the below button to install the mitmproxy certificate to Windows."
+            if self.is_setup_first_time:
+                bodyText += (
+                    ' If Windows Firewall prompts you to allow "mitmdump.exe" network access, '
+                    "please click 'Allow access'. This is required for website blocking functionality."
+                )
         else:
             bodyText = "Click the below button to visit the webpage to set up system-wide website blocking. "
 
