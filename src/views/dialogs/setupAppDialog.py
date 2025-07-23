@@ -110,7 +110,9 @@ class SetupAppDialog(MessageBoxBase):
         self.initTemporaryWebsiteBlockerManager()
 
         self.isCertificateExistsTimer = None
-        if platform.system().lower() == "windows":
+        # assuming that user never deletes the certificate from filesystem after the first time setup
+        # TODO: handle the case where user deletes the certificate from filesystem
+        if platform.system().lower() == "windows" and self.is_setup_first_time:
             self.initCertificateWatcher()
 
         self.certificate_worker = None
