@@ -31,8 +31,11 @@ class MitmproxyCertificateInstallerWindowsWorker(QThread):
                 subprocess.run(["powershell.exe", "-Command", powershellCommand], check=True)
                 raise subprocess.CalledProcessError(returncode=1, cmd=powershellCommand)
             except subprocess.CalledProcessError as e:
-                if e.returncode == 1:  # user clicked "no"
-                    logger.debug("User cancelled the certificate installation.")
+                if e.returncode == 1:
+                    logger.debug(
+                        "User either cancelled the certificate installation or has installed certificate"
+                        "right now or has already installed certificate."
+                    )
                 else:  # some other error occurred
                     logger.error(f"Failed to install mitmproxy certificate: {e}")
                     logger.error("Falling back to manual installation.")
