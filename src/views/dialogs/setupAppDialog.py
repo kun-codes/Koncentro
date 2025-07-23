@@ -109,7 +109,7 @@ class SetupAppDialog(MessageBoxBase):
         self.initWidget()
         self.initTemporaryWebsiteBlockerManager()
 
-        self.certificateTimer = None
+        self.isCertificateExistsTimer = None
         if platform.system().lower() == "windows":
             self.initCertificateWatcher()
 
@@ -130,9 +130,9 @@ class SetupAppDialog(MessageBoxBase):
         self.yesButton.setEnabled(False)
         self.cancelButton.setEnabled(False)
 
-        self.certificateTimer = QTimer()
-        self.certificateTimer.timeout.connect(self.isCertificateExists)
-        self.certificateTimer.start(300)
+        self.isCertificateExistsTimer = QTimer()
+        self.isCertificateExistsTimer.timeout.connect(self.isCertificateExists)
+        self.isCertificateExistsTimer.start(300)
 
     def isCertificateExists(self) -> bool:
         """
@@ -155,8 +155,8 @@ class SetupAppDialog(MessageBoxBase):
                 self.yesButton.setEnabled(True)
                 self.cancelButton.setEnabled(True)
                 self.yesButton.setText("Open Setup")
-                if self.certificateTimer is not None:
-                    self.certificateTimer.stop()
+                if self.isCertificateExistsTimer is not None:
+                    self.isCertificateExistsTimer.stop()
                 return True
             else:
                 logger.debug("Waiting for mitmproxy certificate to be generated...")
