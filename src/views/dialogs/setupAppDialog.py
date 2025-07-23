@@ -88,8 +88,7 @@ class SetupAppDialog(MessageBoxBase):
         self.initTemporaryWebsiteBlockerManager()
 
         self.certificateTimer = None
-        # only start watcher if certificate doesn't exist already
-        if platform.system().lower() == "windows" and not self.isCertificateExists():
+        if platform.system().lower() == "windows":
             self.initCertificateWatcher()
 
     def initCertificateWatcher(self) -> None:
