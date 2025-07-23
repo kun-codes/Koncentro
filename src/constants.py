@@ -102,3 +102,11 @@ class UninstallMitmproxyCertificateResult(Enum):
     TIMEOUT = "Operation timed out"
     ERROR = "An error occurred while uninstalling the certificate"
     NOT_INSTALLED = "Mitmproxy certificate is not installed"
+
+
+class InstallMitmproxyCertificateResult(Enum):
+    SUCCESS = "Mitmproxy certificate installed successfully!"
+    FAILURE = "Failed to install certificate"
+    TIMEOUT = "Operation timed out"
+    ERROR = "An error occurred while installing the certificate"
+    ALREADY_INSTALLED = "Mitmproxy certificate is already installed"

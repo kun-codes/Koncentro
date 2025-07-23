@@ -3,44 +3,66 @@ import platform
 import subprocess
 
 from loguru import logger
-from PySide6.QtCore import Qt, QThread, QTimer, QUrl
+from PySide6.QtCore import Qt, QThread, QTimer, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import QSizePolicy
 from qfluentwidgets import BodyLabel, FluentIcon, InfoBar, MessageBoxBase, PushButton, SubtitleLabel
 
 from config_values import ConfigValues
-from constants import APPLICATION_NAME
+from constants import (
+    APPLICATION_NAME,
+    CHECK_CERTIFICATE_WINDOWS_COMMAND,
+    InstallMitmproxyCertificateResult,
+)
 from utils.find_mitmdump_executable import get_mitmdump_path
 from views.dialogs.postSetupVerificationDialog import PostSetupVerificationDialog
 from website_blocker.website_blocker_manager import WebsiteBlockerManager
 
 
-class MitmproxyCertificateInstallerWindowsWorker(QThread):
-    def run(self):
-        username = os.getlogin()
-        certPath = os.path.join("C:\\Users", username, ".mitmproxy", "mitmproxy-ca-cert.cer")
+class CertificateInstallWindowsWorker(QThread):
+    finished = Signal(InstallMitmproxyCertificateResult)
 
-        if not os.path.exists(certPath):
-            # fall back to linux way of installing the certificate
-            url = QUrl("http://mitm.it/")
-            QDesktopServices.openUrl(url)
-        else:
-            powershellCommand = f'Import-Certificate -FilePath "{certPath}" -CertStoreLocation Cert:\\CurrentUser\\Root'
-            # will run the automatic way of installing the certificate on windows
-            try:
-                subprocess.run(["powershell.exe", "-Command", powershellCommand], check=True)
-                raise subprocess.CalledProcessError(returncode=1, cmd=powershellCommand)
-            except subprocess.CalledProcessError as e:
-                if e.returncode == 1:
-                    logger.debug(
-                        "User either cancelled the certificate installation or has installed certificate"
-                        "right now or has already installed certificate."
-                    )
-                else:  # some other error occurred
-                    logger.error(f"Failed to install mitmproxy certificate: {e}")
-                    logger.error("Falling back to manual installation.")
-                    url = QUrl("http://mitm.it/")
-                    QDesktopServices.openUrl(url)
+    def __init__(self, powershell_command):
+        super().__init__()
+        self.powershell_command = powershell_command
+
+    def run(self):
+        try:
+            # First check if the certificate already exists
+            check_result = subprocess.run(
+                ["powershell", "-NoProfile", "-Command", CHECK_CERTIFICATE_WINDOWS_COMMAND],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+
+            if check_result.returncode != 0:
+                self.finished.emit(InstallMitmproxyCertificateResult.ERROR)
+                return
+
+            # If certificate already exists
+            if check_result.stdout.strip():
+                self.finished.emit(InstallMitmproxyCertificateResult.ALREADY_INSTALLED)
+                return
+
+            # Certificate doesn't exist, proceed with installation
+            install_result = subprocess.run(
+                ["powershell", "-NoProfile", "-Command", self.powershell_command],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+
+            if install_result.returncode == 0:
+                self.finished.emit(InstallMitmproxyCertificateResult.SUCCESS)
+            else:
+                self.finished.emit(InstallMitmproxyCertificateResult.FAILURE)
+
+        except subprocess.TimeoutExpired:
+            self.finished.emit(InstallMitmproxyCertificateResult.TIMEOUT)
+        except Exception as e:
+            logger.error(f"Error during certificate installation: {str(e)}")
+            self.finished.emit(InstallMitmproxyCertificateResult.ERROR)
 
 
 class SetupAppDialog(MessageBoxBase):
@@ -90,6 +112,8 @@ class SetupAppDialog(MessageBoxBase):
         self.certificateTimer = None
         if platform.system().lower() == "windows":
             self.initCertificateWatcher()
+
+        self.certificate_worker = None
 
     def initCertificateWatcher(self) -> None:
         """
@@ -162,9 +186,29 @@ class SetupAppDialog(MessageBoxBase):
 
     def onWebsiteBlockSetupButtonClicked(self) -> None:
         if platform.system().lower() == "windows":
-            # automated installation of mitmproxy certificate on windows
-            self.certificateInstallerWorker = MitmproxyCertificateInstallerWindowsWorker()
-            self.certificateInstallerWorker.start()
+            # Use worker thread for certificate installation
+            if self.certificate_worker and self.certificate_worker.isRunning():
+                return
+
+            # Clean up any existing worker
+            if self.certificate_worker:
+                self.certificate_worker.finished.disconnect()
+                self.certificate_worker.deleteLater()
+                self.certificate_worker = None
+
+            # Create certificate path using os.path.join for better readability
+            username = os.getlogin()
+            certPath = os.path.join("C:\\Users", username, ".mitmproxy", "mitmproxy-ca-cert.cer")
+
+            # Create PowerShell command
+            powershell_command = (
+                f'Import-Certificate -FilePath "{certPath}" -CertStoreLocation Cert:\\CurrentUser\\Root'
+            )
+
+            # Create and start certificate installation worker
+            self.certificate_worker = CertificateInstallWindowsWorker(powershell_command)
+            self.certificate_worker.finished.connect(self.onCertificateInstallFinished)
+            self.certificate_worker.start()
         else:
             url = QUrl("http://mitm.it/")
             QDesktopServices.openUrl(url)
@@ -189,3 +233,41 @@ class SetupAppDialog(MessageBoxBase):
             block_type="blocklist",
             mitmdump_bin_path=get_mitmdump_path(),
         )
+
+    def onCertificateInstallFinished(self, result: InstallMitmproxyCertificateResult):
+        # Disconnect the signal immediately to prevent multiple calls
+        if self.certificate_worker:
+            self.certificate_worker.finished.disconnect()
+
+        if result == InstallMitmproxyCertificateResult.SUCCESS:
+            InfoBar.success(
+                title=result.value,
+                content="",
+                orient=Qt.Orientation.Vertical,
+                isClosable=True,
+                duration=3000,
+                parent=self.parent(),
+            )
+        elif result == InstallMitmproxyCertificateResult.ALREADY_INSTALLED:
+            InfoBar.info(
+                title=result.value,
+                content="",
+                orient=Qt.Orientation.Vertical,
+                isClosable=True,
+                duration=3000,
+                parent=self.parent(),
+            )
+        else:
+            InfoBar.error(
+                title=result.value,
+                content="",
+                orient=Qt.Orientation.Vertical,
+                isClosable=True,
+                duration=5000,
+                parent=self.parent(),
+            )
+
+        # Clean up worker
+        if self.certificate_worker:
+            self.certificate_worker.deleteLater()
+            self.certificate_worker = None
