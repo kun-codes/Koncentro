@@ -34,5 +34,7 @@
     <file>icons/work_interval_black.svg</file>
     <file>icons/work_interval_white.svg</file>
     <file>icons/work_white.svg</file>
+    <file>icons/uninstall_black.svg</file>
+    <file>icons/uninstall_white.svg</file>
   </qresource>
 </RCC>
