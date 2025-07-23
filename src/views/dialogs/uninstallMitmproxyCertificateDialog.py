@@ -37,7 +37,6 @@ class CertificateUninstallWindowsWorker(QThread):
                 ["powershell", "-NoProfile", "-Command", UNINSTALL_CERTIFICATE_WINDOWS_COMMAND],
                 capture_output=True,
                 text=True,
-                timeout=5,
             )
 
             if uninstall_result.returncode == 0:
