@@ -3,16 +3,10 @@ import platform
 import subprocess
 
 from loguru import logger
-from PySide6.QtCore import Qt, QThread, QUrl
+from PySide6.QtCore import Qt, QThread, QTimer, QUrl
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import QSizePolicy
-from qfluentwidgets import (
-    BodyLabel,
-    FluentIcon,
-    MessageBoxBase,
-    PushButton,
-    SubtitleLabel,
-)
+from qfluentwidgets import BodyLabel, FluentIcon, InfoBar, MessageBoxBase, PushButton, SubtitleLabel
 
 from config_values import ConfigValues
 from constants import APPLICATION_NAME
@@ -86,6 +80,58 @@ class SetupAppDialog(MessageBoxBase):
 
         self.initWidget()
         self.initTemporaryWebsiteBlockerManager()
+
+        self.certificateTimer = None
+        # only start watcher if certificate doesn't exist already
+        if platform.system().lower() == "windows" and not self.isCertificateExists():
+            self.initCertificateWatcher()
+
+    def initCertificateWatcher(self) -> None:
+        """
+        only for Windows for now
+        """
+        InfoBar.info(
+            title="Waiting for Certificate Generation",
+            content="It would only take a few seconds.",
+            orient=Qt.Orientation.Vertical,
+            isClosable=False,
+            duration=3000,
+            parent=self,
+        )
+        self.yesButton.setEnabled(False)
+        self.cancelButton.setEnabled(False)
+
+        self.certificateTimer = QTimer()
+        self.certificateTimer.timeout.connect(self.isCertificateExists)
+        self.certificateTimer.start(300)
+
+    def isCertificateExists(self) -> bool:
+        """
+        only for Windows for now
+        """
+        if platform.system().lower() == "windows":
+            username = os.getlogin()
+            certPath = os.path.join("C:\\Users", username, ".mitmproxy", "mitmproxy-ca-cert.cer")
+
+            if os.path.exists(certPath):
+                InfoBar.success(
+                    title="Certificate Generated",
+                    content="Mitmproxy certificate has been successfully generated.",
+                    orient=Qt.Orientation.Vertical,
+                    isClosable=True,
+                    duration=3000,
+                    parent=self,
+                )
+                logger.debug("Mitmproxy certificate found, enabling buttons.")
+                self.yesButton.setEnabled(True)
+                self.cancelButton.setEnabled(True)
+                self.yesButton.setText("Open Setup")
+                if self.certificateTimer is not None:
+                    self.certificateTimer.stop()
+                return True
+            else:
+                logger.debug("Waiting for mitmproxy certificate to be generated...")
+                return False
 
     def initWidget(self) -> None:
         self.titleLabel.setAlignment(Qt.AlignmentFlag.AlignLeft)
