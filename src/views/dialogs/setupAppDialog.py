@@ -2,6 +2,7 @@ import os
 import platform
 import subprocess
 
+from loguru import logger
 from PySide6.QtCore import Qt, QThread, QUrl
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import QSizePolicy
@@ -32,7 +33,14 @@ class MitmproxyCertificateInstallerWindowsWorker(QThread):
         else:
             powershellCommand = f'Import-Certificate -FilePath "{certPath}" -CertStoreLocation Cert:\\CurrentUser\\Root'
             # will run the automatic way of installing the certificate on windows
-            subprocess.run(["powershell.exe", "-Command", powershellCommand], check=True)
+            try:
+                subprocess.run(["powershell.exe", "-Command", powershellCommand], check=True)
+                raise subprocess.CalledProcessError(returncode=1, cmd=powershellCommand)
+            except subprocess.CalledProcessError as e:
+                logger.error(f"Failed to install mitmproxy certificate: {e}")
+                logger.error("Falling back to manual installation.")
+                url = QUrl("http://mitm.it/")
+                QDesktopServices.openUrl(url)
 
 
 class SetupAppDialog(MessageBoxBase):
