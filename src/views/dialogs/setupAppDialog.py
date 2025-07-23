@@ -1,19 +1,70 @@
-from PySide6.QtCore import Qt, QUrl
+import os
+import platform
+import subprocess
+
+from loguru import logger
+from PySide6.QtCore import Qt, QThread, QTimer, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import QSizePolicy
-from qfluentwidgets import (
-    BodyLabel,
-    FluentIcon,
-    MessageBoxBase,
-    PushButton,
-    SubtitleLabel,
-)
+from qfluentwidgets import BodyLabel, FluentIcon, InfoBar, MessageBoxBase, PushButton, SubtitleLabel
 
 from config_values import ConfigValues
-from constants import APPLICATION_NAME
+from constants import (
+    APPLICATION_NAME,
+    CHECK_CERTIFICATE_WINDOWS_COMMAND,
+    InstallMitmproxyCertificateResult,
+)
 from utils.find_mitmdump_executable import get_mitmdump_path
 from views.dialogs.postSetupVerificationDialog import PostSetupVerificationDialog
 from website_blocker.website_blocker_manager import WebsiteBlockerManager
+
+
+class CertificateInstallWindowsWorker(QThread):
+    finished = Signal(InstallMitmproxyCertificateResult)
+
+    def __init__(self, powershell_command):
+        super().__init__()
+        self.powershell_command = powershell_command
+
+    def run(self):
+        try:
+            # First check if the certificate already exists
+            check_result = subprocess.run(
+                ["powershell", "-NoProfile", "-Command", CHECK_CERTIFICATE_WINDOWS_COMMAND],
+                capture_output=True,
+                text=True,
+                timeout=5,
+                creationflags=subprocess.CREATE_NO_WINDOW,
+            )
+
+            if check_result.returncode != 0:
+                self.finished.emit(InstallMitmproxyCertificateResult.ERROR)
+                return
+
+            # If certificate already exists
+            if check_result.stdout.strip():
+                self.finished.emit(InstallMitmproxyCertificateResult.ALREADY_INSTALLED)
+                return
+
+            # Certificate doesn't exist, proceed with installation
+            install_result = subprocess.run(
+                ["powershell", "-NoProfile", "-Command", self.powershell_command],
+                capture_output=True,
+                text=True,
+                timeout=30,
+                creationflags=subprocess.CREATE_NO_WINDOW,
+            )
+
+            if install_result.returncode == 0:
+                self.finished.emit(InstallMitmproxyCertificateResult.SUCCESS)
+            else:
+                self.finished.emit(InstallMitmproxyCertificateResult.FAILURE)
+
+        except subprocess.TimeoutExpired:
+            self.finished.emit(InstallMitmproxyCertificateResult.TIMEOUT)
+        except Exception as e:
+            logger.error(f"Error during certificate installation: {str(e)}")
+            self.finished.emit(InstallMitmproxyCertificateResult.ERROR)
 
 
 class SetupAppDialog(MessageBoxBase):
@@ -26,7 +77,10 @@ class SetupAppDialog(MessageBoxBase):
         titleText += " for the first time" if self.is_setup_first_time else ""
         self.titleLabel = SubtitleLabel(titleText, parent=self)
 
-        bodyText = "Click the below button to visit the webpage to set up system-wide website blocking. "
+        if platform.system().lower() == "windows":
+            bodyText = "Click the below button to install the mitmproxy certificate to Windows."
+        else:
+            bodyText = "Click the below button to visit the webpage to set up system-wide website blocking. "
 
         self.bodyLabel = BodyLabel(
             bodyText,
@@ -57,6 +111,61 @@ class SetupAppDialog(MessageBoxBase):
         self.initWidget()
         self.initTemporaryWebsiteBlockerManager()
 
+        self.isCertificateExistsTimer = None
+        # assuming that user never deletes the certificate from filesystem after the first time setup
+        # TODO: handle the case where user deletes the certificate from filesystem
+        if platform.system().lower() == "windows" and self.is_setup_first_time:
+            self.initCertificateWatcher()
+
+        self.certificate_worker = None
+
+    def initCertificateWatcher(self) -> None:
+        """
+        only for Windows for now
+        """
+        InfoBar.info(
+            title="Waiting for Certificate Generation",
+            content="It would only take a few seconds.",
+            orient=Qt.Orientation.Vertical,
+            isClosable=False,
+            duration=3000,
+            parent=self,
+        )
+        self.yesButton.setEnabled(False)
+        self.cancelButton.setEnabled(False)
+
+        self.isCertificateExistsTimer = QTimer()
+        self.isCertificateExistsTimer.timeout.connect(self.isCertificateExists)
+        self.isCertificateExistsTimer.start(300)
+
+    def isCertificateExists(self) -> bool:
+        """
+        only for Windows for now
+        """
+        if platform.system().lower() == "windows":
+            username = os.getlogin()
+            certPath = os.path.join("C:\\Users", username, ".mitmproxy", "mitmproxy-ca-cert.cer")
+
+            if os.path.exists(certPath):
+                InfoBar.success(
+                    title="Certificate Generated",
+                    content="Mitmproxy certificate has been successfully generated.",
+                    orient=Qt.Orientation.Vertical,
+                    isClosable=True,
+                    duration=3000,
+                    parent=self,
+                )
+                logger.debug("Mitmproxy certificate found, enabling buttons.")
+                self.yesButton.setEnabled(True)
+                self.cancelButton.setEnabled(True)
+                self.yesButton.setText("Open Setup")
+                if self.isCertificateExistsTimer is not None:
+                    self.isCertificateExistsTimer.stop()
+                return True
+            else:
+                logger.debug("Waiting for mitmproxy certificate to be generated...")
+                return False
+
     def initWidget(self) -> None:
         self.titleLabel.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
@@ -80,8 +189,29 @@ class SetupAppDialog(MessageBoxBase):
         self.backButton.clicked.connect(self.onBackButtonClicked)
 
     def onWebsiteBlockSetupButtonClicked(self) -> None:
-        url = QUrl("http://mitm.it/")
-        QDesktopServices.openUrl(url)
+        if platform.system().lower() == "windows":
+            if self.certificate_worker and self.certificate_worker.isRunning():
+                return
+
+            # clean up any existing worker
+            if self.certificate_worker:
+                self.certificate_worker.finished.disconnect()
+                self.certificate_worker.deleteLater()
+                self.certificate_worker = None
+
+            username = os.getlogin()
+            certPath = os.path.join("C:\\Users", username, ".mitmproxy", "mitmproxy-ca-cert.cer")
+
+            powershell_command = (
+                f'Import-Certificate -FilePath "{certPath}" -CertStoreLocation Cert:\\CurrentUser\\Root'
+            )
+
+            self.certificate_worker = CertificateInstallWindowsWorker(powershell_command)
+            self.certificate_worker.finished.connect(self.onCertificateInstallFinished)
+            self.certificate_worker.start()
+        else:
+            url = QUrl("http://mitm.it/")
+            QDesktopServices.openUrl(url)
 
     def onCloseButtonClicked(self) -> None:
         confirmation_dialog = PostSetupVerificationDialog(self, self.is_setup_first_time)
@@ -103,3 +233,37 @@ class SetupAppDialog(MessageBoxBase):
             block_type="blocklist",
             mitmdump_bin_path=get_mitmdump_path(),
         )
+
+    def onCertificateInstallFinished(self, result: InstallMitmproxyCertificateResult):
+        if result == InstallMitmproxyCertificateResult.SUCCESS:
+            InfoBar.success(
+                title=result.value,
+                content="",
+                orient=Qt.Orientation.Vertical,
+                isClosable=True,
+                duration=3000,
+                parent=self.parent(),
+            )
+        elif result == InstallMitmproxyCertificateResult.ALREADY_INSTALLED:
+            InfoBar.info(
+                title=result.value,
+                content="",
+                orient=Qt.Orientation.Vertical,
+                isClosable=True,
+                duration=3000,
+                parent=self.parent(),
+            )
+        else:
+            InfoBar.error(
+                title=result.value,
+                content="",
+                orient=Qt.Orientation.Vertical,
+                isClosable=True,
+                duration=5000,
+                parent=self.parent(),
+            )
+
+        # Clean up worker
+        if self.certificate_worker:
+            self.certificate_worker.deleteLater()
+            self.certificate_worker = None

@@ -32,6 +32,7 @@ from ui_py.ui_settings_view import Ui_SettingsView
 from utils.check_for_updates import UpdateChecker
 from utils.detect_windows_version import isWin11
 from utils.get_app_version import get_app_version
+from views.dialogs.uninstallMitmproxyCertificateDialog import UninstallMitmproxyCertificateDialog
 
 
 class SettingsView(QWidget, Ui_SettingsView):
@@ -163,6 +164,14 @@ class SettingsView(QWidget, Ui_SettingsView):
         operating_system = platform.system()
         if operating_system == "Darwin":
             operating_system = "macOS"
+        if platform.system().lower() == "windows":
+            self.uninstall_mitmproxy_certificate_card = PrimaryPushSettingCard(
+                "Uninstall Certificate",
+                CustomFluentIcon.UNINSTALL,
+                f"Uninstall mitmproxy certificate for {APPLICATION_NAME}",
+                f"Click to uninstall mitmproxy certificate for {APPLICATION_NAME}",
+                self.setup_group,
+            )
         self.reset_proxy_settings = PrimaryPushSettingCard(
             "Reset Proxy",
             CustomFluentIcon.RESET_PROXY,
@@ -214,6 +223,8 @@ class SettingsView(QWidget, Ui_SettingsView):
 
         # Setup Group
         self.setup_group.addSettingCard(self.setup_app_card)
+        if platform.system().lower() == "windows":
+            self.setup_group.addSettingCard(self.uninstall_mitmproxy_certificate_card)
         self.setup_group.addSettingCard(self.reset_proxy_settings)
         self.scrollAreaWidgetContents.layout().addWidget(self.setup_group)
 
@@ -376,6 +387,12 @@ class SettingsView(QWidget, Ui_SettingsView):
         # self.proxy_port_card.valueChanged.connect
 
         self.check_for_updates_now_card.clicked.connect(self.checkForUpdatesNow)
+        if platform.system().lower() == "windows":
+            self.uninstall_mitmproxy_certificate_card.clicked.connect(self.uninstallMitmproxyCertificate)
+
+    def uninstallMitmproxyCertificate(self) -> None:
+        dialog = UninstallMitmproxyCertificateDialog(self)
+        dialog.exec()
 
 
 if __name__ == "__main__":

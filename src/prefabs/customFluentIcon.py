@@ -25,6 +25,7 @@ class CustomFluentIcon(FluentIconBase, Enum):
     TEXT_ADD = "text_add"
     SETUP_AGAIN = "setup_again"
     RESET_PROXY = "reset_proxy"
+    UNINSTALL = "uninstall"
 
     def path(self, theme=Theme.AUTO) -> str:
         # getIconColor() return "white" or "black" according to current theme
