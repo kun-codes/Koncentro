@@ -31,10 +31,13 @@ class MitmproxyCertificateInstallerWindowsWorker(QThread):
                 subprocess.run(["powershell.exe", "-Command", powershellCommand], check=True)
                 raise subprocess.CalledProcessError(returncode=1, cmd=powershellCommand)
             except subprocess.CalledProcessError as e:
-                logger.error(f"Failed to install mitmproxy certificate: {e}")
-                logger.error("Falling back to manual installation.")
-                url = QUrl("http://mitm.it/")
-                QDesktopServices.openUrl(url)
+                if e.returncode == 1:  # user clicked "no"
+                    logger.debug("User cancelled the certificate installation.")
+                else:  # some other error occurred
+                    logger.error(f"Failed to install mitmproxy certificate: {e}")
+                    logger.error("Falling back to manual installation.")
+                    url = QUrl("http://mitm.it/")
+                    QDesktopServices.openUrl(url)
 
 
 class SetupAppDialog(MessageBoxBase):
