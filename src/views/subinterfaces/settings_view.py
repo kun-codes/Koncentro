@@ -165,7 +165,7 @@ class SettingsView(QWidget, Ui_SettingsView):
         if operating_system == "Darwin":
             operating_system = "macOS"
         self.uninstall_mitmproxy_certificate_card = PrimaryPushSettingCard(
-            "Uninstall certificate",
+            "Uninstall Certificate",
             CustomFluentIcon.UNINSTALL,
             f"Uninstall mitmproxy certificate for {APPLICATION_NAME}",
             f"Click to uninstall mitmproxy certificate for {APPLICATION_NAME}",
