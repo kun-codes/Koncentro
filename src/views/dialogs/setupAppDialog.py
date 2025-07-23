@@ -231,10 +231,6 @@ class SetupAppDialog(MessageBoxBase):
         )
 
     def onCertificateInstallFinished(self, result: InstallMitmproxyCertificateResult):
-        # Disconnect the signal immediately to prevent multiple calls
-        if self.certificate_worker:
-            self.certificate_worker.finished.disconnect()
-
         if result == InstallMitmproxyCertificateResult.SUCCESS:
             InfoBar.success(
                 title=result.value,
