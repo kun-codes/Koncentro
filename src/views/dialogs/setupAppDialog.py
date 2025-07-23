@@ -46,7 +46,7 @@ class SetupAppDialog(MessageBoxBase):
         self.titleLabel = SubtitleLabel(titleText, parent=self)
 
         if platform.system().lower() == "windows":
-            bodyText = "Click the below button to install the mitmproxy certificate to your system."
+            bodyText = "Click the below button to install the mitmproxy certificate to Windows."
         else:
             bodyText = "Click the below button to visit the webpage to set up system-wide website blocking. "
 
