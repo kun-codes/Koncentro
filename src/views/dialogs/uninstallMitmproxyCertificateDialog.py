@@ -22,6 +22,7 @@ class CertificateUninstallWindowsWorker(QThread):
                 capture_output=True,
                 text=True,
                 timeout=5,
+                creationflags=subprocess.CREATE_NO_WINDOW,
             )
 
             if check_result.returncode != 0:
@@ -37,6 +38,7 @@ class CertificateUninstallWindowsWorker(QThread):
                 ["powershell", "-NoProfile", "-Command", UNINSTALL_CERTIFICATE_WINDOWS_COMMAND],
                 capture_output=True,
                 text=True,
+                creationflags=subprocess.CREATE_NO_WINDOW,
             )
 
             if uninstall_result.returncode == 0:

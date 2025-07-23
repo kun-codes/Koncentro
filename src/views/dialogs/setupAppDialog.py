@@ -34,6 +34,7 @@ class CertificateInstallWindowsWorker(QThread):
                 capture_output=True,
                 text=True,
                 timeout=5,
+                creationflags=subprocess.CREATE_NO_WINDOW,
             )
 
             if check_result.returncode != 0:
@@ -51,6 +52,7 @@ class CertificateInstallWindowsWorker(QThread):
                 capture_output=True,
                 text=True,
                 timeout=30,
+                creationflags=subprocess.CREATE_NO_WINDOW,
             )
 
             if install_result.returncode == 0:
