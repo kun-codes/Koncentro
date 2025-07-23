@@ -164,13 +164,14 @@ class SettingsView(QWidget, Ui_SettingsView):
         operating_system = platform.system()
         if operating_system == "Darwin":
             operating_system = "macOS"
-        self.uninstall_mitmproxy_certificate_card = PrimaryPushSettingCard(
-            "Uninstall Certificate",
-            CustomFluentIcon.UNINSTALL,
-            f"Uninstall mitmproxy certificate for {APPLICATION_NAME}",
-            f"Click to uninstall mitmproxy certificate for {APPLICATION_NAME}",
-            self.setup_group,
-        )
+        if platform.system().lower() == "windows":
+            self.uninstall_mitmproxy_certificate_card = PrimaryPushSettingCard(
+                "Uninstall Certificate",
+                CustomFluentIcon.UNINSTALL,
+                f"Uninstall mitmproxy certificate for {APPLICATION_NAME}",
+                f"Click to uninstall mitmproxy certificate for {APPLICATION_NAME}",
+                self.setup_group,
+            )
         self.reset_proxy_settings = PrimaryPushSettingCard(
             "Reset Proxy",
             CustomFluentIcon.RESET_PROXY,
@@ -386,7 +387,8 @@ class SettingsView(QWidget, Ui_SettingsView):
         # self.proxy_port_card.valueChanged.connect
 
         self.check_for_updates_now_card.clicked.connect(self.checkForUpdatesNow)
-        self.uninstall_mitmproxy_certificate_card.clicked.connect(self.uninstallMitmproxyCertificate)
+        if platform.system().lower() == "windows":
+            self.uninstall_mitmproxy_certificate_card.clicked.connect(self.uninstallMitmproxyCertificate)
 
     def uninstallMitmproxyCertificate(self) -> None:
         dialog = UninstallMitmproxyCertificateDialog(self)
