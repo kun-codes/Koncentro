@@ -146,6 +146,12 @@ jobs:
                     echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 -d > recovered_gpg_priv_key.gpg
                 shell: bash
 
+            -   name: Make dist-signed directory (Linux)
+                if: (matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm') && inputs.should_sign
+                run: |
+                    mkdir -p dist-signed
+                shell: bash
+
             -   name: Sign RPM Packages (Linux)
                 if: (matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm') && inputs.should_sign
                 uses: dante-signal31/rpmsign@v1.0.3
@@ -154,7 +160,7 @@ jobs:
                     gpg_private_key_password: ${{ secrets.GPG_PASSPHRASE }}
                     gpg_name: Bishwa Saha (Koncentro package and repository signing) <contact@bishwasaha.com>
                     rpm_folder: dist
-                    output_folder: dist
+                    output_folder: dist-signed
 
             -   name: Delete GPG Private Key File (Linux)
                 if: (matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm') && inputs.should_sign
@@ -201,3 +207,10 @@ jobs:
                 with:
                     name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-openSUSE-RPM
                     path: dist/*openSUSE.rpm
+
+            -   name: Upload Signed RPM Packages (Linux)
+                if: (matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm') && inputs.should_sign
+                uses: actions/upload-artifact@v4
+                with:
+                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-Signed-RPM
+                    path: dist-signed/*.rpm
