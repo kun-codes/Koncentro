@@ -24,7 +24,9 @@ jobs:
         needs: build
         with:
             should_sign: ${{ github.event_name != 'workflow_dispatch' }}
-        secrets: inherit
+        secrets:
+            GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+            GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
     release:
         if: github.event_name != 'workflow_dispatch'
