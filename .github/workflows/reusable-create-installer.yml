@@ -140,6 +140,15 @@ jobs:
                     ./installer-scripts/linux/rpm/package-rpm.sh opensuse
                 shell: bash
 
+            -   name: Sign RPM Packages (Linux)
+                if: (matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm') && inputs.should_sign == 'true'
+                uses: dante-signal31/rpmsign@v1.0.3
+                with:
+                    gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+                    gpg_private_key_password: ${{ secrets.GPG_PASSPHRASE }}
+                    gpg_name: Bishwa Saha (Koncentro package and repository signing) <contact@bishwasaha.com>
+                    rpm_folder: dist
+                    output_folder: dist
 
             -   name: tree command (Windows)
                 if: matrix.os == 'windows-latest'
