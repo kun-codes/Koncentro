@@ -143,7 +143,7 @@ jobs:
             -   name: Create GPG Private Key File (Linux)
                 if: (matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm') && inputs.should_sign
                 run: |
-                    echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 -di > recovered_gpg_priv_key.gpg
+                    echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 -d > recovered_gpg_priv_key.gpg
                 shell: bash
 
             -   name: Sign RPM Packages (Linux)
