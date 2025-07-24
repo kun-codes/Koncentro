@@ -141,7 +141,7 @@ jobs:
                 shell: bash
 
             -   name: Sign RPM Packages (Linux)
-                if: (matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm') && inputs.should_sign == 'true'
+                if: (matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm') && inputs.should_sign
                 uses: dante-signal31/rpmsign@v1.0.3
                 with:
                     gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
