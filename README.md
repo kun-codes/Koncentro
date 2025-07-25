@@ -11,6 +11,8 @@
   [![wakatime](https://wakatime.com/badge/github/kun-codes/koncentro.svg?style=flat-square)](https://wakatime.com/badge/github/kun-codes/koncentro)
   ![WinGet Package Version](https://img.shields.io/winget/v/BishwaSaha.Koncentro?style=flat-square)
   ![Flathub Version](https://img.shields.io/flathub/v/com.bishwasaha.Koncentro?style=flat-square)
+  ![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/y/kun-codes/Koncentro/main?style=flat-square)
+
 
 </div>
 
