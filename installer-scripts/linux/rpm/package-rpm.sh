@@ -103,7 +103,7 @@ case "$DISTRO" in
         -C build/rpm \
         -n koncentro \
         -v $KONCENTRO_VERSION \
-        --license "GPL-3.0" \
+        --license "GPL-3.0-or-later" \
         --vendor "Bishwa Saha" \
         --url "https://github.com/kun-codes/Koncentro" \
         --description "Koncentro - Focus manager and website blocker" \
@@ -127,7 +127,7 @@ case "$DISTRO" in
         -C build/rpm \
         -n koncentro \
         -v $KONCENTRO_VERSION \
-        --license "GPL-3.0" \
+        --license "GPL-3.0-or-later" \
         --vendor "Bishwa Saha" \
         --url "https://github.com/kun-codes/Koncentro" \
         --description "Koncentro - Focus manager and website blocker" \
