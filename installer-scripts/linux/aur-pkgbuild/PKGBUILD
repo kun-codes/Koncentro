@@ -1,0 +1,38 @@
+# Maintainer: Bishwa Saha <contact@bishwasaha.com>
+pkgname=koncentro-bin
+pkgver=0.10.1
+pkgrel=1
+pkgdesc="A powerful productivity app combining Pomodoro technique, task management, and website blocking"
+arch=('x86_64' 'aarch64')
+url="https://github.com/kun-codes/Koncentro/"
+license=('GPL-3.0-or-later')
+depends=('xcb-util-cursor' 'xcb-util-keysyms' 'xcb-util-wm' 'glib2')
+provides=('koncentro')
+conflicts=('koncentro')
+
+source_x86_64=("https://github.com/kun-codes/Koncentro/releases/download/v${pkgver}/koncentro-${pkgver}-Linux-x86_64.deb")
+source_aarch64=("https://github.com/kun-codes/Koncentro/releases/download/v${pkgver}/koncentro-${pkgver}-Linux-aarch64.deb")
+
+sha256sums_x86_64=('9617ae80ad1318dd270c61fb2719237aca9422b645aa285dd09d564287b4ebd0')
+sha256sums_aarch64=('f18f4c7971f3b46cb9100672563346ba87d3c1d1b449a517be13ccbe58c15ee6')
+
+package() {
+    if [[ "$CARCH" == "x86_64" ]]; then
+        debfile="koncentro-${pkgver}-Linux-x86_64.deb"
+    elif [[ "$CARCH" == "aarch64" ]]; then
+        debfile="koncentro-${pkgver}-Linux-aarch64.deb"
+    fi
+
+    ar x "$debfile"
+
+    if [[ -f data.tar.xz ]]; then
+        tar -xf data.tar.xz -C "$pkgdir/"
+    elif [[ -f data.tar.gz ]]; then
+        tar -xf data.tar.gz -C "$pkgdir/"
+    elif [[ -f data.tar.zst ]]; then
+        tar -xf data.tar.zst -C "$pkgdir/"
+    fi
+
+    chmod +x "$pkgdir/usr/lib/koncentro/koncentro"
+    chmod +x "$pkgdir/usr/lib/koncentro/mitmdump"
+}
