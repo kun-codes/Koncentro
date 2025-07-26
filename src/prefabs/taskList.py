@@ -1,7 +1,6 @@
-from PySide6.QtCore import QRect, Qt, QTimer
-from PySide6.QtGui import QBrush, QColor, QPainter, QPen
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QAbstractItemView, QListView, QWidget
-from qfluentwidgets import ListItemDelegate, ListView, isDarkTheme
+from qfluentwidgets import ListItemDelegate, ListView
 
 from prefabs.taskListItemDelegate import TaskListItemDelegate
 from ui_py.ui_tasks_list_view import Ui_TaskView
@@ -30,10 +29,6 @@ class TaskList(ListView):
 
         self.editor_width_reduction = 5  # the same number in TaskListItemDelegate's updateEditorGeometry method
 
-        # Custom drop indicator properties
-        self.dropIndicatorRect = QRect()
-        self.dropIndicatorPosition = -1
-
         # Track drag operations to handle failed drops
         self._dragInProgress = False
         self._draggedIndexes = []
@@ -42,10 +37,6 @@ class TaskList(ListView):
         self._dragSuccessTimer.timeout.connect(self._checkDragResult)
 
     def paintEvent(self, event) -> None:
-        """
-        Override the paint event to add custom drop indicator drawing
-        source: https://oglop.gitbooks.io/pyqt-pyside-cookbook/content/tree/drop_indicator.html
-        """
         # Delete all buttons when there are no items in the model
         if self.model() and self.model().rowCount() == 0:
             delegate = self.itemDelegate()
@@ -53,71 +44,6 @@ class TaskList(ListView):
                 delegate.deleteAllButtons()
 
         super().paintEvent(event)
-        if self.state() == QAbstractItemView.State.DraggingState:
-            painter = QPainter(self.viewport())
-            self.paintDropIndicator(painter)
-
-    def paintDropIndicator(self, painter) -> None:
-        """
-        Draw a custom white drop indicator
-        source: https://oglop.gitbooks.io/pyqt-pyside-cookbook/content/tree/drop_indicator.html
-        """
-        if not self.dropIndicatorRect.isNull():
-            rect = self.dropIndicatorRect
-            if isDarkTheme():
-                brush = QBrush(QColor(Qt.white))
-            else:
-                brush = QBrush(QColor(Qt.black))
-
-            if rect.height() == 0:
-                # Draw a horizontal line for above/below positions
-                rect.setWidth(rect.width() - 6)  # subtract 6 pixels so that right side of drop indicator
-                # shows within bounds of TaskList
-                pen = QPen(brush, 1, Qt.PenStyle.SolidLine)
-                painter.setPen(pen)
-                painter.drawLine(rect.topLeft(), rect.topRight())
-            else:
-                # Draw a rectangle for on-item position
-                rect.setWidth(rect.width() - 6)  # subtract 6 pixels so that right side of drop indicator
-                # shows within bounds of TaskList
-                pen = QPen(brush, 1, Qt.PenStyle.SolidLine)
-                painter.setPen(pen)
-                painter.drawRect(rect)
-
-    def dragMoveEvent(self, event) -> None:
-        """
-        Update the drop indicator position during drag move events
-        source: https://oglop.gitbooks.io/pyqt-pyside-cookbook/content/tree/drop_indicator.html
-        """
-        super().dragMoveEvent(event)
-
-        pos = event.position().toPoint()
-        index = self.indexAt(pos)
-
-        if index.isValid():
-            rect = self.visualRect(index)
-
-            # Determine drop position (above, on, or below item)
-            margin = 5
-            if pos.y() - rect.top() < margin:
-                # Above item
-                self.dropIndicatorPosition = QAbstractItemView.DropIndicatorPosition.AboveItem
-                self.dropIndicatorRect = QRect(rect.left(), rect.top(), rect.width(), 0)
-            elif rect.bottom() - pos.y() < margin:
-                # Below item
-                self.dropIndicatorPosition = QAbstractItemView.DropIndicatorPosition.BelowItem
-                self.dropIndicatorRect = QRect(rect.left(), rect.bottom(), rect.width(), 0)
-            else:
-                # On item
-                self.dropIndicatorPosition = QAbstractItemView.DropIndicatorPosition.OnItem
-                self.dropIndicatorRect = QRect(rect.left(), rect.top(), rect.width(), rect.height())
-        else:
-            # On empty space
-            self.dropIndicatorPosition = QAbstractItemView.DropIndicatorPosition.OnViewport
-            self.dropIndicatorRect = QRect()
-
-        # Force a repaint to update the indicator
-        self.viewport().update()
 
     def startDrag(self, supportedActions) -> None:
         """
@@ -193,15 +119,6 @@ class TaskList(ListView):
         else:
             event.ignore()
 
-    def dragLeaveEvent(self, event) -> None:
-        """
-        Override dragLeaveEvent to clean up drop indicators
-        """
-        super().dragLeaveEvent(event)
-        # Clear drop indicator when drag leaves the widget
-        self.dropIndicatorRect = QRect()
-        self.viewport().update()
-
     def resizeEvent(self, event) -> None:
         """
         Instead of just resizing editor using itemDelegate's updateEditorGeometry method, I am resizing the editor here
@@ -258,7 +175,6 @@ class TaskList(ListView):
         when an item was dropped.
         """
         # Clear drop indicator before processing the drop
-        self.dropIndicatorRect = QRect()
         self.viewport().update()
 
         # Mark drag as successful if this is our own drag operation
