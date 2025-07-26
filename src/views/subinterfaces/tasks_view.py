@@ -86,10 +86,10 @@ class TaskListView(Ui_TaskView, QWidget):
         self.editTaskTimeButton.clicked.connect(self.editTaskTime)
 
     def addTask(self) -> None:
-        dialog = AddTaskDialog(self.window())
+        self.addTaskDialog = AddTaskDialog(self.window())
         # if user clicks on add task inside dialog
-        if dialog.exec():
-            task_name = dialog.taskEdit.text()
+        if self.addTaskDialog.exec():
+            task_name = self.addTaskDialog.taskEdit.text()
             row = self.todoTasksList.model().rowCount(QModelIndex())
             self.todoTasksList.model().insertRow(row, QModelIndex(), task_name=task_name, task_type=TaskType.TODO)
 
@@ -125,13 +125,13 @@ class TaskListView(Ui_TaskView, QWidget):
 
         if row is not None:
             task_id = row.data(TaskListModel.IDRole)
-            dialog = EditTaskTimeDialog(self.window(), task_id)
+            self.editTaskTimeDialog = EditTaskTimeDialog(self.window(), task_id)
 
-            if dialog.exec():
-                elapsed_time = dialog.getElapsedTime()
+            if self.editTaskTimeDialog.exec():
+                elapsed_time = self.editTaskTimeDialog.getElapsedTime()
                 if elapsed_time is not None:
                     task_list_model.setData(row, elapsed_time, TaskListModel.ElapsedTimeRole, update_db=True)
-                estimated_time = dialog.getTargetTime()
+                estimated_time = self.editTaskTimeDialog.getTargetTime()
                 if estimated_time is not None:
                     task_list_model.setData(row, estimated_time, TaskListModel.TargetTimeRole, update_db=True)
 
