@@ -1,9 +1,30 @@
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtWidgets import QAbstractItemView, QListView, QWidget
-from qfluentwidgets import ListItemDelegate, ListView
+from PySide6.QtGui import QColor, QPainter, QPen
+from PySide6.QtWidgets import QAbstractItemView, QListView, QProxyStyle, QWidget
+from qfluentwidgets import ListItemDelegate, ListView, isDarkTheme
 
 from prefabs.taskListItemDelegate import TaskListItemDelegate
 from ui_py.ui_tasks_list_view import Ui_TaskView
+
+
+# from: https://www.qtcentre.org/threads/35443-Customize-drop-indicator-in-QTreeView?p=167572#post167572
+class TaskListStyle(QProxyStyle):
+    def drawPrimitive(self, element, option, painter, widget=None):
+        if element == QProxyStyle.PE_IndicatorItemViewItemDrop:
+            painter.save()
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            pen = QPen(QColor(255, 255, 255), 1) if isDarkTheme() else QPen(QColor(0, 0, 0), 1)
+            painter.setPen(pen)
+            if option.rect.height() == 0:
+                # Draw a line drop indicator
+                painter.drawLine(option.rect.left(), option.rect.top(), option.rect.right(), option.rect.top())
+            else:
+                # Draw a rounded rectangle if rect has height
+                painter.drawRoundedRect(option.rect, 5, 5)  # same radius as indicator in list_view.qss at
+                # https://github.com/zhiyiYo/PyQt-Fluent-Widgets/blob/2b3e9636556dd8ca8e9e9b5ccccbf5b56afa07e9/qfluentwidgets/_rc/qss/dark/list_view.qss#L26
+            painter.restore()
+        else:
+            super().drawPrimitive(element, option, painter, widget)
 
 
 class TaskList(ListView):
@@ -16,6 +37,7 @@ class TaskList(ListView):
         self.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setAutoScroll(True)
+        self.setStyle(TaskListStyle())
 
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
