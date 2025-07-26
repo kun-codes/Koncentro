@@ -1,5 +1,5 @@
 from loguru import logger
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, FluentWindow, TeachingTipTailPosition
 
@@ -128,7 +128,13 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.teaching_tips.append(self._invoke_first_task_edit_task_time_step_tip)
 
     def _edit_first_task_elapsed_time_step(self) -> None:
-        edit_task_time_dialog = self.main_window.task_interface.window().findChild(EditTaskTimeDialog)
+        if not hasattr(self.main_window.task_interface, "editTaskTimeDialog"):
+            logger.debug("EditTaskTimeDialog not found, retrying in 100ms")
+            QTimer.singleShot(100, self._edit_first_task_elapsed_time_step)
+            return
+
+        edit_task_time_dialog: EditTaskTimeDialog = self.main_window.task_interface.editTaskTimeDialog
+        logger.debug("Found EditTaskTimeDialog")
 
         # User has to change the time, there is no other choice
         edit_task_time_dialog.cancelButton.setDisabled(True)
@@ -158,7 +164,14 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.teaching_tips.append(self._edit_first_task_time_elapsed_step_tip)
 
     def _edit_first_task_estimate_time_step(self) -> None:
-        edit_task_time_dialog = self.main_window.task_interface.window().findChild(EditTaskTimeDialog)
+        if not hasattr(self.main_window.task_interface, "editTaskTimeDialog"):
+            logger.debug("EditTaskTimeDialog not found, retrying in 100ms")
+            QTimer.singleShot(100, self._edit_first_task_elapsed_time_step)
+            return
+
+        edit_task_time_dialog: EditTaskTimeDialog = self.main_window.task_interface.editTaskTimeDialog
+        logger.debug("Found EditTaskTimeDialog")
+
         self._edit_first_task_time_estimate_step_tip = TargetClickTeachingTip.create(
             target=edit_task_time_dialog.estimateTimePicker,
             title="Now lets edit the estimated time of the selected task",
@@ -175,7 +188,13 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.teaching_tips.append(self._edit_first_task_time_estimate_step_tip)
 
     def _edit_first_task_save_changed_time_step(self) -> None:
-        edit_task_time_dialog = self.main_window.task_interface.window().findChild(EditTaskTimeDialog)
+        if not hasattr(self.main_window.task_interface, "editTaskTimeDialog"):
+            logger.debug("EditTaskTimeDialog not found, retrying in 100ms")
+            QTimer.singleShot(100, self._edit_first_task_elapsed_time_step)
+            return
+
+        edit_task_time_dialog: EditTaskTimeDialog = self.main_window.task_interface.editTaskTimeDialog
+        logger.debug("Found EditTaskTimeDialog")
 
         edit_task_time_dialog.yesButton.setDisabled(False)
 
@@ -227,7 +246,14 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.teaching_tips.append(self._invoke_add_new_task_dialog_step_tip)
 
     def _name_new_task_step(self) -> None:
-        add_task_dialog = self.main_window.task_interface.window().findChild(AddTaskDialog)
+        if not hasattr(self.main_window.task_interface, "addTaskDialog"):
+            logger.debug("AddTaskDialog not found, retrying in 100ms")
+            QTimer.singleShot(100, self._invoke_add_new_task_dialog_step)
+            return
+
+        add_task_dialog: AddTaskDialog = self.main_window.task_interface.addTaskDialog
+        logger.debug("Found AddTaskDialog")
+
         add_task_dialog.cancelButton.setDisabled(True)
         add_task_dialog.yesButton.setDisabled(True)
 
@@ -258,7 +284,13 @@ class TaskInterfaceTutorial(InterfaceTutorial):
     def _save_new_task_step(self) -> None:
         todo_task_list = self.main_window.task_interface.todoTasksList
 
-        add_task_dialog = self.main_window.task_interface.window().findChild(AddTaskDialog)
+        if not hasattr(self.main_window.task_interface, "addTaskDialog"):
+            logger.debug("AddTaskDialog not found, retrying in 100ms")
+            QTimer.singleShot(100, self._invoke_add_new_task_dialog_step)
+            return
+
+        add_task_dialog: AddTaskDialog = self.main_window.task_interface.addTaskDialog
+        logger.debug("Found AddTaskDialog")
 
         add_task_dialog.yesButton.setDisabled(False)
 
