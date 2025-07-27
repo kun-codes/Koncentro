@@ -28,3 +28,7 @@ search = '__version__ = "{current_version}"'
 [[file]]
 src = "installer-scripts/linux/common/com.bishwasaha.Koncentro.metainfo.xml"
 search = 'release version="{current_version}"'
+
+[[file]]
+src = "installer-scripts/linux/common/com.bishwasaha.Koncentro.metainfo.xml"
+search = '<url type="details">https://github.com/kun-codes/Koncentro/releases/tag/v{current_version}</url>'
