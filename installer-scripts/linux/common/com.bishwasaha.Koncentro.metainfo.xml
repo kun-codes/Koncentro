@@ -69,6 +69,7 @@
 
     <releases>
         <release version="0.11.1" date="2025-07-26">
+            <url type="details">https://github.com/kun-codes/Koncentro/releases/tag/v0.11.1</url>
         </release>
     </releases>
 </component>
