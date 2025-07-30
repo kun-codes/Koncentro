@@ -33,7 +33,7 @@ class CertificateInstallWindowsWorker(QThread):
                 ["powershell", "-NoProfile", "-Command", CHECK_CERTIFICATE_WINDOWS_COMMAND],
                 capture_output=True,
                 text=True,
-                timeout=5,
+                timeout=30,
                 creationflags=subprocess.CREATE_NO_WINDOW,
             )
 
@@ -62,6 +62,8 @@ class CertificateInstallWindowsWorker(QThread):
 
         except subprocess.TimeoutExpired:
             self.finished.emit(InstallMitmproxyCertificateResult.TIMEOUT)
+            # url = QUrl("http://mitm.it/")
+            # QDesktopServices.openUrl(url)
         except Exception as e:
             logger.error(f"Error during certificate installation: {str(e)}")
             self.finished.emit(InstallMitmproxyCertificateResult.ERROR)
