@@ -68,8 +68,8 @@
     <launchable type="desktop-id">koncentro.desktop</launchable>
 
     <releases>
-        <release version="1.0.0" date="2025-07-27">
-            <url type="details">https://github.com/kun-codes/Koncentro/releases/tag/v1.0.0</url>
+        <release version="1.0.1" date="2025-07-30">
+            <url type="details">https://github.com/kun-codes/Koncentro/releases/tag/v1.0.1</url>
         </release>
     </releases>
 </component>
