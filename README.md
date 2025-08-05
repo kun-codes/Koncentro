@@ -56,7 +56,12 @@ flatpak install flathub com.bishwasaha.Koncentro
 
 #### From Source
 
-- Install [Python 3.12](https://www.python.org/downloads/) if you haven't already.
+- Install [Python 3.12](https://www.python.org/downloads/) if you haven't already. You can also use a python version manager like [pyenv](https://github.com/pyenv/pyenv) to install Python 3.12.
+
+  ```sh
+  pyenv install 3.12
+  ```
+
 - Install [Poetry](https://python-poetry.org/docs/#installing-with-the-official-installer)
 - Clone the repository using the command
 ```sh
@@ -66,13 +71,22 @@ git clone https://github.com/kun-codes/Koncentro.git
 ```sh
 cd Koncentro
 ```
-- Install the dependencies using poetry
+- Make Poetry use Python 3.12
 ```sh
-poetry install
+poetry env use 3.12
+```
+- Install the dependencies using Poetry
+```sh
+poetry install --no-root
+```
+- [Activate the virtual environment](https://python-poetry.org/docs/managing-environments/#activating-the-environment)
+- Generate Python resource files
+```sh
+./dev/generate-python-rc-files.sh
 ```
 - Run the app using the command
 ```sh
-poetry run python src
+python src
 ```
 </details>
 
