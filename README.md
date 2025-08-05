@@ -71,16 +71,16 @@ git clone https://github.com/kun-codes/Koncentro.git
 ```sh
 cd Koncentro
 ```
-- Make poetry use Python 3.12
+- Make Poetry use Python 3.12
 ```sh
 poetry env use 3.12
 ```
-- Install the dependencies using poetry
+- Install the dependencies using Poetry
 ```sh
 poetry install --no-root
 ```
 - [Activate the virtual environment](https://python-poetry.org/docs/managing-environments/#activating-the-environment)
-- Generate python resource files
+- Generate Python resource files
 ```sh
 ./dev/generate-python-rc-files.sh
 ```
