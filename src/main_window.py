@@ -213,6 +213,9 @@ class MainWindow(KoncentroFluentWindow):
         self.tray.setIcon(initial_icon)
         self.tray.setVisible(True)
 
+        # on tray icon clicked
+        self.tray.activated.connect(self.toggleWindowVisibility)
+
     def remainingFontSubstitutions(self) -> None:
         # This was unaffected by font substitution in __main__.py
         font = QFont("Selawik", 14)
@@ -970,11 +973,20 @@ class MainWindow(KoncentroFluentWindow):
         app_instance.exit()
 
     def closeEvent(self, event) -> None:
-        self.saveWindowGeometry()
+        # Check if minimize to system tray is enabled
+        if ConfigValues.SHOULD_MINIMIZE_TO_TRAY:
+            event.ignore()
+            self.hide()
+            logger.debug("Window minimized to system tray")
+            return
 
-        # Accept the event immediately to close the window
+        self.saveWindowGeometry()
+        # accepting the event to close the window immediately
         event.accept()
-        logger.debug("Closing window immediately...")
+        self.quitApplicationWithCleanup()
+
+    def quitApplicationWithCleanup(self) -> None:
+        logger.debug("Saving data and running cleanup tasks before quitting application...")
 
         # Run cleanup tasks in a background thread
         cleanup_thread = threading.Thread(
@@ -994,7 +1006,9 @@ class MainWindow(KoncentroFluentWindow):
         except Exception as e:
             logger.error(f"Error during cleanup: {str(e)}")
         finally:
-            self.quitApplication()
+            logger.debug("Quitting application...")
+            app_instance = QApplication.instance()
+            app_instance.exit()
 
     def saveWindowGeometry(self) -> None:
         settings.setValue(WindowGeometryKeys.GEOMETRY.value, self.saveGeometry())
@@ -1019,3 +1033,9 @@ class MainWindow(KoncentroFluentWindow):
                 self.showMaximized()
         else:
             self.resize(default_size)
+
+    def toggleWindowVisibility(self) -> None:
+        if self.isVisible():
+            self.hide()
+        else:
+            self.show()
