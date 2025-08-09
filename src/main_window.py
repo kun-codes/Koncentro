@@ -212,6 +212,8 @@ class MainWindow(KoncentroFluentWindow):
         )
         self.tray_menu_quit_action.triggered.connect(self.quitApplicationWithCleanup)
 
+        # onShouldMinimizeToSystemTraySettingChanged() adds self.tray_menu_show_hide_action to the tray menu and
+        # related separators. Also connects/disconnects the tray icon activation signal to # onSystemTrayActivated()
         # calling onShouldMinimizeToSystemTraySettingChanged() manually as connectSignalsToSlots() is called after
         # initSystemTray() in __init__()
         # also calling after self.tray_menu_quit_action is created as it is used in
@@ -232,9 +234,6 @@ class MainWindow(KoncentroFluentWindow):
 
         self.tray.setIcon(initial_icon)
         self.tray.setVisible(True)
-
-        # on tray icon clicked
-        self.tray.activated.connect(self.onSystemTrayActivated)
 
     def onSystemTrayActivated(self, reason: QSystemTrayIcon.ActivationReason) -> None:
         if reason == QSystemTrayIcon.ActivationReason.Trigger:  # single left click
@@ -707,10 +706,14 @@ class MainWindow(KoncentroFluentWindow):
             self.tray_menu.insertAction(self.tray_menu_quit_action, self.tray_menu_before_show_hide_separator)
             self.tray_menu.insertAction(self.tray_menu_quit_action, self.tray_menu_show_hide_action)
             self.tray_menu.insertAction(self.tray_menu_quit_action, self.tray_menu_after_show_hide_separator)
+
+            self.tray.activated.connect(self.onSystemTrayActivated)
         else:
             self.tray_menu.removeAction(self.tray_menu_before_show_hide_separator)
             self.tray_menu.removeAction(self.tray_menu_show_hide_action)
             self.tray_menu.removeAction(self.tray_menu_after_show_hide_separator)
+
+            self.tray.activated.disconnect(self.onSystemTrayActivated)
 
     def resetProxySettings(self) -> None:
         logger.debug("Reset proxy settings button clicked")
