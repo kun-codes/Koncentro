@@ -193,13 +193,14 @@ class MainWindow(KoncentroFluentWindow):
         )
         self.tray_menu_skip_action.triggered.connect(lambda: self.pomodoro_interface.skipButton.click())
 
-        self.tray_menu.addSeparator()
+        if ConfigValues.SHOULD_MINIMIZE_TO_TRAY:
+            self.tray_menu.addSeparator()
 
-        self.tray_menu_show_hide_action = self.tray_menu.addAction("Show/Hide")
-        self.tray_menu_show_hide_action.setIcon(
-            FluentIcon.VIEW.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT)
-        )
-        self.tray_menu_show_hide_action.triggered.connect(self.toggleWindowVisibility)
+            self.tray_menu_show_hide_action = self.tray_menu.addAction("Show/Hide")
+            self.tray_menu_show_hide_action.setIcon(
+                FluentIcon.VIEW.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT)
+            )
+            self.tray_menu_show_hide_action.triggered.connect(self.toggleWindowVisibility)
 
         self.tray_menu.addSeparator()
 
