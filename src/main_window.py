@@ -196,7 +196,7 @@ class MainWindow(KoncentroFluentWindow):
         self.tray_menu_quit_action.setIcon(
             CustomFluentIcon.EXIT.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT)
         )
-        self.tray_menu_quit_action.triggered.connect(self.close)
+        self.tray_menu_quit_action.triggered.connect(self.quitApplicationWithCleanup)
 
         self.tray.setContextMenu(self.tray_menu)
 
