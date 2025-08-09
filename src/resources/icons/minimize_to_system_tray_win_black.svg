@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="24"
+   height="24"
+   viewBox="0 0 16 16"
+   version="1.1"
+   id="svg3"
+   sodipodi:docname="minimize_to_system_tray_black.svg"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs3" />
+  <sodipodi:namedview
+     id="namedview3"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="8.3333333"
+     inkscape:cx="-25.56"
+     inkscape:cy="-0.96"
+     inkscape:window-width="1920"
+     inkscape:window-height="1008"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg3" />
+  <g
+     id="g3"
+     transform="matrix(-1.3333333,0,0,1.3333333,17.333333,-2.6666664)"
+     style="fill:#000000;fill-opacity:1">
+    <path
+       fill="currentColor"
+       d="M 5.5,10 A 0.47,0.47 0 0 1 5.15,9.85 c -0.2,-0.2 -0.2,-0.51 0,-0.71 l 6.5,-6.49 c 0.2,-0.2 0.51,-0.2 0.71,0 0.2,0.2 0.2,0.51 0,0.71 l -6.5,6.5 c -0.1,0.1 -0.23,0.15 -0.35,0.15 z"
+       id="path1"
+       style="fill:#000000;fill-opacity:1" />
+    <path
+       fill="currentColor"
+       d="m 9.5,10 h -4 C 5.22,10 5,9.78 5,9.5 v -4 C 5,5.22 5.22,5 5.5,5 5.78,5 6,5.22 6,5.5 V 9 H 9.5 C 9.78,9 10,9.22 10,9.5 10,9.78 9.78,10 9.5,10"
+       id="path2"
+       style="fill:#000000;fill-opacity:1" />
+    <path
+       fill="currentColor"
+       d="m 11.5,14 h -9 C 1.67,14 1,13.33 1,12.5 v -9 C 1,2.67 1.67,2 2.5,2 h 5 C 7.78,2 8,2.22 8,2.5 8,2.78 7.78,3 7.5,3 h -5 C 2.22,3 2,3.22 2,3.5 v 9 C 2,12.78 2.22,13 2.5,13 h 9 c 0.28,0 0.5,-0.22 0.5,-0.5 v -5 C 12,7.22 12.22,7 12.5,7 12.78,7 13,7.22 13,7.5 v 5 c 0,0.83 -0.67,1.5 -1.5,1.5"
+       id="path3"
+       style="fill:#000000;fill-opacity:1" />
+  </g>
+</svg>
