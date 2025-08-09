@@ -1039,8 +1039,10 @@ class MainWindow(KoncentroFluentWindow):
 
     def toggleWindowVisibility(self) -> None:
         if self.isVisible():
+            logger.debug("Hiding the main window after clicking the system tray icon")
             self.hide()
         else:
+            logger.debug("Showing the main window after clicking the system tray icon")
             self.show()
 
     def initShortcuts(self) -> None:
