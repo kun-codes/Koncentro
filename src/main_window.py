@@ -6,7 +6,7 @@ from pathlib import Path
 
 from loguru import logger
 from PySide6.QtCore import QModelIndex, QSize, Qt
-from PySide6.QtGui import QFont, QIcon, QKeySequence, QShortcut
+from PySide6.QtGui import QAction, QFont, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 from qfluentwidgets import (
     FluentIcon,
@@ -193,14 +193,16 @@ class MainWindow(KoncentroFluentWindow):
         )
         self.tray_menu_skip_action.triggered.connect(lambda: self.pomodoro_interface.skipButton.click())
 
-        if ConfigValues.SHOULD_MINIMIZE_TO_TRAY:
-            self.tray_menu.addSeparator()
-
-            self.tray_menu_show_hide_action = self.tray_menu.addAction("Show/Hide")
-            self.tray_menu_show_hide_action.setIcon(
-                FluentIcon.VIEW.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT)
-            )
-            self.tray_menu_show_hide_action.triggered.connect(self.toggleWindowVisibility)
+        # not adding tray_menu_show_hide_action here, it will be done in onShouldMinimizeToSystemTraySettingChanged
+        self.tray_menu_before_show_hide_separator = QAction()
+        self.tray_menu_before_show_hide_separator.setSeparator(True)
+        self.tray_menu_show_hide_action = QAction("Show/Hide")
+        self.tray_menu_show_hide_action.setIcon(
+            FluentIcon.VIEW.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT)
+        )
+        self.tray_menu_after_show_hide_separator = QAction()
+        self.tray_menu_after_show_hide_separator.setSeparator(True)
+        self.tray_menu_show_hide_action.triggered.connect(self.toggleWindowVisibility)
 
         self.tray_menu.addSeparator()
 
@@ -209,6 +211,12 @@ class MainWindow(KoncentroFluentWindow):
             CustomFluentIcon.EXIT.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT)
         )
         self.tray_menu_quit_action.triggered.connect(self.quitApplicationWithCleanup)
+
+        # calling onShouldMinimizeToSystemTraySettingChanged() manually as connectSignalsToSlots() is called after
+        # initSystemTray() in __init__()
+        # also calling after self.tray_menu_quit_action is created as it is used in
+        # onShouldMinimizeToSystemTraySettingChanged()
+        self.onShouldMinimizeToSystemTraySettingChanged(ConfigValues.SHOULD_MINIMIZE_TO_TRAY)
 
         self.tray.setContextMenu(self.tray_menu)
 
@@ -659,6 +667,7 @@ class MainWindow(KoncentroFluentWindow):
         workspace_specific_settings.enable_website_blocker.valueChanged.connect(
             lambda: self.handle_website_blocker_settings_change()
         )
+        app_settings.should_minimize_to_tray.valueChanged.connect(self.onShouldMinimizeToSystemTraySettingChanged)
         self.stackedWidget.mousePressEvent = self.onStackedWidgetClicked
         self.settings_interface.proxy_port_card.valueChanged.connect(self.update_proxy_port)
 
@@ -692,6 +701,16 @@ class MainWindow(KoncentroFluentWindow):
 
         self.settings_interface.setup_app_card.clicked.connect(lambda: self.preSetupMitmproxy(False))
         self.settings_interface.reset_proxy_settings.clicked.connect(self.resetProxySettings)
+
+    def onShouldMinimizeToSystemTraySettingChanged(self, value: bool) -> None:
+        if value:
+            self.tray_menu.insertAction(self.tray_menu_quit_action, self.tray_menu_before_show_hide_separator)
+            self.tray_menu.insertAction(self.tray_menu_quit_action, self.tray_menu_show_hide_action)
+            self.tray_menu.insertAction(self.tray_menu_quit_action, self.tray_menu_after_show_hide_separator)
+        else:
+            self.tray_menu.removeAction(self.tray_menu_before_show_hide_separator)
+            self.tray_menu.removeAction(self.tray_menu_show_hide_action)
+            self.tray_menu.removeAction(self.tray_menu_after_show_hide_separator)
 
     def resetProxySettings(self) -> None:
         logger.debug("Reset proxy settings button clicked")
