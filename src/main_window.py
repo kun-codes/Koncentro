@@ -6,7 +6,7 @@ from pathlib import Path
 
 from loguru import logger
 from PySide6.QtCore import QModelIndex, QSize, Qt
-from PySide6.QtGui import QFont, QIcon
+from PySide6.QtGui import QFont, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 from qfluentwidgets import (
     FluentIcon,
@@ -106,6 +106,9 @@ class MainWindow(KoncentroFluentWindow):
         self.initSystemTray()
         self.initBottomBar()
         self.connectSignalsToSlots()
+
+        # Initialize keyboard shortcuts
+        self.initShortcuts()
 
         self.website_blocker_interface.setEnabled(ConfigValues.ENABLE_WEBSITE_BLOCKER)
 
@@ -1038,3 +1041,10 @@ class MainWindow(KoncentroFluentWindow):
             self.hide()
         else:
             self.show()
+
+    def initShortcuts(self) -> None:
+        # for macOS, Ctrl will work as mentioned below:
+        # https://doc.qt.io/qtforpython-6/PySide6/QtGui/QKeySequence.html#detailed-description
+        quit_shortcut = QKeySequence("Ctrl+Q")
+
+        QShortcut(quit_shortcut, self, self.quitApplicationWithCleanup)
