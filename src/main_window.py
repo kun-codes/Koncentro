@@ -225,7 +225,11 @@ class MainWindow(KoncentroFluentWindow):
         self.tray.setVisible(True)
 
         # on tray icon clicked
-        self.tray.activated.connect(self.toggleWindowVisibility)
+        self.tray.activated.connect(self.onSystemTrayActivated)
+
+    def onSystemTrayActivated(self, reason: QSystemTrayIcon.ActivationReason) -> None:
+        if reason == QSystemTrayIcon.ActivationReason.Trigger:  # single left click
+            self.toggleWindowVisibility()
 
     def remainingFontSubstitutions(self) -> None:
         # This was unaffected by font substitution in __main__.py
