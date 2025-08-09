@@ -64,6 +64,7 @@ class AppSettings(QConfig):
         "AppSettings", "HasCompletedWorkspaceManagerDialogTutorial", False, BoolValidator()
     )
     mica_enabled = ConfigItem("MainWindow", "MicaEnabled", isWin11(), BoolValidator())
+    should_minimize_to_tray = ConfigItem("MainWindow", "ShouldMinimizeToTray", True, BoolValidator())
 
 
 workspace_specific_settings = WorkspaceSettings()

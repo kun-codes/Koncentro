@@ -141,6 +141,13 @@ class SettingsView(QWidget, Ui_SettingsView):
                 app_settings.mica_enabled,
                 self.personalization_settings_group,
             )
+        self.close_to_system_tray_card = SwitchSettingCard(
+            FluentIcon.VPN,  # todo: replace this with a proper icon
+            "Minimize to System Tray",
+            f"Minimize {APPLICATION_NAME} to system tray instead of closing it",
+            app_settings.should_minimize_to_tray,
+            self.personalization_settings_group,
+        )
 
         # Update Settings
         self.update_settings_group = SettingCardGroup("Updates", self.scrollArea)
@@ -215,6 +222,7 @@ class SettingsView(QWidget, Ui_SettingsView):
         self.personalization_settings_group.addSettingCard(self.theme_color_card)
         if isWin11():
             self.personalization_settings_group.addSettingCard(self.mica_card)
+        self.personalization_settings_group.addSettingCard(self.close_to_system_tray_card)
         self.scrollAreaWidgetContents.layout().addWidget(self.personalization_settings_group)
 
         # Update Settings
@@ -260,6 +268,7 @@ class SettingsView(QWidget, Ui_SettingsView):
 
         app_settings.proxy_port.valueChanged.connect(self.updateProxyPort)
         app_settings.check_for_updates_on_start.valueChanged.connect(self.updateCheckForUpdatesOnStart)
+        app_settings.should_minimize_to_tray.valueChanged.connect(self.updateShouldMinimizeToTray)
 
     def updateBreakDuration(self) -> None:
         ConfigValues.BREAK_DURATION = workspace_specific_settings.get(workspace_specific_settings.break_duration)
@@ -318,6 +327,10 @@ class SettingsView(QWidget, Ui_SettingsView):
     def updateCheckForUpdatesOnStart(self) -> None:
         ConfigValues.CHECK_FOR_UPDATES_ON_START = app_settings.get(app_settings.check_for_updates_on_start)
         logger.debug(f"Check For Updates On Start: {app_settings.get(app_settings.check_for_updates_on_start)}")
+
+    def updateShouldMinimizeToTray(self) -> None:
+        ConfigValues.SHOULD_MINIMIZE_TO_TRAY = app_settings.get(app_settings.should_minimize_to_tray)
+        logger.debug(f"Should Minimize To Tray: {app_settings.get(app_settings.should_minimize_to_tray)}")
 
     def checkForUpdatesNow(self) -> None:
         """Check for updates using the UpdateChecker class"""
