@@ -981,6 +981,10 @@ class MainWindow(KoncentroFluentWindow):
         self.quitApplicationWithCleanup()
 
     def quitApplicationWithCleanup(self) -> None:
+        # sometimes this method is called without closing the window, so save the window geometry if it is visible
+        if self.isVisible():
+            self.saveWindowGeometry()
+
         logger.debug("Saving data and running cleanup tasks before quitting application...")
 
         # Run cleanup tasks in a background thread
