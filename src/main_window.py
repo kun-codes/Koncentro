@@ -909,7 +909,7 @@ class MainWindow(KoncentroFluentWindow):
         if first_run_dotfile_path.exists():
             first_run_dotfile_path.unlink()
 
-        self.quitApplication()
+        self.quitApplicationWithCleanup()
 
     def handleUpdates(self) -> None:
         # Using the threaded update checker to avoid freezing the GUI
@@ -966,11 +966,6 @@ class MainWindow(KoncentroFluentWindow):
             self.setupAppConfirmationDialog.show()
         elif self.updateDialog is not None:
             self.updateDialog.show()
-
-    def quitApplication(self) -> None:
-        logger.debug("Quitting application...")
-        app_instance = QApplication.instance()
-        app_instance.exit()
 
     def closeEvent(self, event) -> None:
         # Check if minimize to system tray is enabled
