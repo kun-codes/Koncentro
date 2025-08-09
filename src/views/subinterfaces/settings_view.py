@@ -1,3 +1,4 @@
+import os
 import platform
 
 from loguru import logger
@@ -141,8 +142,24 @@ class SettingsView(QWidget, Ui_SettingsView):
                 app_settings.mica_enabled,
                 self.personalization_settings_group,
             )
+
+        minimize_to_system_tray_icon: CustomFluentIcon = CustomFluentIcon.MINIMIZE_TO_SYSTEM_TRAY_WIN
+
+        is_linux = platform.system().lower() == "linux"
+        is_mac = platform.system().lower() == "darwin"
+        is_gnome = False
+
+        if is_linux:
+            desktop = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
+            is_gnome = "gnome" in desktop
+
+        if is_gnome or is_mac:
+            # MINIMIZE_TO_SYSTEM_TRAY_MAC is used for macOS and Gnome, as their system tray is to the top right
+            # of the screen instead of bottom right and the icon indicates the difference
+            minimize_to_system_tray_icon: CustomFluentIcon = CustomFluentIcon.MINIMIZE_TO_SYSTEM_TRAY_MAC
+
         self.close_to_system_tray_card = SwitchSettingCard(
-            FluentIcon.VPN,  # todo: replace this with a proper icon
+            minimize_to_system_tray_icon,
             "Minimize to System Tray",
             f"Minimize {APPLICATION_NAME} to system tray instead of closing it",
             app_settings.should_minimize_to_tray,
