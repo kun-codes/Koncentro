@@ -195,6 +195,14 @@ class MainWindow(KoncentroFluentWindow):
 
         self.tray_menu.addSeparator()
 
+        self.tray_menu_show_hide_action = self.tray_menu.addAction("Show/Hide")
+        self.tray_menu_show_hide_action.setIcon(
+            FluentIcon.VIEW.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT)
+        )
+        self.tray_menu_show_hide_action.triggered.connect(self.toggleWindowVisibility)
+
+        self.tray_menu.addSeparator()
+
         self.tray_menu_quit_action = self.tray_menu.addAction("Quit")
         self.tray_menu_quit_action.setIcon(
             CustomFluentIcon.EXIT.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT)
@@ -245,6 +253,7 @@ class MainWindow(KoncentroFluentWindow):
             self.tray_menu_pause_resume_action.setIcon(CustomFluentIcon.PLAY_PAUSE.icon(Theme.DARK))
             self.tray_menu_stop_action.setIcon(FluentIcon.CLOSE.icon(Theme.DARK))
             self.tray_menu_skip_action.setIcon(FluentIcon.CHEVRON_RIGHT.icon(Theme.DARK))
+            self.tray_menu_show_hide_action.setIcon(FluentIcon.VIEW.icon(Theme.DARK))
             self.tray_menu_quit_action.setIcon(CustomFluentIcon.EXIT.icon(Theme.DARK))
         else:
             self.tray_menu_timer_status_action.setIcon(FluentIcon.STOP_WATCH.icon(Theme.LIGHT))
@@ -252,6 +261,7 @@ class MainWindow(KoncentroFluentWindow):
             self.tray_menu_pause_resume_action.setIcon(CustomFluentIcon.PLAY_PAUSE.icon(Theme.LIGHT))
             self.tray_menu_stop_action.setIcon(FluentIcon.CLOSE.icon(Theme.LIGHT))
             self.tray_menu_skip_action.setIcon(FluentIcon.CHEVRON_RIGHT.icon(Theme.LIGHT))
+            self.tray_menu_show_hide_action.setIcon(FluentIcon.VIEW.icon(Theme.LIGHT))
             self.tray_menu_quit_action.setIcon(CustomFluentIcon.EXIT.icon(Theme.LIGHT))
 
     def updateSystemTrayActions(self, timerState) -> None:
@@ -332,7 +342,7 @@ class MainWindow(KoncentroFluentWindow):
             self.tray.showMessage(
                 title,
                 message,
-                QSystemTrayIcon.Information,
+                QSystemTrayIcon.MessageIcon.Information,
                 5000,
             )
 
