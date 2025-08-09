@@ -193,9 +193,9 @@ class MainWindow(KoncentroFluentWindow):
         )
         self.tray_menu_skip_action.triggered.connect(lambda: self.pomodoro_interface.skipButton.click())
 
+        self.tray_menu.addSeparator()
+
         # not adding tray_menu_show_hide_action here, it will be done in onShouldMinimizeToSystemTraySettingChanged
-        self.tray_menu_before_show_hide_separator = QAction()
-        self.tray_menu_before_show_hide_separator.setSeparator(True)
         self.tray_menu_show_hide_action = QAction("Show/Hide")
         self.tray_menu_show_hide_action.setIcon(
             FluentIcon.VIEW.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT)
@@ -203,8 +203,6 @@ class MainWindow(KoncentroFluentWindow):
         self.tray_menu_after_show_hide_separator = QAction()
         self.tray_menu_after_show_hide_separator.setSeparator(True)
         self.tray_menu_show_hide_action.triggered.connect(self.toggleWindowVisibility)
-
-        self.tray_menu.addSeparator()
 
         self.tray_menu_quit_action = self.tray_menu.addAction("Quit")
         self.tray_menu_quit_action.setIcon(
@@ -703,13 +701,11 @@ class MainWindow(KoncentroFluentWindow):
 
     def onShouldMinimizeToSystemTraySettingChanged(self, value: bool) -> None:
         if value:
-            self.tray_menu.insertAction(self.tray_menu_quit_action, self.tray_menu_before_show_hide_separator)
             self.tray_menu.insertAction(self.tray_menu_quit_action, self.tray_menu_show_hide_action)
             self.tray_menu.insertAction(self.tray_menu_quit_action, self.tray_menu_after_show_hide_separator)
 
             self.tray.activated.connect(self.onSystemTrayActivated)
         else:
-            self.tray_menu.removeAction(self.tray_menu_before_show_hide_separator)
             self.tray_menu.removeAction(self.tray_menu_show_hide_action)
             self.tray_menu.removeAction(self.tray_menu_after_show_hide_separator)
 
