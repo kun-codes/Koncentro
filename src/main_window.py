@@ -6,7 +6,7 @@ from pathlib import Path
 
 from loguru import logger
 from PySide6.QtCore import QModelIndex, QSize, Qt
-from PySide6.QtGui import QFont, QIcon
+from PySide6.QtGui import QAction, QFont, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 from qfluentwidgets import (
     FluentIcon,
@@ -107,6 +107,9 @@ class MainWindow(KoncentroFluentWindow):
         self.initBottomBar()
         self.connectSignalsToSlots()
 
+        # Initialize keyboard shortcuts
+        self.initShortcuts()
+
         self.website_blocker_interface.setEnabled(ConfigValues.ENABLE_WEBSITE_BLOCKER)
 
         self.navigationInterface.panel.setFixedHeight(48)
@@ -192,11 +195,28 @@ class MainWindow(KoncentroFluentWindow):
 
         self.tray_menu.addSeparator()
 
+        # not adding tray_menu_show_hide_action here, it will be done in onShouldMinimizeToSystemTraySettingChanged
+        self.tray_menu_show_hide_action = QAction("Show/Hide")
+        self.tray_menu_show_hide_action.setIcon(
+            FluentIcon.VIEW.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT)
+        )
+        self.tray_menu_after_show_hide_separator = QAction()
+        self.tray_menu_after_show_hide_separator.setSeparator(True)
+        self.tray_menu_show_hide_action.triggered.connect(self.toggleWindowVisibility)
+
         self.tray_menu_quit_action = self.tray_menu.addAction("Quit")
         self.tray_menu_quit_action.setIcon(
             CustomFluentIcon.EXIT.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT)
         )
-        self.tray_menu_quit_action.triggered.connect(self.close)
+        self.tray_menu_quit_action.triggered.connect(self.quitApplicationWithCleanup)
+
+        # onShouldMinimizeToSystemTraySettingChanged() adds self.tray_menu_show_hide_action to the tray menu and
+        # related separators. Also connects/disconnects the tray icon activation signal to # onSystemTrayActivated()
+        # calling onShouldMinimizeToSystemTraySettingChanged() manually as connectSignalsToSlots() is called after
+        # initSystemTray() in __init__()
+        # also calling after self.tray_menu_quit_action is created as it is used in
+        # onShouldMinimizeToSystemTraySettingChanged()
+        self.onShouldMinimizeToSystemTraySettingChanged(ConfigValues.SHOULD_MINIMIZE_TO_TRAY)
 
         self.tray.setContextMenu(self.tray_menu)
 
@@ -212,6 +232,10 @@ class MainWindow(KoncentroFluentWindow):
 
         self.tray.setIcon(initial_icon)
         self.tray.setVisible(True)
+
+    def onSystemTrayActivated(self, reason: QSystemTrayIcon.ActivationReason) -> None:
+        if reason == QSystemTrayIcon.ActivationReason.Trigger:  # single left click
+            self.toggleWindowVisibility()
 
     def remainingFontSubstitutions(self) -> None:
         # This was unaffected by font substitution in __main__.py
@@ -239,6 +263,7 @@ class MainWindow(KoncentroFluentWindow):
             self.tray_menu_pause_resume_action.setIcon(CustomFluentIcon.PLAY_PAUSE.icon(Theme.DARK))
             self.tray_menu_stop_action.setIcon(FluentIcon.CLOSE.icon(Theme.DARK))
             self.tray_menu_skip_action.setIcon(FluentIcon.CHEVRON_RIGHT.icon(Theme.DARK))
+            self.tray_menu_show_hide_action.setIcon(FluentIcon.VIEW.icon(Theme.DARK))
             self.tray_menu_quit_action.setIcon(CustomFluentIcon.EXIT.icon(Theme.DARK))
         else:
             self.tray_menu_timer_status_action.setIcon(FluentIcon.STOP_WATCH.icon(Theme.LIGHT))
@@ -246,6 +271,7 @@ class MainWindow(KoncentroFluentWindow):
             self.tray_menu_pause_resume_action.setIcon(CustomFluentIcon.PLAY_PAUSE.icon(Theme.LIGHT))
             self.tray_menu_stop_action.setIcon(FluentIcon.CLOSE.icon(Theme.LIGHT))
             self.tray_menu_skip_action.setIcon(FluentIcon.CHEVRON_RIGHT.icon(Theme.LIGHT))
+            self.tray_menu_show_hide_action.setIcon(FluentIcon.VIEW.icon(Theme.LIGHT))
             self.tray_menu_quit_action.setIcon(CustomFluentIcon.EXIT.icon(Theme.LIGHT))
 
     def updateSystemTrayActions(self, timerState) -> None:
@@ -326,7 +352,7 @@ class MainWindow(KoncentroFluentWindow):
             self.tray.showMessage(
                 title,
                 message,
-                QSystemTrayIcon.Information,
+                QSystemTrayIcon.MessageIcon.Information,
                 5000,
             )
 
@@ -638,6 +664,7 @@ class MainWindow(KoncentroFluentWindow):
         workspace_specific_settings.enable_website_blocker.valueChanged.connect(
             lambda: self.handle_website_blocker_settings_change()
         )
+        app_settings.should_minimize_to_tray.valueChanged.connect(self.onShouldMinimizeToSystemTraySettingChanged)
         self.stackedWidget.mousePressEvent = self.onStackedWidgetClicked
         self.settings_interface.proxy_port_card.valueChanged.connect(self.update_proxy_port)
 
@@ -671,6 +698,18 @@ class MainWindow(KoncentroFluentWindow):
 
         self.settings_interface.setup_app_card.clicked.connect(lambda: self.preSetupMitmproxy(False))
         self.settings_interface.reset_proxy_settings.clicked.connect(self.resetProxySettings)
+
+    def onShouldMinimizeToSystemTraySettingChanged(self, value: bool) -> None:
+        if value:
+            self.tray_menu.insertAction(self.tray_menu_quit_action, self.tray_menu_show_hide_action)
+            self.tray_menu.insertAction(self.tray_menu_quit_action, self.tray_menu_after_show_hide_separator)
+
+            self.tray.activated.connect(self.onSystemTrayActivated)
+        else:
+            self.tray_menu.removeAction(self.tray_menu_show_hide_action)
+            self.tray_menu.removeAction(self.tray_menu_after_show_hide_separator)
+
+            self.tray.activated.disconnect(self.onSystemTrayActivated)
 
     def resetProxySettings(self) -> None:
         logger.debug("Reset proxy settings button clicked")
@@ -906,7 +945,7 @@ class MainWindow(KoncentroFluentWindow):
         if first_run_dotfile_path.exists():
             first_run_dotfile_path.unlink()
 
-        self.quitApplication()
+        self.quitApplicationWithCleanup()
 
     def handleUpdates(self) -> None:
         # Using the threaded update checker to avoid freezing the GUI
@@ -964,17 +1003,26 @@ class MainWindow(KoncentroFluentWindow):
         elif self.updateDialog is not None:
             self.updateDialog.show()
 
-    def quitApplication(self) -> None:
-        logger.debug("Quitting application...")
-        app_instance = QApplication.instance()
-        app_instance.exit()
-
     def closeEvent(self, event) -> None:
-        self.saveWindowGeometry()
+        # Check if minimize to system tray is enabled
+        if ConfigValues.SHOULD_MINIMIZE_TO_TRAY:
+            event.ignore()
+            self.hide()
+            logger.debug("Window minimized to system tray")
+            return
 
-        # Accept the event immediately to close the window
+        self.saveWindowGeometry()
+        # accepting the event to close the window immediately
         event.accept()
-        logger.debug("Closing window immediately...")
+        self.quitApplicationWithCleanup()
+
+    def quitApplicationWithCleanup(self) -> None:
+        # sometimes this method is called without closing the window, so save the window geometry if it is visible
+        if self.isVisible():
+            self.saveWindowGeometry()
+            self.hide()
+
+        logger.debug("Saving data and running cleanup tasks before quitting application...")
 
         # Run cleanup tasks in a background thread
         cleanup_thread = threading.Thread(
@@ -994,7 +1042,9 @@ class MainWindow(KoncentroFluentWindow):
         except Exception as e:
             logger.error(f"Error during cleanup: {str(e)}")
         finally:
-            self.quitApplication()
+            logger.debug("Quitting application...")
+            app_instance = QApplication.instance()
+            app_instance.exit()
 
     def saveWindowGeometry(self) -> None:
         settings.setValue(WindowGeometryKeys.GEOMETRY.value, self.saveGeometry())
@@ -1019,3 +1069,18 @@ class MainWindow(KoncentroFluentWindow):
                 self.showMaximized()
         else:
             self.resize(default_size)
+
+    def toggleWindowVisibility(self) -> None:
+        if self.isVisible():
+            logger.debug("Hiding the main window after clicking the system tray icon")
+            self.hide()
+        else:
+            logger.debug("Showing the main window after clicking the system tray icon")
+            self.show()
+
+    def initShortcuts(self) -> None:
+        # for macOS, Ctrl will work as mentioned below:
+        # https://doc.qt.io/qtforpython-6/PySide6/QtGui/QKeySequence.html#detailed-description
+        quit_shortcut = QKeySequence("Ctrl+Q")
+
+        QShortcut(quit_shortcut, self, self.quitApplicationWithCleanup)
