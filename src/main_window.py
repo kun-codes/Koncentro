@@ -100,7 +100,7 @@ class MainWindow(KoncentroFluentWindow):
 
         self.initNavigation()
         self.initWindow()
-        self.system_tray = SystemTray(self)
+        self.systemTray = SystemTray(self)
         self.initBottomBar()
         self.connectSignalsToSlots()
 
@@ -498,15 +498,15 @@ class MainWindow(KoncentroFluentWindow):
         self.task_interface.todoTasksList.model().dataChanged.connect(self.updateBottomBarTaskLabel)
         # for system tray
         app_settings.should_minimize_to_tray.valueChanged.connect(
-            self.system_tray.onShouldMinimizeToSystemTraySettingChanged
+            self.systemTray.onShouldMinimizeToSystemTraySettingChanged
         )
-        self.themeListener.systemThemeChanged.connect(self.system_tray.updateSystemTrayIcon)
+        self.themeListener.systemThemeChanged.connect(self.systemTray.updateSystemTrayIcon)
         self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(
-            self.system_tray.updateSystemTrayActions
+            self.systemTray.updateSystemTrayActions
         )
         ## for notifications
-        self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(self.system_tray.showNotifications)
-        self.system_tray.connectSignalsToSlots(
+        self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(self.systemTray.showNotifications)
+        self.systemTray.connectSignalsToSlots(
             self.pomodoro_interface, self.quitApplicationWithCleanup, self.toggleWindowVisibility
         )
 
@@ -669,7 +669,7 @@ class MainWindow(KoncentroFluentWindow):
 
             timer_text = f"{current_timer_state.value}\n{hh:02d}:{mm:02d}:{ss:02d} / {t_hh:02d}:{t_mm:02d}:{t_ss:02d}"
             self.bottomBar.timerLabel.setText(timer_text)
-            self.system_tray.tray_menu_timer_status_action.setText(timer_text)
+            self.systemTray.tray_menu_timer_status_action.setText(timer_text)
 
         else:
             # timer is not running
@@ -678,7 +678,7 @@ class MainWindow(KoncentroFluentWindow):
 
             timer_text = f"Idle\n{hh:02d}:{mm:02d}:{ss:02d} / {t_hh:02d}:{t_mm:02d}:{t_ss:02d}"
             self.bottomBar.timerLabel.setText(timer_text)
-            self.system_tray.tray_menu_timer_status_action.setText(timer_text)
+            self.systemTray.tray_menu_timer_status_action.setText(timer_text)
 
     def check_first_run(self) -> bool:
         settings_dir_path = Path(settings_dir)
