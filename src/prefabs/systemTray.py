@@ -1,6 +1,7 @@
 import os
 
 from loguru import logger
+from PySide6.QtCore import QMetaMethod
 from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QMenu, QSystemTrayIcon
 from qfluentwidgets import FluentIcon, Theme, qconfig
@@ -203,7 +204,16 @@ class SystemTray(QSystemTrayIcon):
             self.tray_menu.removeAction(self.tray_menu_show_hide_action)
             self.tray_menu.removeAction(self.tray_menu_after_show_hide_separator)
 
-            self.activated.disconnect(self.onSystemTrayActivated)
+            # from: https://doc.qt.io/qtforpython-6/PySide6/QtCore/QObject.html#PySide6.QtCore.QObject.isSignalConnected
+            activatedSignal: QMetaMethod = QMetaMethod.fromSignal(self.activated)
+            # will return True if activated signal is connected to atleast one slot. Since activated signal is connected
+            # to only 1 slot in present implementation, this will work
+            isActivatedSignalConnected: bool = self.isSignalConnected(activatedSignal)
+            logger.debug(f"Is system tray activation signal connected: {isActivatedSignalConnected}")
+            # doing this so that non-connected slots are not disconnected from the signal which will throw a
+            # RuntimeError
+            if isActivatedSignalConnected:
+                self.activated.disconnect(self.onSystemTrayActivated)
 
     def connectSignalsToSlots(self, pomodoro_interface, quit_callback, toggle_visibility_callback):
         """Connect system tray signals to main window callbacks"""
