@@ -11,10 +11,10 @@ from prefabs.customFluentIcon import CustomFluentIcon
 from utils.detect_windows_version import isWin10OrEarlier
 
 
-class SystemTray:
+class SystemTray(QSystemTrayIcon):
     def __init__(self, parent):
+        super().__init__(parent)
         self.parent = parent
-        self.tray = QSystemTrayIcon(parent)
         self.tray_menu = QMenu()
 
         self.tray_white_icon = QIcon(":/logosPrefix/logos/logo-monochrome-white.svg")
@@ -81,7 +81,7 @@ class SystemTray:
         # onShouldMinimizeToSystemTraySettingChanged()
         self.onShouldMinimizeToSystemTraySettingChanged(ConfigValues.SHOULD_MINIMIZE_TO_TRAY)
 
-        self.tray.setContextMenu(self.tray_menu)
+        self.setContextMenu(self.tray_menu)
 
         if is_gnome:
             initial_icon = self.tray_white_icon
@@ -90,8 +90,8 @@ class SystemTray:
         else:
             initial_icon = self.tray_black_icon
 
-        self.tray.setIcon(initial_icon)
-        self.tray.setVisible(True)
+        self.setIcon(initial_icon)
+        self.setVisible(True)
 
     def onSystemTrayActivated(self, reason: QSystemTrayIcon.ActivationReason) -> None:
         if reason == QSystemTrayIcon.ActivationReason.Trigger:  # single left click
@@ -103,11 +103,11 @@ class SystemTray:
         desktop = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
         is_gnome = "gnome" in desktop
         if is_gnome:
-            self.tray.setIcon(self.tray_white_icon)
+            self.setIcon(self.tray_white_icon)
         elif qconfig.theme == Theme.DARK:
-            self.tray.setIcon(self.tray_white_icon)
+            self.setIcon(self.tray_white_icon)
         else:
-            self.tray.setIcon(self.tray_black_icon)
+            self.setIcon(self.tray_black_icon)
 
         if isWin10OrEarlier():
             return
@@ -186,7 +186,7 @@ class SystemTray:
             message = "Timer has stopped"
 
         if title and message:
-            self.tray.showMessage(
+            self.showMessage(
                 title,
                 message,
                 QSystemTrayIcon.MessageIcon.Information,
@@ -198,12 +198,12 @@ class SystemTray:
             self.tray_menu.insertAction(self.tray_menu_quit_action, self.tray_menu_show_hide_action)
             self.tray_menu.insertAction(self.tray_menu_quit_action, self.tray_menu_after_show_hide_separator)
 
-            self.tray.activated.connect(self.onSystemTrayActivated)
+            self.activated.connect(self.onSystemTrayActivated)
         else:
             self.tray_menu.removeAction(self.tray_menu_show_hide_action)
             self.tray_menu.removeAction(self.tray_menu_after_show_hide_separator)
 
-            self.tray.activated.disconnect(self.onSystemTrayActivated)
+            self.activated.disconnect(self.onSystemTrayActivated)
 
     def connectSignalsToSlots(self, pomodoro_interface, quit_callback, toggle_visibility_callback):
         """Connect system tray signals to main window callbacks"""
