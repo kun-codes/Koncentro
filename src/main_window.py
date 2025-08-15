@@ -101,7 +101,7 @@ class MainWindow(KoncentroFluentWindow):
         self.initWindow()
         self.systemTray = SystemTray(self)
         # bottomBar is already a part of KoncentroFluentWindow so not making a new object of BottomBar
-        self.bottomBar.initBottomBar()
+        self.bottomBar.initBottomBar(self.pomodoro_interface, self.task_interface)
         self.connectSignalsToSlots()
 
         # Initialize keyboard shortcuts
