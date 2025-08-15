@@ -466,8 +466,8 @@ class MainWindow(KoncentroFluentWindow):
         self.workplace_list_model.current_workspace_changed.connect(
             self.task_interface.onCurrentWorkspaceChanged  # update task list when workspace is changed
         )
-        self.pomodoro_interface.pomodoro_timer_obj.pomodoro_timer.timeout.connect(self.update_bottom_bar_timer_label)
-        self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(self.update_bottom_bar_timer_label)
+        self.pomodoro_interface.pomodoro_timer_obj.pomodoro_timer.timeout.connect(self.updateTimerStatusLabels)
+        self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(self.updateTimerStatusLabels)
         workspace_specific_settings.enable_website_blocker.valueChanged.connect(
             self.on_website_block_enabled_setting_changed
         )
@@ -516,7 +516,7 @@ class MainWindow(KoncentroFluentWindow):
         self.settings_interface.setup_app_card.clicked.connect(lambda: self.preSetupMitmproxy(False))
         self.settings_interface.reset_proxy_settings.clicked.connect(self.resetProxySettings)
 
-    def update_bottom_bar_timer_label(self) -> None:
+    def updateTimerStatusLabels(self) -> None:
         # check if timer is running
         current_timer_state = self.pomodoro_interface.pomodoro_timer_obj.getTimerState()
         if current_timer_state in [TimerState.WORK, TimerState.BREAK, TimerState.LONG_BREAK]:
