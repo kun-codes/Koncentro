@@ -45,6 +45,7 @@ from utils.check_for_updates import UpdateChecker
 from utils.check_internet_worker import CheckInternetWorker
 from utils.find_mitmdump_executable import get_mitmdump_path
 from utils.isMitmdumpRunning import isMitmdumpRunningWorker
+from utils.time_conversion import convert_ms_to_hh_mm_ss
 from views.dialogs.preSetupConfirmationDialog import PreSetupConfirmationDialog
 from views.dialogs.setupAppDialog import SetupAppDialog
 from views.dialogs.updateDialog import UpdateDialog
@@ -465,12 +466,8 @@ class MainWindow(KoncentroFluentWindow):
         self.workplace_list_model.current_workspace_changed.connect(
             self.task_interface.onCurrentWorkspaceChanged  # update task list when workspace is changed
         )
-        self.pomodoro_interface.pomodoro_timer_obj.pomodoro_timer.timeout.connect(
-            self.bottomBar.update_bottom_bar_timer_label
-        )
-        self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(
-            self.bottomBar.update_bottom_bar_timer_label
-        )
+        self.pomodoro_interface.pomodoro_timer_obj.pomodoro_timer.timeout.connect(self.update_bottom_bar_timer_label)
+        self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(self.update_bottom_bar_timer_label)
         workspace_specific_settings.enable_website_blocker.valueChanged.connect(
             self.on_website_block_enabled_setting_changed
         )
@@ -518,6 +515,41 @@ class MainWindow(KoncentroFluentWindow):
 
         self.settings_interface.setup_app_card.clicked.connect(lambda: self.preSetupMitmproxy(False))
         self.settings_interface.reset_proxy_settings.clicked.connect(self.resetProxySettings)
+
+    def update_bottom_bar_timer_label(self) -> None:
+        # check if timer is running
+        current_timer_state = self.pomodoro_interface.pomodoro_timer_obj.getTimerState()
+        if current_timer_state in [TimerState.WORK, TimerState.BREAK, TimerState.LONG_BREAK]:
+            # timer is running
+
+            total_session_length_ms = 0
+            if current_timer_state == TimerState.WORK:
+                total_session_length_ms = ConfigValues.WORK_DURATION * 60 * 1000
+            elif current_timer_state == TimerState.BREAK:
+                total_session_length_ms = ConfigValues.BREAK_DURATION * 60 * 1000
+            elif current_timer_state == TimerState.LONG_BREAK:
+                total_session_length_ms = ConfigValues.LONG_BREAK_DURATION * 60 * 1000
+
+            remaining_time_ms = self.pomodoro_interface.pomodoro_timer_obj.remaining_time
+
+            if remaining_time_ms <= 0:  # have to compensate that the first second is not shown
+                remaining_time_ms = total_session_length_ms
+
+            hh, mm, ss = convert_ms_to_hh_mm_ss(remaining_time_ms)
+            t_hh, t_mm, t_ss = convert_ms_to_hh_mm_ss(total_session_length_ms)
+
+            timer_text = f"{current_timer_state.value}\n{hh:02d}:{mm:02d}:{ss:02d} / {t_hh:02d}:{t_mm:02d}:{t_ss:02d}"
+            self.bottomBar.timerLabel.setText(timer_text)
+            self.systemTray.tray_menu_timer_status_action.setText(timer_text)
+
+        else:
+            # timer is not running
+            hh, mm, ss = 0, 0, 0
+            t_hh, t_mm, t_ss = 0, 0, 0
+
+            timer_text = f"Idle\n{hh:02d}:{mm:02d}:{ss:02d} / {t_hh:02d}:{t_mm:02d}:{t_ss:02d}"
+            self.bottomBar.timerLabel.setText(timer_text)
+            self.systemTray.tray_menu_timer_status_action.setText(timer_text)
 
     def resetProxySettings(self) -> None:
         logger.debug("Reset proxy settings button clicked")
