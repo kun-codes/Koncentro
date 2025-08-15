@@ -1,12 +1,18 @@
+from loguru import logger
+from PySide6.QtCore import QModelIndex, Qt
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, ToolTipFilter, ToolTipPosition
 
+from models.task_list_model import TaskListModel
 from ui_py.ui_bottom_bar_widget import Ui_BottomBarWidget
+from views.subinterfaces.pomodoro_view import PomodoroView
+from views.subinterfaces.tasks_view import TaskListView
 
 
 class BottomBar(Ui_BottomBarWidget, QWidget):
     def __init__(self, parent=None) -> None:
         super().__init__(parent=None)
+        self.parent = parent
         self.setupUi(self)
 
         self.initWidget()
@@ -29,3 +35,43 @@ class BottomBar(Ui_BottomBarWidget, QWidget):
         )
         self.skipButton.setToolTip("Skip")
         self.skipButton.installEventFilter(ToolTipFilter(self.skipButton, showDelay=300, position=ToolTipPosition.TOP))
+
+        self.timerLabel.setText("Idle\n00:00:00 / 00:00:00")  # text shown by update_bottom_bar_timer_label of
+        # MainWindow when timer is idle
+
+    def initBottomBar(self, pomodoro_interface: PomodoroView, task_interface: TaskListView) -> None:
+        self.pomodoro_interface: PomodoroView = pomodoro_interface
+        self.task_interface: TaskListView = task_interface
+
+        self.skipButton.setEnabled(self.pomodoro_interface.skipButton.isEnabled())
+        self.pauseResumeButton.setCheckable(True)
+        self.pauseResumeButton.setChecked(False)
+        self.pauseResumeButton.setIcon(FluentIcon.PLAY)
+        self.pauseResumeButton.clicked.connect(self.bottomBarPauseResumeButtonClicked)
+        self.skipButton.clicked.connect(self.pomodoro_interface.skipButtonClicked)
+        self.stopButton.clicked.connect(self.pomodoro_interface.stopButtonClicked)
+
+        self.taskLabel.setText("Current Task: None")
+
+    def bottomBarPauseResumeButtonClicked(self) -> None:
+        # Sync state with pomodoro view button
+        self.pomodoro_interface.pauseResumeButton.setChecked(self.pauseResumeButton.isChecked())
+        logger.debug(f"Window state: {self.parent.windowState()}")
+        self.pomodoro_interface.pauseResumeButtonClicked()
+
+        # Update bottom bar button icon
+        if not self.pauseResumeButton.isChecked():
+            self.pauseResumeButton.setIcon(FluentIcon.PLAY)
+        else:
+            self.pauseResumeButton.setIcon(FluentIcon.PAUSE)
+
+    def updateBottomBarTaskLabel(self, topLeft: QModelIndex, bottomRight: QModelIndex, roles) -> None:
+        # if task name has been updated and only one index is updated (topLeft == bottomRight)
+        if Qt.ItemDataRole.DisplayRole in roles and topLeft == bottomRight:
+            triggeredTaskID = self.task_interface.todoTasksList.model().data(topLeft, TaskListModel.IDRole)
+            # and if the current task ID is the same as the triggered task ID
+            if self.parent.get_current_task_id() == triggeredTaskID:
+                # then update the bottom bar task label
+                self.taskLabel.setText(
+                    f"Current Task: {self.task_interface.todoTasksList.model().getTaskNameById(triggeredTaskID)}"
+                )
