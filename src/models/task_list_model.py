@@ -1,7 +1,16 @@
 from typing import List
 
 from loguru import logger
-from PySide6.QtCore import QAbstractListModel, QByteArray, QDataStream, QIODevice, QMimeData, QModelIndex, Qt, Signal
+from PySide6.QtCore import (
+    QAbstractItemModel,
+    QByteArray,
+    QDataStream,
+    QIODevice,
+    QMimeData,
+    QModelIndex,
+    Qt,
+    Signal,
+)
 from PySide6.QtGui import QColor
 from qfluentwidgets import FluentIcon
 from sqlalchemy import update
@@ -12,7 +21,7 @@ from models.workspace_lookup import WorkspaceLookup
 from utils.db_utils import get_session
 
 
-class TaskListModel(QAbstractListModel):
+class TaskListModel(QAbstractItemModel):
     IDRole = Qt.UserRole + 1
     IconRole = Qt.UserRole + 3
     ElapsedTimeRole = Qt.UserRole + 5
@@ -60,6 +69,10 @@ class TaskListModel(QAbstractListModel):
 
     def index(self, row, column: int = 0, parent=QModelIndex()):
         return self.createIndex(row, column)
+
+    def parent(self, child: QModelIndex) -> QModelIndex:
+        # returning invalid index for now
+        return QModelIndex()
 
     def data(self, index, role=...):
         if role == Qt.DisplayRole:
@@ -121,7 +134,7 @@ class TaskListModel(QAbstractListModel):
         self.load_data()
         return super().revert()
 
-    def columnCount(self, parent) -> int:
+    def columnCount(self, parent=QModelIndex()) -> int:
         return 1
 
     def rowCount(self, parent=...) -> int:
