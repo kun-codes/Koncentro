@@ -1,31 +1,40 @@
 from loguru import logger
 from PySide6.QtCore import QModelIndex, QRect, Qt, Signal
 from PySide6.QtGui import QColor, QFontMetrics, QPainter
-from PySide6.QtWidgets import QApplication, QListView, QStyledItemDelegate, QStyleOptionViewItem, QWidget
+from PySide6.QtWidgets import (
+    QApplication,
+    QStyle,
+    QStyledItemDelegate,
+    QStyleOptionViewItem,
+    QTreeView,
+    QWidget,
+)
 from qfluentwidgets import (
     FluentIcon,
     LineEdit,
-    ListItemDelegate,
     ToolTipFilter,
     ToolTipPosition,
     TransparentToggleToolButton,
+    TreeItemDelegate,
     isDarkTheme,
 )
+from qfluentwidgets.common.color import autoFallbackThemeColor
 
 from models.task_list_model import TaskListModel
 from utils.time_conversion import convert_ms_to_hh_mm_ss
 
 
-class TaskListItemDelegate(ListItemDelegate):
+class TaskListItemDelegate(TreeItemDelegate):
     """List item delegate"""
 
     pauseResumeButtonClicked = Signal(int, bool)  # task_id of clicked button, checked state of clicked button
 
-    def __init__(self, parent: QListView) -> None:
+    def __init__(self, parent: QTreeView) -> None:
         super().__init__(parent)
         self.buttons = {}  # Store buttons for each row
         self.button_size = 24  # Size of the tool button
         self.button_margin = 5  # Margin around the button
+        self.margin = 2
 
         # Connect to the parent's viewport to listen for mouse events
         parent.viewport().installEventFilter(self)
@@ -135,40 +144,33 @@ class TaskListItemDelegate(ListItemDelegate):
             button.setIcon(FluentIcon.PAUSE if checked else FluentIcon.PLAY)
 
     def paint(self, painter, option, index) -> None:
-        painter.save()
-        painter.setPen(Qt.NoPen)
-        painter.setRenderHint(QPainter.Antialiasing)
+        ## pasted from TreeItemDelegate.paint()
+        painter.setRenderHints(QPainter.Antialiasing | QPainter.TextAntialiasing)
 
-        # set clipping rect of painter to avoid painting outside the borders
-        painter.setClipping(True)
-        painter.setClipRect(option.rect)
+        if index.data(Qt.CheckStateRole) is not None:
+            self._drawCheckBox(painter, option, index)
 
-        # call original paint method where option.rect is adjusted to account for border
-        option.rect.adjust(0, self.margin, 0, -self.margin)
+        if option.state & (QStyle.State_Selected | QStyle.State_MouseOver):
+            painter.save()
+            painter.setPen(Qt.NoPen)
 
-        # draw highlight background
-        isHover = self.hoverRow == index.row()
-        isPressed = self.pressedRow == index.row()
-        isAlternate = index.row() % 2 == 0 and self.parent().alternatingRowColors()
+            # draw background
+            h = option.rect.height() - 4
+            c = 255 if isDarkTheme() else 0
+            painter.setBrush(QColor(c, c, c, 9))
+            painter.drawRoundedRect(4, option.rect.y() + 2, self.parent().width() - 8, h, 4, 4)
+
+            # draw indicator
+            if option.state & QStyle.State_Selected and self.parent().horizontalScrollBar().value() == 0:
+                painter.setBrush(autoFallbackThemeColor(self.lightCheckedColor, self.darkCheckedColor))
+                painter.drawRoundedRect(4, 9 + option.rect.y(), 3, h - 13, 1.5, 1.5)
+
+            painter.restore()
+        ## pasted till above line
+
         isDark = isDarkTheme()
-
         c = 255 if isDark else 0
         alpha = 0
-
-        if index.row() not in self.selectedRows:
-            if isPressed:
-                alpha = 9 if isDark else 6
-            elif isHover:
-                alpha = 12
-            elif isAlternate:
-                alpha = 5
-        else:
-            if isPressed:
-                alpha = 15 if isDark else 9
-            elif isHover:
-                alpha = 25
-            else:
-                alpha = 17
 
         if index.data(Qt.ItemDataRole.BackgroundRole):
             theme_color: QColor = index.data(Qt.ItemDataRole.BackgroundRole)
@@ -181,19 +183,10 @@ class TaskListItemDelegate(ListItemDelegate):
         else:
             painter.setBrush(QColor(c, c, c, alpha))
 
-        self._drawBackground(painter, option, index)
+        painter.setPen(Qt.NoPen)
+        painter.drawRoundedRect(option.rect, 5, 5)
 
-        # draw indicator
-        if (
-            index.row() in self.selectedRows
-            and index.column() == 0
-            and self.parent().horizontalScrollBar().value() == 0
-        ):
-            self._drawIndicator(painter, option, index)
-
-        if index.data(Qt.CheckStateRole) is not None:
-            self._drawCheckBox(painter, option, index)
-
+        # draw time elapsed and target time
         painter.setPen(Qt.GlobalColor.white if isDark else Qt.GlobalColor.black)
         font_metrics = QFontMetrics(option.font)
 
@@ -233,8 +226,6 @@ class TaskListItemDelegate(ListItemDelegate):
         button_y = option.rect.top() + (option.rect.height() - self.button_size) // 2
         button.setGeometry(button_x, button_y, self.button_size, self.button_size)
         button.setVisible(True)
-
-        painter.restore()
 
         # Adjust option.rect to account for button and time text
         button_width = self.button_size + 2 * self.button_margin
