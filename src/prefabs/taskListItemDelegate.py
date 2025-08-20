@@ -248,6 +248,15 @@ class TaskListItemDelegate(TreeItemDelegate):
     def sizeHint(self, option, index):
         """Ensure the item is tall enough for the button"""
         size = super().sizeHint(option, index)
+        # I derived this value of 1.3 constant from the previous implementation of TaskListItemDelegate when it
+        # inherited from ListItemDelegate. The height was calculated to 39px on a 1920x1080 screen on KDE Wayland
+        # When TaskListItemDelegate was changed to inherit from TreeItemDelegate, the height was calculated as 30px
+        # To make 30px into 39px, 1.3 has to be multiplied to 30px. This multiplication is done for consistency of
+        # looks across app versions. I am using the multiplier instead of a fixed value of 39px because the
+        # QStyledItemDelegate.sizeHint() can return a different height based on the font size and other factors
+        SIZE_MULTIPLIER = 1.3
+        size.setHeight(size.height() * SIZE_MULTIPLIER)
+
         min_height = self.button_size + 2 * self.margin
         if size.height() < min_height:
             size.setHeight(min_height)
