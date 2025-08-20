@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from loguru import logger
 from PySide6.QtCore import (
@@ -21,11 +21,73 @@ from models.workspace_lookup import WorkspaceLookup
 from utils.db_utils import get_session
 
 
+class TaskNode:
+    """
+    Node class representing a task in a tree structure.
+    A task can have subtasks, but subtasks cannot have their own subtasks.
+    """
+
+    def __init__(
+        self,
+        task_id: int = None,
+        task_name: str = "",
+        task_position: int = 0,
+        elapsed_time: int = 0,
+        target_time: int = 0,
+        icon=None,
+        parent: "TaskNode" = None,
+    ):
+        self.task_id = task_id
+        self.task_name = task_name
+        self.task_position = task_position
+        self.elapsed_time = elapsed_time
+        self.target_time = target_time
+        self.icon = icon
+
+        self.parent_node = parent
+        self.children: List["TaskNode"] = []
+
+        if parent is not None:
+            parent.add_child(self)
+
+    def add_child(self, child: "TaskNode") -> None:
+        if child not in self.children:
+            self.children.append(child)
+            child.parent_node = self
+
+    def remove_child(self, child: "TaskNode") -> None:
+        if child in self.children:
+            self.children.remove(child)
+            child.parent_node = None
+
+    def child_count(self) -> int:
+        return len(self.children)
+
+    def child_at(self, index: int) -> Optional["TaskNode"]:
+        if 0 <= index < len(self.children):
+            return self.children[index]
+        return None
+
+    def row(self) -> int:
+        if self.parent_node is not None:
+            return self.parent_node.children.index(self)
+        return 0
+
+    def is_root(self) -> bool:
+        return self.parent_node is None
+
+    def is_leaf(self) -> bool:
+        return len(self.children) == 0
+
+    def can_have_children(self) -> bool:
+        return self.is_root()
+
+
 class TaskListModel(QAbstractItemModel):
-    IDRole = Qt.UserRole + 1
-    IconRole = Qt.UserRole + 3
-    ElapsedTimeRole = Qt.UserRole + 5
-    TargetTimeRole = Qt.UserRole + 7
+    IDRole = Qt.ItemDataRole.UserRole + 1
+    IconRole = Qt.ItemDataRole.UserRole + 3
+    ElapsedTimeRole = Qt.ItemDataRole.UserRole + 5
+    TargetTimeRole = Qt.ItemDataRole.UserRole + 7
 
     taskDeletedSignal = Signal(int)  # task_id
     taskMovedSignal = Signal(int, TaskType)  # task_id and TaskType
@@ -35,7 +97,7 @@ class TaskListModel(QAbstractItemModel):
         super().__init__(parent)
         self.task_type = task_type
         self.current_task_id = None
-        self.tasks = []
+        self.root_nodes: List[TaskNode] = []  # List of root task nodes
         self._dragInProgress = False  # Track if we're in a drag operation
         self.load_data()
 
@@ -48,97 +110,151 @@ class TaskListModel(QAbstractItemModel):
 
     def load_data(self) -> None:
         current_workspace_id = WorkspaceLookup.get_current_workspace_id()
-        self.tasks = []
+        self.root_nodes = []
+
         with get_session(is_read_only=True) as session:
-            self.tasks = [
-                {
-                    "id": task.id,
-                    "task_name": task.task_name,
-                    "task_position": task.task_position,
-                    "elapsed_time": task.elapsed_time,  # in ms
-                    "target_time": task.target_time,  # in ms
-                    "icon": FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
-                }
-                for task in session.query(Task)
+            tasks = (
+                session.query(Task)
                 .filter(Task.task_type == self.task_type)
                 .filter(Task.workspace_id == current_workspace_id)
                 .order_by(Task.task_position)
                 .all()
-            ]
+            )
+
+            # Create root nodes (main tasks)
+            for task in tasks:
+                node = TaskNode(
+                    task_id=task.id,
+                    task_name=task.task_name,
+                    task_position=task.task_position,
+                    elapsed_time=task.elapsed_time,
+                    target_time=task.target_time,
+                    icon=FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
+                )
+                self.root_nodes.append(node)
+
         self.layoutChanged.emit()
 
-    def index(self, row, column: int = 0, parent=QModelIndex()):
-        return self.createIndex(row, column)
+    def get_node(self, index: QModelIndex) -> Optional[TaskNode]:
+        """Get the node associated with a given index"""
+        if not index.isValid():
+            return None
 
-    def parent(self, child: QModelIndex) -> QModelIndex:
-        # returning invalid index for now
+        return index.internalPointer()
+
+    def index(self, row: int, column: int = 0, parent: QModelIndex = QModelIndex()) -> QModelIndex:
+        if not self.hasIndex(row, column, parent):
+            return QModelIndex()
+
+        if not parent.isValid():
+            # Top-level item (root task)
+            if 0 <= row < len(self.root_nodes):
+                return self.createIndex(row, column, self.root_nodes[row])
+        else:
+            # Child item (subtask)
+            parent_node = self.get_node(parent)
+            if parent_node and 0 <= row < parent_node.child_count():
+                return self.createIndex(row, column, parent_node.child_at(row))
+
         return QModelIndex()
 
-    def data(self, index, role=...):
-        if role == Qt.DisplayRole:
-            return self.tasks[index.row()]["task_name"]
+    def parent(self, child: QModelIndex) -> QModelIndex:
+        if not child.isValid():
+            return QModelIndex()
+
+        child_node = self.get_node(child)
+        if child_node is None or child_node.is_root():
+            return QModelIndex()
+
+        parent_node = child_node.parent_node
+        if parent_node is None:
+            return QModelIndex()
+
+        # Find the row of the parent node
+        parent_row = self.root_nodes.index(parent_node)
+        return self.createIndex(parent_row, 0, parent_node)
+
+    def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
+        if not parent.isValid():
+            # Root level
+            return len(self.root_nodes)
+
+        parent_node = self.get_node(parent)
+        if parent_node:
+            return parent_node.child_count()
+
+        return 0
+
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole):
+        if not index.isValid():
+            return None
+
+        node = self.get_node(index)
+        if node is None:
+            return None
+
+        if role == Qt.ItemDataRole.DisplayRole:
+            return node.task_name
         elif role == self.ElapsedTimeRole:
-            task = self.tasks[index.row()]
-            return task["elapsed_time"]
+            return node.elapsed_time
         elif role == self.TargetTimeRole:
-            task = self.tasks[index.row()]
-            return task["target_time"]
+            return node.target_time
         elif role == self.IDRole:
-            task = self.tasks[index.row()]
-            return task["id"]
+            return node.task_id
         elif role == self.IconRole:
-            task = self.tasks[index.row()]
-            return task["icon"]
+            return node.icon
         elif role == Qt.ItemDataRole.BackgroundRole:
-            if self.current_task_id == self.tasks[index.row()]["id"]:
+            if self.current_task_id == node.task_id:
                 theme_color: QColor = AppSettings.get(AppSettings, AppSettings.themeColor)
-                return theme_color  # use theme color to color current task
+                return theme_color
             else:
-                return None  # use default color according to dark/light theme
+                return None
 
         return None
 
-    def setData(self, index, value, role=..., update_db: bool = True) -> bool:
-        if role == Qt.DisplayRole:
-            row = index.row()
+    def setData(
+        self, index: QModelIndex, value, role: int = Qt.ItemDataRole.DisplayRole, update_db: bool = True
+    ) -> bool:
+        if not index.isValid():
+            return False
+
+        node = self.get_node(index)
+        if node is None:
+            return False
+
+        if role == Qt.ItemDataRole.DisplayRole:
             task_name = value.strip()
             if task_name:
-                self.tasks[row]["task_name"] = task_name
-                self.update_db()
-                self.dataChanged.emit(index, index, [Qt.DisplayRole])
+                node.task_name = task_name
+                if update_db:
+                    self.update_db()
+                self.dataChanged.emit(index, index, [Qt.ItemDataRole.DisplayRole])
                 return True
         elif role == self.ElapsedTimeRole:
-            row = index.row()
-            elapsed_time = value
-            self.tasks[row]["elapsed_time"] = elapsed_time
+            node.elapsed_time = value
             if update_db:
                 self.update_db()
             self.dataChanged.emit(index, index, [self.ElapsedTimeRole])
             return True
         elif role == self.TargetTimeRole:
-            row = index.row()
-            target_time = value
-            self.tasks[row]["target_time"] = target_time
-            self.update_db()
+            node.target_time = value
+            if update_db:
+                self.update_db()
             self.dataChanged.emit(index, index, [self.TargetTimeRole])
             return True
         elif role == self.IconRole:
-            row = index.row()
-            icon = value
-            self.tasks[row]["icon"] = icon
+            node.icon = value
             self.dataChanged.emit(index, index, [self.IconRole])
             return True
+
         return False
 
     def revert(self):
         self.load_data()
         return super().revert()
 
-    def columnCount(self, parent=QModelIndex()) -> int:
+    def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:
         return 1
-
-    def rowCount(self, parent=...) -> int:
-        return len(self.tasks)
 
     def supportedDropActions(self):
         return Qt.DropAction.MoveAction
@@ -150,45 +266,39 @@ class TaskListModel(QAbstractItemModel):
         # First update the elapsed time for the task before drag starts
         if self.task_type == TaskType.TODO and self.current_task_id is not None:
             # Update the database with the current elapsed time to avoid losing time during drag
-            current_task_index = None
-            for i, task in enumerate(self.tasks):
-                if task["id"] == self.current_task_id:
-                    current_task_index = self.index(i)
-                    break
-
-            if current_task_index is not None:
-                self.setData(current_task_index, task["elapsed_time"], self.ElapsedTimeRole, update_db=True)
+            current_node = self._find_node_by_id(self.current_task_id)
+            if current_node is not None:
+                current_index = self._get_index_for_node(current_node)
+                if current_index.isValid():
+                    self.setData(current_index, current_node.elapsed_time, self.ElapsedTimeRole, update_db=True)
 
         mime_data = QMimeData()
         encoded_data = QByteArray()
-        stream = QDataStream(encoded_data, QIODevice.WriteOnly)
+        stream = QDataStream(encoded_data, QIODevice.OpenModeFlag.WriteOnly)
 
-        # Store rows being dragged
-        rows_being_dragged = []
+        # Store nodes being dragged
+        nodes_being_dragged = []
         for index in indexes:
             if index.isValid():
-                row = index.row()
-                rows_being_dragged.append(row)
-                task_id = self.tasks[row]["id"]
-                stream.writeInt32(row)
-                stream.writeInt32(task_id)
-                stream.writeQString(self.tasks[row]["task_name"])
-                stream.writeInt64(self.tasks[row]["elapsed_time"])
-                stream.writeInt64(self.tasks[row]["target_time"])
+                node = self.get_node(index)
+                if node:
+                    nodes_being_dragged.append(node)
+                    row = node.row() if not node.is_root() else self.root_nodes.index(node)
+                    stream.writeInt32(row)
+                    stream.writeInt32(node.task_id)
+                    stream.writeQString(node.task_name)
+                    stream.writeInt64(node.elapsed_time)
+                    stream.writeInt64(node.target_time)
 
-        # Store the indices being dragged in the mime data for later use
+        # Store the task IDs being dragged in the mime data for later use
         task_ids_bytes = QByteArray()
-        id_stream = QDataStream(task_ids_bytes, QIODevice.WriteOnly)
-        for row in rows_being_dragged:
-            id_stream.writeInt32(self.tasks[row]["id"])
+        id_stream = QDataStream(task_ids_bytes, QIODevice.OpenModeFlag.WriteOnly)
+        for node in nodes_being_dragged:
+            id_stream.writeInt32(node.task_id)
         mime_data.setData("application/x-task-ids", task_ids_bytes)
 
-        # Don't update task positions or database here - we'll do that in dropMimeData
-        # This prevents prematurely marking tasks with position -1 when they might be
-        # dropped back in the same position
-
         logger.debug(f"Dragging from task type: {self.task_type}")
-        logger.debug(f"Rows being dragged: {rows_being_dragged}")
+        logger.debug(f"Nodes being dragged: {[node.task_id for node in nodes_being_dragged]}")
 
         mime_data.setData("application/x-qabstractitemmodeldatalist", encoded_data)
         return mime_data
@@ -200,23 +310,27 @@ class TaskListModel(QAbstractItemModel):
         if not data.hasFormat("application/x-qabstractitemmodeldatalist"):
             return False
 
-        # Use the parent index row when dropping directly onto an item
-        # This handles the case of dropping directly on another task
+        # For now, only support dropping at root level (no subtask drops yet)
         if parent.isValid():
-            # When dropping onto an item, we want to place the dragged item after it
+            parent_node = self.get_node(parent)
+            if parent_node and not parent_node.is_root():
+                # Don't allow dropping into subtasks
+                return False
+
+        # Use the parent index row when dropping directly onto an item
+        if parent.isValid():
             drop_position = parent.row() + 1
         else:
-            # If row is -1, it means drop at the end or in an empty space
             if row == -1:
-                drop_position = self.rowCount()
+                drop_position = len(self.root_nodes)
             else:
                 drop_position = row
 
         encoded_data = data.data("application/x-qabstractitemmodeldatalist")
-        stream = QDataStream(encoded_data, QIODevice.ReadOnly)
+        stream = QDataStream(encoded_data, QIODevice.OpenModeFlag.ReadOnly)
 
-        # Create a list to store tasks being dropped
-        drop_tasks = []
+        # Create a list to store nodes being dropped
+        drop_nodes = []
         task_ids = []
 
         # Read all task data from the stream
@@ -230,35 +344,31 @@ class TaskListModel(QAbstractItemModel):
 
             # For the current task, check if we need to update the elapsed time from in-memory cache
             if self.task_type == TaskType.TODO and self.current_task_id == task_id:
-                # Get the latest in-memory elapsed time value
-                for existing_task in self.tasks:
-                    if existing_task["id"] == task_id:
-                        # Use the most up-to-date value
-                        elapsed_time = existing_task["elapsed_time"]
-                        logger.debug(f"Updated elapsed time for current task during drop: {elapsed_time}")
-                        break
+                existing_node = self._find_node_by_id(task_id)
+                if existing_node:
+                    elapsed_time = existing_node.elapsed_time
+                    logger.debug(f"Updated elapsed time for current task during drop: {elapsed_time}")
 
-            drop_tasks.append(
-                {
-                    "id": task_id,
-                    "task_name": task_name,
-                    "task_position": None,  # Will be set later
-                    "elapsed_time": elapsed_time,
-                    "target_time": target_time,
-                    "icon": FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
-                }
+            node = TaskNode(
+                task_id=task_id,
+                task_name=task_name,
+                task_position=0,  # Will be set later
+                elapsed_time=elapsed_time,
+                target_time=target_time,
+                icon=FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
             )
+            drop_nodes.append(node)
 
-        # Find which tasks in our current model need to be removed (moved)
-        task_id_to_original_row = {}
-        for i, task in enumerate(self.tasks):
-            if task["id"] in task_ids:
-                task_id_to_original_row[task["id"]] = i
+        # Find which nodes in our current model need to be removed (moved)
+        nodes_to_remove = []
+        for node in self.root_nodes:
+            if node.task_id in task_ids:
+                nodes_to_remove.append(node)
 
-        # Adjust the drop position if we're moving tasks from above the drop position
-        # This accounts for the "gap" created by removing items
+        # Adjust the drop position if we're moving nodes from above the drop position
         offset = 0
-        for task_id, original_row in task_id_to_original_row.items():
+        for node in nodes_to_remove:
+            original_row = self.root_nodes.index(node)
             if original_row < drop_position:
                 offset += 1
 
@@ -266,44 +376,43 @@ class TaskListModel(QAbstractItemModel):
         logger.debug(f"Adjusted drop position after offset: {drop_position}")
 
         # Check if this is a drop in the exact same position
-        if len(task_id_to_original_row) == 1 and len(drop_tasks) == 1:
-            original_pos = task_id_to_original_row[drop_tasks[0]["id"]]
-            # Check if we're dropping at the same position
+        if len(nodes_to_remove) == 1 and len(drop_nodes) == 1:
+            original_pos = self.root_nodes.index(nodes_to_remove[0])
             if original_pos == drop_position:
-                logger.debug(f"Task dropped at same position: {original_pos} -> {drop_position}")
-                return False  # No change needed, cancel the operation
+                logger.debug(f"Node dropped at same position: {original_pos} -> {drop_position}")
+                return False
 
-        # Create a new list for tasks in their new order
-        new_tasks = []
+        # Create a new list for nodes in their new order
+        new_root_nodes = []
 
-        # Create a copy of the tasks excluding the ones being moved
-        filtered_tasks = [task for task in self.tasks if task["id"] not in task_ids]
+        # Create a copy of the nodes excluding the ones being moved
+        filtered_nodes = [node for node in self.root_nodes if node.task_id not in task_ids]
 
-        # Insert all tasks before the drop position
+        # Insert all nodes before the drop position
         for i in range(drop_position):
-            if i >= len(filtered_tasks):
+            if i >= len(filtered_nodes):
                 break
-            new_tasks.append(filtered_tasks[i])
+            new_root_nodes.append(filtered_nodes[i])
 
-        # Insert the dropped tasks at the drop position
-        for task in drop_tasks:
-            new_tasks.append(task)
+        # Insert the dropped nodes at the drop position
+        for node in drop_nodes:
+            new_root_nodes.append(node)
 
-        # Insert all remaining tasks after the drop position
-        for i in range(drop_position, len(filtered_tasks)):
-            new_tasks.append(filtered_tasks[i])
+        # Insert all remaining nodes after the drop position
+        for i in range(drop_position, len(filtered_nodes)):
+            new_root_nodes.append(filtered_nodes[i])
 
         # Set task positions
-        for i, task in enumerate(new_tasks):
-            task["task_position"] = i
+        for i, node in enumerate(new_root_nodes):
+            node.task_position = i
 
-        # Emit signals for moved tasks
-        for task in drop_tasks:
-            self.taskMovedSignal.emit(task["id"], self.task_type)
+        # Emit signals for moved nodes
+        for node in drop_nodes:
+            self.taskMovedSignal.emit(node.task_id, self.task_type)
 
-        # Replace the tasks list with our new ordered list
+        # Replace the root nodes list with our new ordered list
         self.beginResetModel()
-        self.tasks = new_tasks
+        self.root_nodes = new_root_nodes
         self.endResetModel()
 
         # Update database
@@ -313,36 +422,44 @@ class TaskListModel(QAbstractItemModel):
         self.layoutChanged.emit()
 
         logger.debug(f"Task type: {self.task_type}")
-        logger.debug(f"Tasks after drop: {[t['id'] for t in self.tasks]}")
+        logger.debug(f"Root nodes after drop: {[node.task_id for node in self.root_nodes]}")
 
         return True
 
     def update_db(self) -> None:
         """
-        updating db, using bulk insert
-        https://docs.sqlalchemy.org/en/20/orm/queryguide/dml.html#orm-queryguide-bulk-update
+        Update database using bulk update
         """
         current_workspace_id = WorkspaceLookup.get_current_workspace_id()
+
+        # Collect all nodes (root and children) for database update
+        all_nodes = []
+        for root_node in self.root_nodes:
+            all_nodes.append(root_node)
+            # Future: when subtasks are implemented, add children here
+            # all_nodes.extend(root_node.children)
+
         with get_session() as session:
             session.execute(
                 update(Task),
                 [
                     {
-                        "id": task["id"],
+                        "id": node.task_id,
                         "workspace_id": current_workspace_id,
-                        "task_name": task["task_name"],
+                        "task_name": node.task_name,
                         "task_type": self.task_type,
-                        "task_position": task["task_position"],
-                        "elapsed_time": task["elapsed_time"],
-                        "target_time": task["target_time"],
+                        "task_position": node.task_position,
+                        "elapsed_time": node.elapsed_time,
+                        "target_time": node.target_time,
                     }
-                    for task in self.tasks
+                    for node in all_nodes
+                    if node.task_id is not None
                 ],
             )
 
     def flags(self, index):
         if not index.isValid():
-            return Qt.ItemIsEnabled | Qt.ItemIsDropEnabled
+            return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsDropEnabled
 
         return (
             Qt.ItemFlag.ItemIsEnabled
@@ -354,16 +471,6 @@ class TaskListModel(QAbstractItemModel):
 
     def mimeTypes(self) -> List[str]:
         return ["application/x-qabstractitemmodeldatalist"]
-
-    # TODO: Implement insertRows method
-    # def insertRows(self, row, count, parent=None):
-    #     self.beginInsertRows(parent, row, row + count - 1)
-    #     encoded_data = self.mimeData([self.index(row)]).data("application/x-qabstractitemmodeldatalist")
-    #     stream = QDataStream(encoded_data, QIODevice.ReadOnly)
-    #     _row = stream.readInt32()
-    #     task_id = stream.readInt32()
-    #     task_name = stream.readQString()
-    #     return True
 
     def insertRow(self, row, parent, task_name: str, task_type: TaskType = TaskType.TODO) -> bool:
         """
@@ -382,45 +489,56 @@ class TaskListModel(QAbstractItemModel):
             session.commit()
             new_id = task.id
 
-        task_list_new_member = {
-            "id": new_id,
-            "task_name": task_name,
-            "task_position": row,
-            "elapsed_time": 0,
-            "target_time": 0,
-            "icon": FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
-        }
+        # Create new node
+        new_node = TaskNode(
+            task_id=new_id,
+            task_name=task_name,
+            task_position=row,
+            elapsed_time=0,
+            target_time=0,
+            icon=FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
+        )
 
-        logger.debug(f"Task list new member: {task_list_new_member}")
+        logger.debug(f"Creating new task node: {new_node.task_id}")
 
-        self.tasks.insert(row, task_list_new_member)
+        self.root_nodes.insert(row, new_node)
         self.endInsertRows()
         self.layoutChanged.emit()
         return True
 
-    def removeRows(self, row, count: int, parent=...) -> bool:
+    def removeRows(self, row, count: int, parent: QModelIndex = QModelIndex()) -> bool:
         """
-        remove rows but not delete from db
+        Remove rows but not delete from db
         This method can be called by Qt during drag operations.
-        We should be careful not to permanently remove data during active drags.
         """
         # If we're in a drag operation, don't actually remove the data
-        # Let the visual removal happen but keep the data intact until drop completes
         if self._dragInProgress:
             logger.debug(f"Ignoring removeRows during drag operation for rows {row} to {row + count - 1}")
             return True
 
-        self.beginRemoveRows(parent, row, row + count - 1)
-        for i in range(count):
-            logger.debug(f"tasks: {self.tasks}")
-            logger.debug(f"Removing task at row: {row}")
-            del self.tasks[row]
-            logger.debug(f"tasks: {self.tasks}")
-        self.endRemoveRows()
+        if parent.isValid():
+            # Removing subtasks (future implementation)
+            parent_node = self.get_node(parent)
+            if parent_node:
+                self.beginRemoveRows(parent, row, row + count - 1)
+                for i in range(count):
+                    if row < len(parent_node.children):
+                        parent_node.children.pop(row)
+                self.endRemoveRows()
+        else:
+            # Removing root tasks
+            self.beginRemoveRows(parent, row, row + count - 1)
+            for i in range(count):
+                logger.debug(f"root_nodes: {[node.task_id for node in self.root_nodes]}")
+                logger.debug(f"Removing node at row: {row}")
+                if row < len(self.root_nodes):
+                    del self.root_nodes[row]
+                logger.debug(f"root_nodes: {[node.task_id for node in self.root_nodes]}")
+            self.endRemoveRows()
 
         # Update task positions
-        for i, task in enumerate(self.tasks):
-            task["task_position"] = i
+        for i, node in enumerate(self.root_nodes):
+            node.task_position = i
 
         self.layoutChanged.emit()
         return True
@@ -441,22 +559,41 @@ class TaskListModel(QAbstractItemModel):
         """
         return self._dragInProgress
 
-    def deleteTask(self, row, parent=QModelIndex()) -> bool:
+    def deleteTask(self, row, parent: QModelIndex = QModelIndex()) -> bool:
         """
-        will remove rows as well as delete from database
+        Remove rows as well as delete from database
         """
         logger.debug(f"Deleting task at row: {row}")
-        task_id = self.tasks[row]["id"]
-        # get index of row
+
+        task_id = None
+        if parent.isValid():
+            # Deleting subtask (future implementation)
+            parent_node = self.get_node(parent)
+            if parent_node and row < len(parent_node.children):
+                child_node = parent_node.children[row]
+                task_id = child_node.task_id
+        else:
+            # Deleting root task
+            if row < len(self.root_nodes):
+                task_id = self.root_nodes[row].task_id
+            else:
+                return False
+
+        if task_id is None:
+            return False
+
+        # Delete from database
         with get_session() as session:
             task = session.query(Task).get(task_id)
-            session.delete(task)
+            if task:
+                session.delete(task)
 
-        logger.debug(f"tasks: {self.tasks}")
+        logger.debug(f"root_nodes: {[node.task_id for node in self.root_nodes]}")
         self.removeRows(row, 1, parent)
 
-        for i, task in enumerate(self.tasks):
-            task["task_position"] = i
+        # Update positions
+        for i, node in enumerate(self.root_nodes):
+            node.task_position = i
 
         self.update_db()
         self.taskDeletedSignal.emit(task_id)
@@ -464,16 +601,42 @@ class TaskListModel(QAbstractItemModel):
         return True
 
     def setIconForTask(self, row, icon) -> None:
-        self.tasks[row]["icon"] = icon
-        self.dataChanged.emit(self.index(row, 0), self.index(row, 0), [self.IconRole])
+        if row < len(self.root_nodes):
+            self.root_nodes[row].icon = icon
+            index = self.index(row, 0)
+            self.dataChanged.emit(index, index, [self.IconRole])
 
     def getTaskNameById(self, task_id):
-        for task in self.tasks:
-            if task["id"] == task_id:
-                return task["task_name"]
-        return None
+        node = self._find_node_by_id(task_id)
+        return node.task_name if node else None
 
     def currentTaskIndex(self):
-        for task in self.tasks:
-            if task["id"] == self.current_task_id:
-                return self.index(task["task_position"], 0)
+        node = self._find_node_by_id(self.current_task_id)
+        if node:
+            return self._get_index_for_node(node)
+        return None
+
+    def _find_node_by_id(self, task_id) -> Optional[TaskNode]:
+        """Find a node by its task_id"""
+        if task_id is None:
+            return None
+
+        for node in self.root_nodes:
+            if node.task_id == task_id:
+                return node
+            # Future: search in children when subtasks are implemented
+            # for child in node.children:
+            #     if child.task_id == task_id:
+            #         return child
+        return None
+
+    def _get_index_for_node(self, node: TaskNode) -> QModelIndex:
+        """Get the QModelIndex for a given node"""
+        if node.is_root():
+            row = self.root_nodes.index(node)
+            return self.index(row, 0)
+        else:
+            # Future: handle subtask indices when implemented
+            parent_index = self._get_index_for_node(node.parent_node)
+            row = node.row()
+            return self.index(row, 0, parent_index)
