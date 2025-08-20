@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QColor, QPainter, QPen
-from PySide6.QtWidgets import QAbstractItemView, QListView, QProxyStyle, QWidget
-from qfluentwidgets import ListItemDelegate, ListView, isDarkTheme
+from PySide6.QtWidgets import QAbstractItemView, QProxyStyle
+from qfluentwidgets import ListItemDelegate, TreeView, isDarkTheme
 
 from prefabs.taskListItemDelegate import TaskListItemDelegate
 from ui_py.ui_tasks_list_view import Ui_TaskView
@@ -27,7 +27,7 @@ class TaskListStyle(QProxyStyle):
             super().drawPrimitive(element, option, painter, widget)
 
 
-class TaskList(ListView):
+class TaskList(TreeView):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setDragEnabled(True)
@@ -151,44 +151,6 @@ class TaskList(ListView):
         if self.current_editor:
             self.current_editor.setFixedWidth(self.viewport().width() - self.editor_width_reduction)
 
-    def mousePressEvent(self, e):
-        """
-        This method modifies the behaviour of ListView according to which items are selected when mouse is pressed on
-        them.
-        Items are selected in TaskList when mouse is clicked (pressed and released) on them
-        """
-        if e.button() == Qt.LeftButton or self._isSelectRightClickedRow:
-            return QListView.mousePressEvent(self, e)
-
-        # to select the row on which mouse is clicked
-        index = self.indexAt(e.pos())
-        if index.isValid():
-            self._mousePressedOnItem = True
-        else:
-            self._mousePressedOnItem = False
-
-        QWidget.mousePressEvent(self, e)
-
-    def mouseReleaseEvent(self, e) -> None:
-        """
-        This method modifies the behaviour of ListView according to which items are selected when mouse is pressed on
-        them.
-        Items are selected in TaskList when mouse is clicked (pressed and released) on them
-        """
-        # I don't know if I have to keep the below two lines
-        QListView.mouseReleaseEvent(self, e)
-        self.updateSelectedRows()
-
-        # to select the row on which mouse is clicked
-        if self._mousePressedOnItem:
-            index = self.indexAt(e.pos())
-            if index.isValid():
-                self._setPressedRow(index.row())
-                # self.updateSelectedRows()
-
-        self._mousePressedOnItem = False
-        super().mouseReleaseEvent(e)
-
     def dropEvent(self, e) -> None:
         """
         This method is called when an item is dropped onto a TaskList. This will go through a while loop till it finds
@@ -208,10 +170,6 @@ class TaskList(ListView):
             if isinstance(parent_view, Ui_TaskView):  # using Ui_TaskView because view.subinterfaces.tasks_view.TaskList
                 # is a child class of Ui_TaskView and it cannot be imported here due to circular import
 
-                parent_view.todoTasksList._setPressedRow(-1)
-                parent_view.completedTasksList._setPressedRow(-1)
-                parent_view.todoTasksList._setHoverRow(-1)
-                parent_view.completedTasksList._setHoverRow(-1)
                 parent_view.todoTasksList.viewport().update()
                 parent_view.completedTasksList.viewport().update()
 
@@ -227,21 +185,6 @@ class TaskList(ListView):
                 break
             parent_view = parent_view.parentWidget()
         super().dropEvent(e)
-
-    def mouseMoveEvent(self, e) -> None:
-        """
-        This method is called when mouse is moved over the TaskList. This will set the hover row of the delegate to the
-        row over which mouse is hovering. This is done because in qfluentwidgets if mouse is moved away from an already
-        hovered row to empty space of TaskList such that it doesn't cross any other row, the hovered row is not reset
-
-        Also for the same reason self.entered signal has been disconnected in __init__ method
-        """
-
-        index = self.indexAt(e.pos())
-        new_hover_row = index.row() if index.isValid() else -1
-        if new_hover_row != self.delegate.hoverRow:
-            self._setHoverRow(new_hover_row)
-        super().mouseMoveEvent(e)
 
     def _setHoverRow(self, row: int) -> None:
         delegate = self.itemDelegate()
