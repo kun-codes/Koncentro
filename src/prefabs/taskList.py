@@ -38,6 +38,7 @@ class TaskList(TreeView):
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setAutoScroll(True)
         self.setStyle(TaskListStyle())
+        self.setHeaderHidden(True)
 
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
