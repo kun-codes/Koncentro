@@ -279,7 +279,8 @@ class TaskListItemDelegate(TreeItemDelegate):
             self.createButton(index)
 
         button = self.buttons[task_id]
-        button_x = option.rect.left() + self.button_margin
+        button_x = option.rect.left() + 3 * self.button_margin  # 3 * self.button_margin for left margin from left edge
+        # of item's rect
         button_y = option.rect.top() + (option.rect.height() - self.button_size) // 2
         button.setGeometry(button_x, button_y, self.button_size, self.button_size)
 
@@ -306,7 +307,8 @@ class TaskListItemDelegate(TreeItemDelegate):
         y = rect.y() + (rect.height() - editor.height()) // 2
 
         # Account for button width
-        button_width = self.button_size + 2 * self.button_margin
+        button_width = self.button_size + 4 * self.button_margin  # 4 seems to make the editor appear on top of
+        # the label in a pixel perfect way
         x = max(5, rect.x() + button_width)
         w = rect.width() - button_width - 5  # Adjust width for button
 
