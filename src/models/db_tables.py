@@ -74,6 +74,11 @@ class Task(Base):
     task_position = Column(Integer)
     elapsed_time = Column(Integer, default=0)
     target_time = Column(Integer, default=0)
+    is_primary_task = Column(Boolean, default=True, nullable=False)
+    # needs a name because self referential foreign key constraint
+    parent_task_id = Column(
+        Integer, ForeignKey("tasks.id", name="fk_tasks_parent_task_id"), nullable=True, default=None
+    )
 
     workspace = relationship("Workspace", back_populates="tasks")
 
