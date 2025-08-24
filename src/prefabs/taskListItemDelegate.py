@@ -161,6 +161,38 @@ class TaskListItemDelegate(TreeItemDelegate):
             button.setChecked(checked)
             button.setIcon(FluentIcon.PAUSE if checked else FluentIcon.PLAY)
 
+    def updateButtonVisibility(self):
+        """Update button visibility based on tree expanded/collapsed state"""
+        model = self.parent().model()
+        if not model:
+            return
+
+        visible_task_ids = set()
+
+        # add root tasks (always visible)
+        for i in range(model.rowCount()):
+            root_index = model.index(i, 0)
+            task_id = model.data(root_index, TaskListModel.IDRole)
+            if task_id:
+                visible_task_ids.add(task_id)
+
+            # add subtasks only if parent is expanded
+            if self.parent().isExpanded(root_index):
+                for j in range(model.rowCount(root_index)):
+                    subtask_index = model.index(j, 0, root_index)
+                    subtask_id = model.data(subtask_index, TaskListModel.IDRole)
+                    if subtask_id:
+                        visible_task_ids.add(subtask_id)
+
+        # hide buttons for non visible tasks and show buttons for visible tasks
+        # setting to visible and invisible because its faster than destroying and creating buttons everytime
+        # some index is expanded or collapsed
+        for task_id, button in self.buttons.items():
+            if task_id in visible_task_ids:
+                button.setVisible(True)
+            else:
+                button.setVisible(False)
+
     def paint(self, painter, option, index) -> None:
         ## pasted from TreeItemDelegate.paint()
         painter.setRenderHints(QPainter.Antialiasing | QPainter.TextAntialiasing)
@@ -250,7 +282,17 @@ class TaskListItemDelegate(TreeItemDelegate):
         button_x = option.rect.left() + self.button_margin
         button_y = option.rect.top() + (option.rect.height() - self.button_size) // 2
         button.setGeometry(button_x, button_y, self.button_size, self.button_size)
-        button.setVisible(True)
+
+        # don't draw buttons of subtasks which aren't visible anymore after expanding and collapsing their parent task
+        if not index.parent().isValid():
+            # Root item - always visible
+            should_be_visible = True
+        else:
+            # Child item - visible only if parent is expanded
+            parent_index = index.parent()
+            should_be_visible = self.parent().isExpanded(parent_index)
+
+        button.setVisible(should_be_visible)
 
         # Adjust option.rect to account for button and time text
         button_width = self.button_size + 2 * self.button_margin

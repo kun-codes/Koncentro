@@ -59,6 +59,9 @@ class TaskList(TreeView):
         self._dragSuccessTimer.setSingleShot(True)
         self._dragSuccessTimer.timeout.connect(self._checkDragResult)
 
+        self.expanded.connect(self._onItemExpanded)
+        self.collapsed.connect(self._onItemCollapsed)
+
     def paintEvent(self, event) -> None:
         # Delete all buttons when there are no items in the model
         if self.model() and self.model().rowCount() == 0:
@@ -192,3 +195,13 @@ class TaskList(TreeView):
         if isinstance(delegate, ListItemDelegate):
             delegate.setHoverRow(row)
             self.viewport().update()
+
+    def _onItemExpanded(self, index):
+        delegate = self.itemDelegate()
+        if hasattr(delegate, "updateButtonVisibility"):
+            delegate.updateButtonVisibility()
+
+    def _onItemCollapsed(self, index):
+        delegate = self.itemDelegate()
+        if hasattr(delegate, "updateButtonVisibility"):
+            delegate.updateButtonVisibility()
