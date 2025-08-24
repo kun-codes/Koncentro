@@ -648,10 +648,10 @@ class TaskListModel(QAbstractItemModel):
         for node in self.root_nodes:
             if node.task_id == task_id:
                 return node
-            # Future: search in children when subtasks are implemented
-            # for child in node.children:
-            #     if child.task_id == task_id:
-            #         return child
+            # searching in children of root node
+            for child in node.children:
+                if child.task_id == task_id:
+                    return child
         return None
 
     def _get_index_for_node(self, node: TaskNode) -> QModelIndex:

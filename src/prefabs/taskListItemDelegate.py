@@ -86,20 +86,33 @@ class TaskListItemDelegate(TreeItemDelegate):
 
     def onButtonClicked(self, checked, task_id) -> None:
         """Handle button clicks using task_id"""
+        logger.debug(f"Button clicked for task ID {task_id}, checked: {checked}")
         if self.parent().objectName() == "completedTasksList":
             return
 
         model = self.parent().model()
 
-        # Find the row for this task_id
-        row = -1
+        # find the index for this task_id
+        index = None
+
+        # check root level tasks
         for i in range(model.rowCount()):
-            index = model.index(i, 0)
-            if model.data(index, TaskListModel.IDRole) == task_id:
-                row = i
+            root_index = model.index(i, 0)
+            if model.data(root_index, TaskListModel.IDRole) == task_id:
+                index = root_index
                 break
 
-        if row == -1:
+            # check subtasks of this root task
+            for j in range(model.rowCount(root_index)):
+                subtask_index = model.index(j, 0, root_index)
+                if model.data(subtask_index, TaskListModel.IDRole) == task_id:
+                    index = subtask_index
+                    break
+
+            if index is not None:
+                break
+
+        if index is None:
             logger.warning(f"Triggered after clicking buttons inside taskList. Task ID {task_id} not found in model.")
             return
 
@@ -116,22 +129,27 @@ class TaskListItemDelegate(TreeItemDelegate):
         self._pomodoro_interface.pomodoro_timer_obj.pomodoro_timer.stop()
         self._pomodoro_interface.pauseResumeButtonClicked()
 
-        index = model.index(row, 0)
-        task_name = model.data(index, Qt.DisplayRole)
-        logger.debug(f"Button clicked for task ID {task_id}, row {row}: {task_name}, checked: {checked}")
-
         icon = FluentIcon.PAUSE if checked else FluentIcon.PLAY
         model.setData(index, icon, TaskListModel.IconRole, update_db=False)
         button.setIcon(icon)
 
         # Set every other button to unchecked
         for i in range(model.rowCount()):
-            idx = model.index(i, 0)
-            tid = model.data(idx, TaskListModel.IDRole)
-            if tid != task_id and tid in self.buttons:
-                self.buttons[tid].setChecked(False)
-                model.setData(idx, FluentIcon.PLAY, TaskListModel.IconRole, update_db=False)
-                self.buttons[tid].setIcon(FluentIcon.PLAY)
+            root_idx = model.index(i, 0)
+            root_tid = model.data(root_idx, TaskListModel.IDRole)
+            if root_tid != task_id and root_tid in self.buttons:
+                self.buttons[root_tid].setChecked(False)
+                model.setData(root_idx, FluentIcon.PLAY, TaskListModel.IconRole, update_db=False)
+                self.buttons[root_tid].setIcon(FluentIcon.PLAY)
+
+            # check subtasks
+            for j in range(model.rowCount(root_idx)):
+                subtask_idx = model.index(j, 0, root_idx)
+                subtask_tid = model.data(subtask_idx, TaskListModel.IDRole)
+                if subtask_tid != task_id and subtask_tid in self.buttons:
+                    self.buttons[subtask_tid].setChecked(False)
+                    model.setData(subtask_idx, FluentIcon.PLAY, TaskListModel.IconRole, update_db=False)
+                    self.buttons[subtask_tid].setIcon(FluentIcon.PLAY)
 
         if self.parent().objectName() == "todoTasksList":
             model.setCurrentTaskID(task_id)
@@ -208,9 +226,16 @@ class TaskListItemDelegate(TreeItemDelegate):
         # Delete buttons for tasks that no longer exist
         task_ids = set()
         model = self.parent().model()
+
+        # add root task IDs
         for i in range(model.rowCount()):
-            idx = model.index(i, 0)
-            task_ids.add(model.data(idx, TaskListModel.IDRole))
+            root_idx = model.index(i, 0)
+            task_ids.add(model.data(root_idx, TaskListModel.IDRole))
+
+            # add subtask IDs
+            for j in range(model.rowCount(root_idx)):
+                subtask_idx = model.index(j, 0, root_idx)
+                task_ids.add(model.data(subtask_idx, TaskListModel.IDRole))
 
         for tid in list(self.buttons.keys()):
             if tid not in task_ids:
