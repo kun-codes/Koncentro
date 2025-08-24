@@ -117,6 +117,7 @@ class TaskListModel(QAbstractItemModel):
                 session.query(Task)
                 .filter(Task.task_type == self.task_type)
                 .filter(Task.workspace_id == current_workspace_id)
+                .filter(Task.is_primary_task)
                 .order_by(Task.task_position)
                 .all()
             )
@@ -132,6 +133,29 @@ class TaskListModel(QAbstractItemModel):
                     icon=FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
                 )
                 self.root_nodes.append(node)
+
+            subtasks = (
+                session.query(Task)
+                .filter(Task.task_type == self.task_type)
+                .filter(Task.workspace_id == current_workspace_id)
+                .filter(~Task.is_primary_task)
+                .order_by(Task.task_position)
+                .all()
+            )
+
+            # create leaf nodes (subtasks)
+            for subtask in subtasks:
+                node = TaskNode(
+                    task_id=subtask.id,
+                    task_name=subtask.task_name,
+                    task_position=subtask.task_position,
+                    elapsed_time=subtask.elapsed_time,
+                    target_time=subtask.target_time,
+                    icon=FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
+                )
+                parent_node = next((n for n in self.root_nodes if n.task_id == subtask.parent_task_id), None)
+                if parent_node:
+                    parent_node.add_child(node)
 
         self.layoutChanged.emit()
 
