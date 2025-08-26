@@ -456,12 +456,11 @@ class TaskListModel(QAbstractItemModel):
         """
         current_workspace_id = WorkspaceLookup.get_current_workspace_id()
 
-        # Collect all nodes (root and children) for database update
+        # Collect all nodes for database update
         all_nodes = []
         for root_node in self.root_nodes:
             all_nodes.append(root_node)
-            # Future: when subtasks are implemented, add children here
-            # all_nodes.extend(root_node.children)
+            all_nodes.extend(root_node.children)
 
         with get_session() as session:
             session.execute(
@@ -660,7 +659,6 @@ class TaskListModel(QAbstractItemModel):
             row = self.root_nodes.index(node)
             return self.index(row, 0)
         else:
-            # Future: handle subtask indices when implemented
             parent_index = self._get_index_for_node(node.parent_node)
             row = node.row()
             return self.index(row, 0, parent_index)
