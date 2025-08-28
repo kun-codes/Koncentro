@@ -314,13 +314,6 @@ class TaskListModel(QAbstractItemModel):
                     stream.writeInt64(node.elapsed_time)
                     stream.writeInt64(node.target_time)
 
-        # Store the task IDs being dragged in the mime data for later use
-        task_ids_bytes = QByteArray()
-        id_stream = QDataStream(task_ids_bytes, QIODevice.OpenModeFlag.WriteOnly)
-        for node in nodes_being_dragged:
-            id_stream.writeInt32(node.task_id)
-        mime_data.setData("application/x-task-ids", task_ids_bytes)
-
         logger.debug(f"Dragging from task type: {self.task_type}")
         logger.debug(f"Nodes being dragged: {[node.task_id for node in nodes_being_dragged]}")
 
