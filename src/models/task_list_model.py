@@ -412,8 +412,6 @@ class TaskListModel(QAbstractListModel):
         if self._dragInProgress:
             logger.debug(f"Cancelling drag operation for task type: {self.task_type}")
             self._dragInProgress = False
-            # Force refresh to ensure view reflects actual data
-            self.layoutChanged.emit()
 
     def isDragInProgress(self) -> bool:
         """
