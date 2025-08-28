@@ -159,9 +159,6 @@ class TaskList(ListView):
         is done to overcome bugs in the original code in qfluentwidgets where the pressed row was not getting reset
         when an item was dropped.
         """
-        # Clear drop indicator before processing the drop
-        self.viewport().update()
-
         # Mark drag as successful if this is our own drag operation
         if self._dragInProgress:
             self._dragInProgress = False
