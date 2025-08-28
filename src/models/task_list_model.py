@@ -386,6 +386,8 @@ class TaskListModel(QAbstractListModel):
         """
         # If we're in a drag operation, don't actually remove the data
         # Let the visual removal happen but keep the data intact until drop completes
+        # I had to implement this because when dragging and dropping tasks onto invalid drop targets, tasks
+        # disappear on wayland
         if self._dragInProgress:
             logger.debug(f"Ignoring removeRows during drag operation for rows {row} to {row + count - 1}")
             return True
