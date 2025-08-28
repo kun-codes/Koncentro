@@ -562,12 +562,12 @@ class TaskListModel(QAbstractItemModel):
         self.layoutChanged.emit()
         return True
 
-    def cancelDrag(self) -> None:
+    def finishDrag(self) -> None:
         """
         Cancel an ongoing drag operation and ensure data consistency
         """
         if self._dragInProgress:
-            logger.debug(f"Cancelling drag operation for task type: {self.task_type}")
+            logger.debug(f"Marking drag operation for task type: {self.task_type} as finished")
             self._dragInProgress = False
 
     def isDragInProgress(self) -> bool:

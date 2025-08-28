@@ -94,8 +94,8 @@ class TaskList(TreeView):
         This ensures the task doesn't disappear from the original list
         """
         # Cancel the drag operation in the model
-        if self.model() and hasattr(self.model(), "cancelDrag"):
-            self.model().cancelDrag()
+        if self.model() and hasattr(self.model(), "finishDrag"):
+            self.model().finishDrag()
 
     def dragEnterEvent(self, event) -> None:
         """
@@ -142,10 +142,10 @@ class TaskList(TreeView):
                 parent_view.completedTasksList._dragInProgress = False
 
                 # Cancel any pending drag operations in the models
-                if hasattr(parent_view.todoTasksList.model(), "cancelDrag"):
-                    parent_view.todoTasksList.model().cancelDrag()
-                if hasattr(parent_view.completedTasksList.model(), "cancelDrag"):
-                    parent_view.completedTasksList.model().cancelDrag()
+                if hasattr(parent_view.todoTasksList.model(), "finishDrag"):
+                    parent_view.todoTasksList.model().finishDrag()
+                if hasattr(parent_view.completedTasksList.model(), "finishDrag"):
+                    parent_view.completedTasksList.model().finishDrag()
                 break
             parent_view = parent_view.parentWidget()
         super().dropEvent(e)
