@@ -163,13 +163,6 @@ class TaskListModel(QAbstractListModel):
                 stream.writeInt64(self.tasks[row]["elapsed_time"])
                 stream.writeInt64(self.tasks[row]["target_time"])
 
-        # Store the indices being dragged in the mime data for later use
-        task_ids_bytes = QByteArray()
-        id_stream = QDataStream(task_ids_bytes, QIODevice.WriteOnly)
-        for row in rows_being_dragged:
-            id_stream.writeInt32(self.tasks[row]["id"])
-        mime_data.setData("application/x-task-ids", task_ids_bytes)
-
         # Don't update task positions or database here - we'll do that in dropMimeData
         # This prevents prematurely marking tasks with position -1 when they might be
         # dropped back in the same position
