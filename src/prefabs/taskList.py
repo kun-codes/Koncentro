@@ -113,27 +113,6 @@ class TaskList(TreeView):
         if self.model() and hasattr(self.model(), "cancelDrag"):
             self.model().cancelDrag()
 
-        # Force the view to refresh
-        if self.model():
-            self.model().layoutChanged.emit()
-
-        # Make sure the view is updated to reflect the current state
-        self.viewport().update()
-
-        # Also check if we have a parent TaskView and cancel drag on both lists
-        parent_view = self.parentWidget()
-        while parent_view is not None:
-            if isinstance(parent_view, Ui_TaskView):
-                if hasattr(parent_view.todoTasksList.model(), "cancelDrag"):
-                    parent_view.todoTasksList.model().cancelDrag()
-                if hasattr(parent_view.completedTasksList.model(), "cancelDrag"):
-                    parent_view.completedTasksList.model().cancelDrag()
-                # Also update the viewports of both task lists
-                parent_view.todoTasksList.viewport().update()
-                parent_view.completedTasksList.viewport().update()
-                break
-            parent_view = parent_view.parentWidget()
-
     def dragEnterEvent(self, event) -> None:
         """
         Override dragEnterEvent to handle drag operations properly
