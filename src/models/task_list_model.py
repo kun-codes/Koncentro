@@ -405,20 +405,18 @@ class TaskListModel(QAbstractItemModel):
         # Create a copy of the nodes excluding the ones being moved
         filtered_nodes = [node for node in self.root_nodes if node.task_id not in task_ids]
 
+        # Assembling the new list
         # Insert all nodes before the drop position
         for i in range(drop_position):
             if i >= len(filtered_nodes):
                 break
             new_root_nodes.append(filtered_nodes[i])
-
         # Insert the dropped nodes at the drop position
         for node in drop_nodes:
             new_root_nodes.append(node)
-
         # Insert all remaining nodes after the drop position
         for i in range(drop_position, len(filtered_nodes)):
             new_root_nodes.append(filtered_nodes[i])
-
         # Set task positions
         for i, node in enumerate(new_root_nodes):
             node.task_position = i
