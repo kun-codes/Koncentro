@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QPainter, QPen
 from PySide6.QtWidgets import QAbstractItemView, QProxyStyle
 from qfluentwidgets import ListItemDelegate, TreeView, isDarkTheme
@@ -55,9 +55,6 @@ class TaskList(TreeView):
         # Track drag operations to handle failed drops
         self._dragInProgress = False
         self._draggedIndexes = []
-        self._dragSuccessTimer = QTimer()
-        self._dragSuccessTimer.setSingleShot(True)
-        self._dragSuccessTimer.timeout.connect(self._checkDragResult)
 
         self.expanded.connect(self._onItemExpanded)
         self.collapsed.connect(self._onItemCollapsed)
@@ -79,10 +76,6 @@ class TaskList(TreeView):
         self._draggedIndexes = self.selectedIndexes()
         self._dragInProgress = True
 
-        # Start a timer to check for failed drags after a delay
-        # This helps handle cases where drag callbacks aren't properly called on Wayland
-        self._dragSuccessTimer.start(100)  # Check after 100ms
-
         # Call the parent implementation to start the drag
         super().startDrag(supportedActions)
 
@@ -94,15 +87,6 @@ class TaskList(TreeView):
         # Reset drag state
         self._dragInProgress = False
         self._draggedIndexes = []
-        self._dragSuccessTimer.stop()
-
-    def _checkDragResult(self) -> None:
-        """
-        Called by timer to check if drag operation completed successfully
-        """
-        if self._dragInProgress:
-            # Drag is still in progress, extend the timer
-            self._dragSuccessTimer.start(100)
 
     def _handleFailedDrag(self) -> None:
         """
