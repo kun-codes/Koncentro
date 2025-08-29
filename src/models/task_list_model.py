@@ -676,9 +676,9 @@ class TaskListModel(QAbstractItemModel):
                 logger.debug(f"root_nodes: {[node.task_id for node in self.root_nodes]}")
             self.endRemoveRows()
 
-        # Update task positions
-        for i, node in enumerate(self.root_nodes):
-            node.task_position = i
+            # Update task positions
+            for i, node in enumerate(self.root_nodes):
+                node.task_position = i
 
         self.update_db()
         self.layoutChanged.emit()
