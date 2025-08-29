@@ -450,6 +450,7 @@ class TaskListModel(QAbstractItemModel):
                 offset += 1
 
         drop_position -= offset
+        node.task_position = drop_position
         logger.debug(f"Adjusted drop position after offset: {drop_position}")
 
         # Check if this is a drop in the exact same position
@@ -459,40 +460,17 @@ class TaskListModel(QAbstractItemModel):
                 logger.debug(f"Node dropped at same position: {original_pos} -> {drop_position}")
                 return False
 
-        # Create a new list for nodes in their new order
-        new_root_nodes = []
+        # inserting dropped task at new position
+        self.beginInsertRows(QModelIndex(), drop_position, drop_position + len(drop_nodes) - 1)
+        self.root_nodes = self.root_nodes[:drop_position] + drop_nodes + self.root_nodes[drop_position:]
+        self.endInsertRows()
 
-        # Create a copy of the nodes excluding the ones being moved
-        filtered_nodes = [node for node in self.root_nodes if node.task_id not in task_ids]
-
-        ## Assembling the new list
-        # Insert all nodes before the drop position
-        for i in range(drop_position):
-            if i >= len(filtered_nodes):
-                break
-            new_root_nodes.append(filtered_nodes[i])
-        # Insert the dropped nodes at the drop position
-        for node in drop_nodes:
-            new_root_nodes.append(node)
-        # Insert all remaining nodes after the drop position
-        for i in range(drop_position, len(filtered_nodes)):
-            new_root_nodes.append(filtered_nodes[i])
-        # Set task positions
-        for i, node in enumerate(new_root_nodes):
-            node.task_position = i
-
-        # Emit signals for moved nodes
+        # emit signals for moved nodes
         for node in drop_nodes:
             self.taskMovedSignal.emit(node.task_id, self.task_type)
             for subtask in node.children:
                 self.taskMovedSignal.emit(subtask.task_id, self.task_type)
 
-        # Replace the root nodes list with our new ordered list
-        self.beginResetModel()
-        self.root_nodes = new_root_nodes
-        self.endResetModel()
-
-        # Update database
         self.update_db()
 
         # emit layoutChanged to notify the view of the changes
@@ -638,6 +616,8 @@ class TaskListModel(QAbstractItemModel):
                         "task_position": node.task_position,
                         "elapsed_time": node.elapsed_time,
                         "target_time": node.target_time,
+                        "is_primary_task": node.is_root(),
+                        "parent_task_id": node.parent_node.task_id if node.parent_node else None,
                     }
                     for node in all_nodes
                     if node.task_id is not None
