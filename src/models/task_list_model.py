@@ -457,6 +457,12 @@ class TaskListModel(QAbstractItemModel):
         self.root_nodes = self.root_nodes[:drop_position] + drop_nodes + self.root_nodes[drop_position:]
         self.endInsertRows()
 
+        # required when tasks are transferred from one task list to another
+        # this same step happens in removeRows method but that method is not called
+        # for the model into which the task was dropped, so it has to be performed here
+        for i, node in enumerate(self.root_nodes):
+            node.task_position = i
+
         # emit signals for moved nodes
         for node in drop_nodes:
             self.taskMovedSignal.emit(node.task_id, self.task_type)
