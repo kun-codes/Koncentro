@@ -351,8 +351,7 @@ class TaskListModel(QAbstractItemModel):
             if is_root:  # only root tasks for now
                 return self._handleDroppedRootNode(data, action, row, column, parent)
             else:
-                logger.debug("Dropping subtasks is not supported yet")
-                return False
+                return self._handleDroppedChildNode(data, action, row, column, parent)
 
     def _handleDroppedRootNode(self, data, action, row, column, parent) -> bool:
         """
@@ -502,6 +501,117 @@ class TaskListModel(QAbstractItemModel):
         logger.debug(f"Task type: {self.task_type}")
         logger.debug(f"Root nodes after drop: {[node.task_id for node in self.root_nodes]}")
 
+        return True
+
+    def _handleDroppedChildNode(self, data, action, row, column, parent):
+        """
+        if subtask
+            if dropped within its own parent
+                valid drop; place it at new location
+            elif dropped at subtasks of another parent task
+                invalid drop; return to previous location
+            elif dropped at top level
+                invalid drop; return to previous location
+
+        """
+        encoded_data = data.data("application/x-qabstractitemmodeldatalist")
+        stream = QDataStream(encoded_data, QIODevice.OpenModeFlag.ReadOnly)
+
+        drop_nodes = []
+        task_ids = []
+        if not parent.isValid():
+            logger.debug("Can't drop subtask at root level")
+            return False
+
+        droppedOnParentNode = self.get_node(parent)
+        if not droppedOnParentNode:
+            logger.debug("Invalid parent node")
+            return False
+
+        while not stream.atEnd():
+            _source_row = stream.readInt32()
+            task_id = stream.readInt32()
+            task_ids.append(task_id)
+            _task_name = stream.readQString()
+            _elapsed_time = stream.readInt64()
+            _target_time = stream.readInt64()
+            _is_root = stream.readBool()  # would be False as child node
+            _original_parent_task_id = stream.readInt32()  # parent task id of the task before it was dragged
+
+            droppedOnParentTaskId = droppedOnParentNode.task_id
+
+            if droppedOnParentTaskId != _original_parent_task_id:
+                logger.debug("Can't drop subtask within another parent task")
+                return False
+            else:  # dropped within its own parent, which is valid
+                logger.debug(f"Reordering subtask {task_id} within parent {droppedOnParentTaskId}")
+
+                # find existing child one and reorder it
+                existing_child = None
+                for child in droppedOnParentNode.children:
+                    if child.task_id == task_id:
+                        existing_child = child
+                        break
+
+                if not existing_child:
+                    logger.debug(f"Could not find existing child with task_id {task_id}")
+                    return False
+
+                drop_nodes.append(existing_child)
+
+        # Determine the drop position within the parent's children
+        if row == -1:
+            drop_position = len(droppedOnParentNode.children)
+        else:
+            drop_position = row
+
+        # Adjust drop position if moving children from above
+        offset = 0
+        for child in drop_nodes:
+            original_row = droppedOnParentNode.children.index(child)
+            if original_row < drop_position:
+                offset += 1
+
+        drop_position -= offset
+        logger.debug(f"Adjusted child drop position: {drop_position}")
+
+        # Check if dropping at the same position
+        if len(drop_nodes) == 1:
+            original_pos = droppedOnParentNode.children.index(drop_nodes[0])
+            if original_pos == drop_position:
+                logger.debug(f"Child dropped at same position: {original_pos}")
+                return False
+
+        self.beginResetModel()
+
+        new_children = []
+
+        # get children excluding the ones being moved
+        filtered_children = [child for child in droppedOnParentNode.children if child not in drop_nodes]
+
+        # insert children before drop position
+        for i in range(drop_position):
+            if i >= len(filtered_children):
+                break
+            new_children.append(filtered_children[i])
+        # insert dropped children at drop position
+        for node in drop_nodes:
+            new_children.append(node)
+        # insert remaining children after drop position
+        for i in range(drop_position, len(filtered_children)):
+            new_children.append(filtered_children[i])
+
+        # update task positions
+        for i, child in enumerate(new_children):
+            child.task_position = i
+
+        droppedOnParentNode.children = new_children
+
+        self.endResetModel()
+
+        self.update_db()
+
+        logger.debug(f"Subtasks reordered within parent {droppedOnParentTaskId}")
         return True
 
     def update_db(self) -> None:
