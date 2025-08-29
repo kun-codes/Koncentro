@@ -307,12 +307,17 @@ class TaskListModel(QAbstractItemModel):
                 node = self.get_node(index)
                 if node:
                     nodes_being_dragged.append(node)
+                    logger.warning(f"preparing to drag node: {node}")
                     row = node.row() if not node.is_root() else self.root_nodes.index(node)
                     stream.writeInt32(row)
                     stream.writeInt32(node.task_id)
                     stream.writeQString(node.task_name)
                     stream.writeInt64(node.elapsed_time)
                     stream.writeInt64(node.target_time)
+                    stream.writeBool(node.is_root())
+                    # parent of task before dragging
+                    parent_task_id = node.parent_node.task_id if node.parent_node else -1
+                    stream.writeInt32(parent_task_id)
 
         logger.debug(f"Dragging from task type: {self.task_type}")
         logger.debug(f"Nodes being dragged: {[node.task_id for node in nodes_being_dragged]}")
@@ -323,34 +328,60 @@ class TaskListModel(QAbstractItemModel):
     def dropMimeData(self, data, action, row, column, parent) -> bool:
         # Clear drag in progress flag since we're handling the drop
         self._dragInProgress = False
+        logger.debug(f"row: {row}, column: {column}, parent: {parent}, action: {action}")
 
         if not data.hasFormat("application/x-qabstractitemmodeldatalist"):
             return False
 
-        # For now, only support dropping at root level (no subtask drops yet)
-        if parent.isValid():
-            parent_node = self.get_node(parent)
-            if parent_node and not parent_node.is_root():
-                # Don't allow dropping into subtasks
+        encoded_data = data.data("application/x-qabstractitemmodeldatalist")
+        stream = QDataStream(encoded_data, QIODevice.OpenModeFlag.ReadOnly)
+
+        # Read all task data from the stream
+        # Only one task can be dragged at once
+        while not stream.atEnd():
+            # have to read all this because QDataStream is sequential access only
+            _ = stream.readInt32()
+            _ = stream.readInt32()
+            _ = stream.readQString()
+            _ = stream.readInt64()
+            _ = stream.readInt64()
+            is_root = stream.readBool()
+            _ = stream.readInt32()  # parent task id of the task before it was dragged
+
+            if is_root:  # only root tasks for now
+                return self._handleDroppedRootNode(data, action, row, column, parent)
+            else:
+                logger.debug("Dropping subtasks is not supported yet")
                 return False
+
+    def _handleDroppedRootNode(self, data, action, row, column, parent) -> bool:
+        """
+        logic followed:
+        if parent task
+            if dropped within same list
+                valid drop; place it at new location
+            elif dropped to other list
+                valid drop; place at new location and change task list type of the parent task and all its children
+            elif dropped at the place of a subtask
+                invalid drop, return to previous location
+        """
+        encoded_data = data.data("application/x-qabstractitemmodeldatalist")
+        stream = QDataStream(encoded_data, QIODevice.OpenModeFlag.ReadOnly)
+
+        drop_nodes = []
+        task_ids = []
 
         # Use the parent index row when dropping directly onto an item
         if parent.isValid():
-            drop_position = parent.row() + 1
+            logger.debug("Can't drop parent task within another parent task")
+            return False
         else:
             if row == -1:
                 drop_position = len(self.root_nodes)
             else:
                 drop_position = row
 
-        encoded_data = data.data("application/x-qabstractitemmodeldatalist")
-        stream = QDataStream(encoded_data, QIODevice.OpenModeFlag.ReadOnly)
-
-        # Create a list to store nodes being dropped
-        drop_nodes = []
-        task_ids = []
-
-        # Read all task data from the stream
+        # Only one task can be dragged at once
         while not stream.atEnd():
             _source_row = stream.readInt32()
             task_id = stream.readInt32()
@@ -358,6 +389,9 @@ class TaskListModel(QAbstractItemModel):
             task_name = stream.readQString()
             elapsed_time = stream.readInt64()
             target_time = stream.readInt64()
+            _is_root = stream.readBool()
+            _original_parent_task_id = stream.readInt32()  # parent task id of the task before it was dragged
+            # will have -1 since this is a root node
 
             # For the current task, check if we need to update the elapsed time from in-memory cache
             if self.task_type == TaskType.TODO and self.current_task_id == task_id:
@@ -374,6 +408,33 @@ class TaskListModel(QAbstractItemModel):
                 target_time=target_time,
                 icon=FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
             )
+
+            # have to read child tasks from database instead from in memory data structure as the task ids of
+            # child tasks aren't being passed via mime data. Can't read from in memory data structure because
+            # during cross-list drag and drop, the source list's data structure is not accessible.
+            current_workspace_id = WorkspaceLookup.get_current_workspace_id()
+            with get_session(is_read_only=True) as session:
+                subtasks = (
+                    session.query(Task)
+                    .filter(Task.parent_task_id == task_id)
+                    .filter(Task.workspace_id == current_workspace_id)
+                    .filter(~Task.is_primary_task)
+                    .order_by(Task.task_position)
+                    .all()
+                )
+
+                # create child nodes
+                for subtask in subtasks:
+                    _child_node = TaskNode(
+                        task_id=subtask.id,
+                        task_name=subtask.task_name,
+                        task_position=subtask.task_position,
+                        elapsed_time=subtask.elapsed_time,
+                        target_time=subtask.target_time,
+                        icon=FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
+                        parent=node,  # Set the new parent node
+                    )
+
             drop_nodes.append(node)
 
         # Find which nodes in our current model need to be removed (moved)
@@ -405,7 +466,7 @@ class TaskListModel(QAbstractItemModel):
         # Create a copy of the nodes excluding the ones being moved
         filtered_nodes = [node for node in self.root_nodes if node.task_id not in task_ids]
 
-        # Assembling the new list
+        ## Assembling the new list
         # Insert all nodes before the drop position
         for i in range(drop_position):
             if i >= len(filtered_nodes):
@@ -424,6 +485,8 @@ class TaskListModel(QAbstractItemModel):
         # Emit signals for moved nodes
         for node in drop_nodes:
             self.taskMovedSignal.emit(node.task_id, self.task_type)
+            for subtask in node.children:
+                self.taskMovedSignal.emit(subtask.task_id, self.task_type)
 
         # Replace the root nodes list with our new ordered list
         self.beginResetModel()
