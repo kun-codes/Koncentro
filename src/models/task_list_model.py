@@ -442,14 +442,6 @@ class TaskListModel(QAbstractItemModel):
             if node.task_id in task_ids:
                 nodes_to_remove.append(node)
 
-        # Adjust the drop position if we're moving nodes from above the drop position
-        offset = 0
-        for node in nodes_to_remove:
-            original_row = self.root_nodes.index(node)
-            if original_row < drop_position:
-                offset += 1
-
-        drop_position -= offset
         node.task_position = drop_position
         logger.debug(f"Adjusted drop position after offset: {drop_position}")
 
@@ -543,16 +535,7 @@ class TaskListModel(QAbstractItemModel):
         else:
             drop_position = row
 
-        # Adjust drop position if moving children from above
-        offset = 0
-        for child in drop_nodes:
-            original_row = droppedOnParentNode.children.index(child)
-            if original_row < drop_position:
-                offset += 1
-
-        drop_position -= offset
         existing_child.task_position = drop_position
-        logger.debug(f"Adjusted child drop position: {drop_position}")
 
         # Check if dropping at the same position
         if len(drop_nodes) == 1:
@@ -691,6 +674,7 @@ class TaskListModel(QAbstractItemModel):
         for i, node in enumerate(self.root_nodes):
             node.task_position = i
 
+        self.update_db()
         self.layoutChanged.emit()
         return True
 
