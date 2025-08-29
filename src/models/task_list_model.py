@@ -665,6 +665,10 @@ class TaskListModel(QAbstractItemModel):
                     if row < len(parent_node.children):
                         parent_node.children.pop(row)
                 self.endRemoveRows()
+
+            # update task positions
+            for i, node in enumerate(parent_node.children):
+                node.task_position = i
         else:
             # Removing root tasks
             self.beginRemoveRows(parent, row, row + count - 1)
