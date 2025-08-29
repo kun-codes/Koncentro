@@ -506,6 +506,7 @@ class TaskListModel(QAbstractItemModel):
             logger.debug("Invalid parent node")
             return False
 
+        existing_child = None
         while not stream.atEnd():
             _source_row = stream.readInt32()
             task_id = stream.readInt32()
@@ -525,7 +526,6 @@ class TaskListModel(QAbstractItemModel):
                 logger.debug(f"Reordering subtask {task_id} within parent {droppedOnParentTaskId}")
 
                 # find existing child one and reorder it
-                existing_child = None
                 for child in droppedOnParentNode.children:
                     if child.task_id == task_id:
                         existing_child = child
@@ -551,6 +551,7 @@ class TaskListModel(QAbstractItemModel):
                 offset += 1
 
         drop_position -= offset
+        existing_child.task_position = drop_position
         logger.debug(f"Adjusted child drop position: {drop_position}")
 
         # Check if dropping at the same position
@@ -560,32 +561,12 @@ class TaskListModel(QAbstractItemModel):
                 logger.debug(f"Child dropped at same position: {original_pos}")
                 return False
 
-        self.beginResetModel()
-
-        new_children = []
-
-        # get children excluding the ones being moved
-        filtered_children = [child for child in droppedOnParentNode.children if child not in drop_nodes]
-
-        # insert children before drop position
-        for i in range(drop_position):
-            if i >= len(filtered_children):
-                break
-            new_children.append(filtered_children[i])
-        # insert dropped children at drop position
-        for node in drop_nodes:
-            new_children.append(node)
-        # insert remaining children after drop position
-        for i in range(drop_position, len(filtered_children)):
-            new_children.append(filtered_children[i])
-
-        # update task positions
-        for i, child in enumerate(new_children):
-            child.task_position = i
-
-        droppedOnParentNode.children = new_children
-
-        self.endResetModel()
+        # insert child task at new position
+        self.beginInsertRows(parent, drop_position, drop_position + len(drop_nodes) - 1)
+        droppedOnParentNode.children = (
+            droppedOnParentNode.children[:drop_position] + drop_nodes + droppedOnParentNode.children[drop_position:]
+        )
+        self.endInsertRows()
 
         self.update_db()
 
