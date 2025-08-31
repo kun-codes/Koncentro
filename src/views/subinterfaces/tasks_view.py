@@ -73,7 +73,7 @@ class TaskListView(Ui_TaskView, QWidget):
         self.addTaskButton.installEventFilter(
             ToolTipFilter(self.addTaskButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
-        self.addSubTaskButton.setToolTip("Add Sub Task")
+        self.addSubTaskButton.setToolTip("Add Subtask")
         self.addSubTaskButton.installEventFilter(
             ToolTipFilter(self.addSubTaskButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
