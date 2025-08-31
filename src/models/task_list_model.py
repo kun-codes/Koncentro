@@ -732,7 +732,7 @@ class TaskListModel(QAbstractItemModel):
 
         task_id = None
         if parent.isValid():
-            # Deleting subtask (future implementation)
+            # Deleting subtask
             parent_node = self.get_node(parent)
             if parent_node and row < len(parent_node.children):
                 child_node = parent_node.children[row]
@@ -753,7 +753,7 @@ class TaskListModel(QAbstractItemModel):
             if task:
                 session.delete(task)
 
-        logger.debug(f"root_nodes: {[node.task_id for node in self.root_nodes]}")
+        logger.debug(f"Deleting task with ID: {task_id}")
         self.removeRows(row, 1, parent)
 
         self.taskDeletedSignal.emit(task_id)

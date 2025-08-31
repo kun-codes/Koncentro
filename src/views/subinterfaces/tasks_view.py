@@ -140,9 +140,11 @@ class TaskListView(Ui_TaskView, QWidget):
         completed_selected_index = self.completedTasksList.selectionModel().currentIndex()
 
         if self.todoTasksList.selectionModel().hasSelection():
-            self.todoTasksList.model().deleteTask(todo_selected_index.row())
+            parent_index = self.todoTasksList.model().parent(todo_selected_index)
+            self.todoTasksList.model().deleteTask(todo_selected_index.row(), parent_index)
         elif self.completedTasksList.selectionModel().hasSelection():
-            self.completedTasksList.model().deleteTask(completed_selected_index.row())
+            parent_index = self.completedTasksList.model().parent(completed_selected_index)
+            self.completedTasksList.model().deleteTask(completed_selected_index.row(), parent_index)
 
     def editTaskTime(self) -> None:
         row = None
