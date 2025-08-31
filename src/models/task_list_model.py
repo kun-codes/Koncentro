@@ -290,7 +290,7 @@ class TaskListModel(QAbstractItemModel):
         # First update the elapsed time for the task before drag starts
         if self.task_type == TaskType.TODO and self.current_task_id is not None:
             # Update the database with the current elapsed time to avoid losing time during drag
-            current_node = self._find_node_by_id(self.current_task_id)
+            current_node = self.getNodeById(self.current_task_id)
             if current_node is not None:
                 current_index = self._get_index_for_node(current_node)
                 if current_index.isValid():
@@ -394,7 +394,7 @@ class TaskListModel(QAbstractItemModel):
 
             # For the current task, check if we need to update the elapsed time from in-memory cache
             if self.task_type == TaskType.TODO and self.current_task_id == task_id:
-                existing_node = self._find_node_by_id(task_id)
+                existing_node = self.getNodeById(task_id)
                 if existing_node:
                     elapsed_time = existing_node.elapsed_time
                     logger.debug(f"Updated elapsed time for current task during drop: {elapsed_time}")
@@ -750,16 +750,16 @@ class TaskListModel(QAbstractItemModel):
             self.dataChanged.emit(index, index, [self.IconRole])
 
     def getTaskNameById(self, task_id):
-        node = self._find_node_by_id(task_id)
+        node = self.getTaskNodeById(task_id)
         return node.task_name if node else None
 
     def currentTaskIndex(self):
-        node = self._find_node_by_id(self.current_task_id)
+        node = self.getTaskNodeById(self.current_task_id)
         if node:
             return self._get_index_for_node(node)
         return None
 
-    def _find_node_by_id(self, task_id) -> Optional[TaskNode]:
+    def getTaskNodeById(self, task_id) -> Optional[TaskNode]:
         """Find a node by its task_id"""
         if task_id is None:
             return None
