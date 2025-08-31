@@ -75,6 +75,9 @@
           <widget class="ToolButton" name="addTaskButton"/>
          </item>
          <item>
+          <widget class="ToolButton" name="addSubTaskButton"/>
+         </item>
+         <item>
           <widget class="ToolButton" name="deleteTaskButton"/>
          </item>
         </layout>

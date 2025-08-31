@@ -290,7 +290,7 @@ class TaskListModel(QAbstractItemModel):
         # First update the elapsed time for the task before drag starts
         if self.task_type == TaskType.TODO and self.current_task_id is not None:
             # Update the database with the current elapsed time to avoid losing time during drag
-            current_node = self.getNodeById(self.current_task_id)
+            current_node = self.getTaskNodeById(self.current_task_id)
             if current_node is not None:
                 current_index = self._get_index_for_node(current_node)
                 if current_index.isValid():
@@ -394,7 +394,7 @@ class TaskListModel(QAbstractItemModel):
 
             # For the current task, check if we need to update the elapsed time from in-memory cache
             if self.task_type == TaskType.TODO and self.current_task_id == task_id:
-                existing_node = self.getNodeById(task_id)
+                existing_node = self.getTaskNodeById(task_id)
                 if existing_node:
                     elapsed_time = existing_node.elapsed_time
                     logger.debug(f"Updated elapsed time for current task during drop: {elapsed_time}")
@@ -616,29 +616,51 @@ class TaskListModel(QAbstractItemModel):
         self.beginInsertRows(parent, row, row)
 
         with get_session() as session:
-            task = Task(
-                workspace_id=WorkspaceLookup.get_current_workspace_id(),
-                task_name=task_name,
-                task_type=task_type,
-                task_position=row,
-            )
+            if parent.isValid():  # add subtask
+                task = Task(
+                    workspace_id=WorkspaceLookup.get_current_workspace_id(),
+                    task_name=task_name,
+                    task_type=task_type,
+                    task_position=row,
+                    is_primary_task=False,
+                    parent_task_id=self.get_node(parent).task_id,
+                )
+            else:  # add root task
+                task = Task(
+                    workspace_id=WorkspaceLookup.get_current_workspace_id(),
+                    task_name=task_name,
+                    task_type=task_type,
+                    task_position=row,
+                )
             session.add(task)
             session.commit()
             new_id = task.id
 
-        # Create new node
-        new_node = TaskNode(
-            task_id=new_id,
-            task_name=task_name,
-            task_position=row,
-            elapsed_time=0,
-            target_time=0,
-            icon=FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
-        )
+        if parent.isValid():  # add subtask
+            parent_node = self.get_node(parent)
+            newChildNode = TaskNode(
+                task_id=new_id,
+                task_name=task_name,
+                task_position=row,
+                elapsed_time=0,
+                target_time=0,
+                icon=FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
+                parent=parent_node,
+            )
+            logger.debug(f"Creating new subtask node: {newChildNode.task_id} under parent: {parent_node.task_id}")
+            # TaskNode constructor already adds child to parent
+        else:  # add root task
+            newRootNode = TaskNode(
+                task_id=new_id,
+                task_name=task_name,
+                task_position=row,
+                elapsed_time=0,
+                target_time=0,
+                icon=FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
+            )
+            logger.debug(f"Creating new task node: {newRootNode.task_id}")
+            self.root_nodes.insert(row, newRootNode)
 
-        logger.debug(f"Creating new task node: {new_node.task_id}")
-
-        self.root_nodes.insert(row, new_node)
         self.endInsertRows()
         self.layoutChanged.emit()
         return True

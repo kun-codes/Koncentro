@@ -10,9 +10,10 @@ from qfluentwidgets import (
 )
 
 from models.db_tables import TaskType
-from models.task_list_model import TaskListModel
+from models.task_list_model import TaskListModel, TaskNode
 from prefabs.taskList import TaskList
 from ui_py.ui_tasks_list_view import Ui_TaskView
+from views.dialogs.addSubTaskDialog import AddSubTaskDialog
 from views.dialogs.addTaskDialog import AddTaskDialog
 from views.dialogs.editTaskTimeDialog import EditTaskTimeDialog
 
@@ -64,12 +65,17 @@ class TaskListView(Ui_TaskView, QWidget):
 
         # set icons of buttons
         self.addTaskButton.setIcon(FluentIcon.ADD)
+        self.addSubTaskButton.setIcon(FluentIcon.VPN)
         self.deleteTaskButton.setIcon(FluentIcon.DELETE)
         self.editTaskTimeButton.setIcon(FluentIcon.EDIT)
 
         self.addTaskButton.setToolTip("Add Task")
         self.addTaskButton.installEventFilter(
             ToolTipFilter(self.addTaskButton, showDelay=300, position=ToolTipPosition.BOTTOM)
+        )
+        self.addSubTaskButton.setToolTip("Add Sub Task")
+        self.addSubTaskButton.installEventFilter(
+            ToolTipFilter(self.addSubTaskButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
         self.deleteTaskButton.setToolTip("Delete Task")
         self.deleteTaskButton.installEventFilter(
@@ -82,6 +88,7 @@ class TaskListView(Ui_TaskView, QWidget):
 
     def connectSignalsToSlots(self) -> None:
         self.addTaskButton.clicked.connect(self.addTask)
+        self.addSubTaskButton.clicked.connect(self.addSubTask)
         self.deleteTaskButton.clicked.connect(self.deleteTask)
         self.editTaskTimeButton.clicked.connect(self.editTaskTime)
 
@@ -92,6 +99,30 @@ class TaskListView(Ui_TaskView, QWidget):
             task_name = self.addTaskDialog.taskEdit.text()
             row = self.todoTasksList.model().rowCount(QModelIndex())
             self.todoTasksList.model().insertRow(row, QModelIndex(), task_name=task_name, task_type=TaskType.TODO)
+
+    def addSubTask(self) -> None:
+        self.addSubTaskDialog = AddSubTaskDialog(self.window())
+
+        selectedRootTask: bool = False
+
+        # check if a parent task is selected first
+        if self.todoTasksList.selectionModel().hasSelection():
+            taskIndex = self.todoTasksList.selectionModel().currentIndex()
+            taskID = taskIndex.data(TaskListModel.IDRole)
+            taskNode: TaskNode = self.todoTasksList.model().getTaskNodeById(taskID)
+
+            if taskNode.is_root():
+                selectedRootTask = True
+
+        if selectedRootTask and self.addSubTaskDialog.exec():
+            subtaskName = self.addSubTaskDialog.taskEdit.text()
+            row = self.todoTasksList.model().rowCount(taskIndex)
+            self.todoTasksList.model().insertRow(
+                row,
+                taskIndex,
+                task_name=subtaskName,
+                task_type=TaskType.TODO,
+            )
 
     def findMainWindow(self):
         widget = self.parent()
