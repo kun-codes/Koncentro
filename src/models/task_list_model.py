@@ -667,7 +667,7 @@ class TaskListModel(QAbstractItemModel):
 
     def removeRows(self, row, count: int, parent: QModelIndex = QModelIndex()) -> bool:
         """
-        Remove rows but not delete from db
+        Remove rows and save changes to db
         This method can be called by Qt during drag operations.
         """
         # If we're in a drag operation, don't actually remove the data
@@ -726,7 +726,7 @@ class TaskListModel(QAbstractItemModel):
 
     def deleteTask(self, row, parent: QModelIndex = QModelIndex()) -> bool:
         """
-        Remove rows as well as delete from database
+        Delete tasks
         """
         logger.debug(f"Deleting task at row: {row}")
 
@@ -756,11 +756,6 @@ class TaskListModel(QAbstractItemModel):
         logger.debug(f"root_nodes: {[node.task_id for node in self.root_nodes]}")
         self.removeRows(row, 1, parent)
 
-        # Update positions
-        for i, node in enumerate(self.root_nodes):
-            node.task_position = i
-
-        self.update_db()
         self.taskDeletedSignal.emit(task_id)
         self.layoutChanged.emit()
         return True
