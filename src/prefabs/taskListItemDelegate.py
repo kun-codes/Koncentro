@@ -162,7 +162,7 @@ class TaskListItemDelegate(TreeItemDelegate):
             button.setIcon(FluentIcon.PAUSE if checked else FluentIcon.PLAY)
 
     def updateButtonVisibility(self):
-        """Update button visibility based on tree expanded/collapsed state"""
+        """Update button visibility and positions based on tree expanded/collapsed state"""
         model = self.parent().model()
         if not model:
             return
@@ -175,6 +175,8 @@ class TaskListItemDelegate(TreeItemDelegate):
             task_id = model.data(root_index, TaskListModel.IDRole)
             if task_id:
                 visible_task_ids.add(task_id)
+                # Update button position for root task
+                self._updateButtonPosition(task_id, root_index)
 
             # add subtasks only if parent is expanded
             if self.parent().isExpanded(root_index):
@@ -183,6 +185,8 @@ class TaskListItemDelegate(TreeItemDelegate):
                     subtask_id = model.data(subtask_index, TaskListModel.IDRole)
                     if subtask_id:
                         visible_task_ids.add(subtask_id)
+                        # Update button position for subtask
+                        self._updateButtonPosition(subtask_id, subtask_index)
 
         # hide buttons for non visible tasks and show buttons for visible tasks
         # setting to visible and invisible because its faster than destroying and creating buttons everytime
@@ -192,6 +196,39 @@ class TaskListItemDelegate(TreeItemDelegate):
                 button.setVisible(True)
             else:
                 button.setVisible(False)
+
+    def _updateButtonPosition(self, task_id: int, index: QModelIndex) -> None:
+        """Update the position of a button based on its current index"""
+        if task_id not in self.buttons:
+            return
+
+        button = self.buttons[task_id]
+        rect = self.parent().visualRect(index)
+
+        button_x = rect.left() + 3 * self.button_margin
+        button_y = rect.top() + (rect.height() - self.button_size) // 2
+        button.setGeometry(button_x, button_y, self.button_size, self.button_size)
+
+    def forceUpdateAllButtonPositions(self):
+        """Force update all button positions - useful after layout changes"""
+        model = self.parent().model()
+        if not model:
+            return
+
+        # Update positions for all root tasks
+        for i in range(model.rowCount()):
+            root_index = model.index(i, 0)
+            task_id = model.data(root_index, TaskListModel.IDRole)
+            if task_id and task_id in self.buttons:
+                self._updateButtonPosition(task_id, root_index)
+
+            # Update positions for all subtasks if parent is expanded
+            if self.parent().isExpanded(root_index):
+                for j in range(model.rowCount(root_index)):
+                    subtask_index = model.index(j, 0, root_index)
+                    subtask_id = model.data(subtask_index, TaskListModel.IDRole)
+                    if subtask_id and subtask_id in self.buttons:
+                        self._updateButtonPosition(subtask_id, subtask_index)
 
     def paint(self, painter, option, index) -> None:
         ## pasted from TreeItemDelegate.paint()

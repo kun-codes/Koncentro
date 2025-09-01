@@ -158,10 +158,18 @@ class TaskList(TreeView):
 
     def _onItemExpanded(self, index):
         delegate = self.itemDelegate()
+        # self.model().dataChanged.emit(index, index, [Qt.ItemDataRole.DisplayRole])
         if hasattr(delegate, "updateButtonVisibility"):
             delegate.updateButtonVisibility()
+        # Force update all button positions after expansion
+        if hasattr(delegate, "forceUpdateAllButtonPositions"):
+            delegate.forceUpdateAllButtonPositions()
 
     def _onItemCollapsed(self, index):
         delegate = self.itemDelegate()
+        # self.model().dataChanged.emit(index, index, [Qt.ItemDataRole.DisplayRole])
         if hasattr(delegate, "updateButtonVisibility"):
             delegate.updateButtonVisibility()
+        # # Force update all button positions after collapse
+        if hasattr(delegate, "forceUpdateAllButtonPositions"):
+            delegate.forceUpdateAllButtonPositions()
