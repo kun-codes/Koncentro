@@ -332,7 +332,7 @@ class TaskListItemDelegate(TreeItemDelegate):
         return size
 
     def createEditor(self, parent: QWidget, option: QStyleOptionViewItem, index: QModelIndex) -> QWidget:
-        lineEdit = LineEdit(parent.parent())
+        lineEdit = LineEdit(parent)
         lineEdit.setProperty("transparent", False)
         lineEdit.setStyle(QApplication.style())
         return lineEdit
