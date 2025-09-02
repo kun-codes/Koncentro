@@ -218,24 +218,9 @@ class TaskListItemDelegate(TreeItemDelegate):
             painter.restore()
         ## pasted till above line
 
+        self._paintBackground(painter, option, index)
+
         isDark = isDarkTheme()
-        c = 255 if isDark else 0
-        alpha = 0
-
-        if index.data(Qt.ItemDataRole.BackgroundRole):
-            theme_color: QColor = index.data(Qt.ItemDataRole.BackgroundRole)
-            alpha_boost = 45 if isDark else 30
-            theme_color.setAlpha(
-                alpha + alpha_boost if alpha != 0 else 17 + alpha_boost
-            )  # increasing alpha to make it more visible
-            # 17 because the alpha of a selected row is 17
-            painter.setBrush(theme_color)
-        else:
-            painter.setBrush(QColor(c, c, c, alpha))
-
-        painter.setPen(Qt.NoPen)
-        painter.drawRoundedRect(option.rect, 5, 5)
-
         # draw time elapsed and target time
         painter.setPen(Qt.GlobalColor.white if isDark else Qt.GlobalColor.black)
         font_metrics = QFontMetrics(option.font)
@@ -301,6 +286,25 @@ class TaskListItemDelegate(TreeItemDelegate):
         adjusted_option.rect.adjust(button_width, 0, -time_text_width - 10, 0)
 
         QStyledItemDelegate.paint(self, painter, adjusted_option, index)
+
+    def _paintBackground(self, painter, option, index):
+        isDark = isDarkTheme()
+        c = 255 if isDark else 0
+        alpha = 0
+
+        if index.data(Qt.ItemDataRole.BackgroundRole):
+            theme_color: QColor = index.data(Qt.ItemDataRole.BackgroundRole)
+            alpha_boost = 45 if isDark else 30
+            theme_color.setAlpha(
+                alpha + alpha_boost if alpha != 0 else 17 + alpha_boost
+            )  # increasing alpha to make it more visible
+            # 17 because the alpha of a selected row is 17
+            painter.setBrush(theme_color)
+        else:
+            painter.setBrush(QColor(c, c, c, alpha))
+
+        painter.setPen(Qt.NoPen)
+        painter.drawRoundedRect(option.rect, 5, 5)
 
     def updateEditorGeometry(self, editor: QWidget, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         rect = option.rect
