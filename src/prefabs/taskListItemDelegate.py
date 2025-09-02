@@ -257,22 +257,7 @@ class TaskListItemDelegate(TreeItemDelegate):
 
         self._paintBackground(painter, option, index)
 
-        isDark = isDarkTheme()
-        # draw time elapsed and target time
-        painter.setPen(Qt.GlobalColor.white if isDark else Qt.GlobalColor.black)
-        font_metrics = QFontMetrics(option.font)
-
-        elapsed_time_ms = index.data(TaskListModel.ElapsedTimeRole)
-        target_time_ms = index.data(TaskListModel.TargetTimeRole)
-
-        ehh, emm, ess = convert_ms_to_hh_mm_ss(elapsed_time_ms)
-        thh, tmm, tss = convert_ms_to_hh_mm_ss(target_time_ms)
-
-        time_text = f"{ehh:02d}:{emm:02d}:{ess:02d} / {thh:02d}:{tmm:02d}:{tss:02d}"
-        time_text_width = font_metrics.horizontalAdvance(time_text)
-        hello_world_x = option.rect.right() - time_text_width - 10
-        hello_world_rect = QRect(hello_world_x, option.rect.top(), time_text_width, option.rect.height())
-        painter.drawText(hello_world_rect, Qt.AlignRight | Qt.AlignVCenter, time_text)
+        time_text_width: int = self._paintTimeText(painter, option, index)
 
         # Get task ID
         task_id = index.data(TaskListModel.IDRole)
@@ -342,6 +327,29 @@ class TaskListItemDelegate(TreeItemDelegate):
 
         painter.setPen(Qt.NoPen)
         painter.drawRoundedRect(option.rect, 5, 5)
+
+    def _paintTimeText(self, painter, option, index) -> int:
+        """
+        will draw time text and return the width of the text
+        """
+        isDark = isDarkTheme()
+        # draw time elapsed and target time
+        painter.setPen(Qt.GlobalColor.white if isDark else Qt.GlobalColor.black)
+        font_metrics = QFontMetrics(option.font)
+
+        elapsed_time_ms = index.data(TaskListModel.ElapsedTimeRole)
+        target_time_ms = index.data(TaskListModel.TargetTimeRole)
+
+        ehh, emm, ess = convert_ms_to_hh_mm_ss(elapsed_time_ms)
+        thh, tmm, tss = convert_ms_to_hh_mm_ss(target_time_ms)
+
+        time_text = f"{ehh:02d}:{emm:02d}:{ess:02d} / {thh:02d}:{tmm:02d}:{tss:02d}"
+        time_text_width = font_metrics.horizontalAdvance(time_text)
+        hello_world_x = option.rect.right() - time_text_width - 10
+        hello_world_rect = QRect(hello_world_x, option.rect.top(), time_text_width, option.rect.height())
+        painter.drawText(hello_world_rect, Qt.AlignRight | Qt.AlignVCenter, time_text)
+
+        return time_text_width
 
     def updateEditorGeometry(self, editor: QWidget, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         rect = option.rect
