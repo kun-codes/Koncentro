@@ -1,5 +1,5 @@
 from loguru import logger
-from PySide6.QtCore import QEvent, QModelIndex, QRect, Qt, Signal
+from PySide6.QtCore import QEvent, QModelIndex, QPoint, QRect, Qt, Signal
 from PySide6.QtGui import QColor, QFontMetrics, QPainter
 from PySide6.QtWidgets import (
     QApplication,
@@ -149,6 +149,9 @@ class TaskListItemDelegate(TreeItemDelegate):
         icon_x = button_rect.center().x() - icon_size // 2
         icon_y = button_rect.center().y() - icon_size // 2
         icon_rect = QRect(icon_x, icon_y, icon_size, icon_size)
+        # translating +1 across x axis because FluentIconEngine.paint() moves the icon by 1 pixel to the right
+        # translating +1 across y axis because experimentally found that it centers the icon on the background
+        icon_rect.translate(QPoint(1, 1))
 
         drawIcon(icon, painter, icon_rect)
         painter.restore()
