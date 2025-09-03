@@ -18,6 +18,7 @@ from qfluentwidgets import (
 )
 from qfluentwidgets.common.color import autoFallbackThemeColor
 
+from models.config import app_settings
 from models.task_list_model import TaskListModel
 from utils.time_conversion import convert_ms_to_hh_mm_ss
 
@@ -56,6 +57,33 @@ class TaskListItemDelegate(TreeItemDelegate):
         # Trigger a repaint to update the visual state
         self.parent().viewport().update()
 
+    def syncWithMainButtons(self) -> None:
+        """Sync the current task button state with pomodoro and bottom bar buttons"""
+        model = self.parent().model()
+        current_task_id = model.currentTaskID()
+
+        if current_task_id is None:
+            return
+
+        if self._pomodoro_interface is None:
+            self._pomodoro_interface = self._get_pomodoro_interface()
+
+        if self._pomodoro_interface:
+            # Get the checked state from pomodoro button
+            pomodoro_checked = self._pomodoro_interface.pauseResumeButton.isChecked()
+
+            # Update the delegate button state to match
+            self._button_states[current_task_id] = pomodoro_checked
+
+            # Update the icon in the model to match
+            icon = FluentIcon.PAUSE if pomodoro_checked else FluentIcon.PLAY
+            current_index = model.currentTaskIndex()
+            if current_index and current_index.isValid():
+                model.setData(current_index, icon, TaskListModel.IconRole, update_db=False)
+
+            # Trigger repaint
+            self.parent().viewport().update()
+
     def _getButtonRect(self, option: QStyleOptionViewItem) -> QRect:
         """Get the rectangle where the button should be drawn"""
         button_x = option.rect.left() + 3 * self.button_margin
@@ -68,29 +96,42 @@ class TaskListItemDelegate(TreeItemDelegate):
         if task_id is None:
             return
 
+        # Check if this is the current task to sync state with main buttons
+        model = self.parent().model()
+        is_current_task = model.currentTaskID() == task_id
+
+        # For current task, sync state with pomodoro interface
+        if is_current_task:
+            if self._pomodoro_interface is None:
+                self._pomodoro_interface = self._get_pomodoro_interface()
+
+            if self._pomodoro_interface:
+                # Sync with pomodoro button state
+                pomodoro_checked = self._pomodoro_interface.pauseResumeButton.isChecked()
+                self._button_states[task_id] = pomodoro_checked
+
         # Get button state
         is_checked = self._button_states.get(task_id, False)
 
-        # Get icon from model
-        icon = index.data(TaskListModel.IconRole)
-        if icon is None:
-            icon = FluentIcon.PLAY
+        # Get icon from model - sync with main buttons for current task
+        if is_current_task and self._pomodoro_interface:
+            # Use the same icon as the pomodoro button for current task
+            icon = FluentIcon.PAUSE if is_checked else FluentIcon.PLAY
+        else:
+            icon = index.data(TaskListModel.IconRole)
+            if icon is None:
+                icon = FluentIcon.PLAY
 
         button_rect = self._getButtonRect(option)
 
-        # Draw button background if checked (similar to TransparentToggleToolButton)
+        # Draw button background if checked using app theme color
         if is_checked:
             painter.save()
-            painter.setPen(Qt.NoPen)
+            painter.setPen(Qt.PenStyle.NoPen)
 
-            # Draw checked background similar to PrimaryToolButton
-            isDark = isDarkTheme()
-            if isDark:
-                bg_color = QColor(255, 255, 255, 20)
-            else:
-                bg_color = QColor(0, 0, 0, 15)
-
-            painter.setBrush(bg_color)
+            # Use app's theme color for checked state background
+            theme_color = app_settings.get(app_settings.themeColor)
+            painter.setBrush(theme_color)
             painter.drawRoundedRect(button_rect, 4, 4)
             painter.restore()
 
@@ -100,7 +141,7 @@ class TaskListItemDelegate(TreeItemDelegate):
         # Set opacity based on state (similar to ToolButton paintEvent)
         if not self.parent().isEnabled():
             painter.setOpacity(0.43)
-        elif option.state & QStyle.State_MouseOver:
+        elif option.state & QStyle.StateFlag.State_MouseOver:
             painter.setOpacity(0.8)
 
         # Draw icon centered in button rect
@@ -178,14 +219,14 @@ class TaskListItemDelegate(TreeItemDelegate):
 
     def paint(self, painter, option, index) -> None:
         ## pasted from TreeItemDelegate.paint()
-        painter.setRenderHints(QPainter.Antialiasing | QPainter.TextAntialiasing)
+        painter.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.TextAntialiasing)
 
-        if index.data(Qt.CheckStateRole) is not None:
+        if index.data(Qt.ItemDataRole.CheckStateRole) is not None:
             self._drawCheckBox(painter, option, index)
 
-        if option.state & (QStyle.State_Selected | QStyle.State_MouseOver):
+        if option.state & (QStyle.StateFlag.State_Selected | QStyle.StateFlag.State_MouseOver):
             painter.save()
-            painter.setPen(Qt.NoPen)
+            painter.setPen(Qt.PenStyle.NoPen)
 
             # draw background
             h = option.rect.height() - 4
@@ -194,7 +235,7 @@ class TaskListItemDelegate(TreeItemDelegate):
             painter.drawRoundedRect(4, option.rect.y() + 2, self.parent().width() - 8, h, 4, 4)
 
             # draw indicator
-            if option.state & QStyle.State_Selected and self.parent().horizontalScrollBar().value() == 0:
+            if option.state & QStyle.StateFlag.State_Selected and self.parent().horizontalScrollBar().value() == 0:
                 painter.setBrush(autoFallbackThemeColor(self.lightCheckedColor, self.darkCheckedColor))
                 painter.drawRoundedRect(4, 9 + option.rect.y(), 3, h - 13, 1.5, 1.5)
 
@@ -231,7 +272,7 @@ class TaskListItemDelegate(TreeItemDelegate):
         else:
             painter.setBrush(QColor(c, c, c, alpha))
 
-        painter.setPen(Qt.NoPen)
+        painter.setPen(Qt.PenStyle.NoPen)
         painter.drawRoundedRect(option.rect, 5, 5)
 
     def _paintTimeText(self, painter, option, index) -> int:
@@ -253,7 +294,7 @@ class TaskListItemDelegate(TreeItemDelegate):
         time_text_width = font_metrics.horizontalAdvance(time_text)
         hello_world_x = option.rect.right() - time_text_width - 10
         hello_world_rect = QRect(hello_world_x, option.rect.top(), time_text_width, option.rect.height())
-        painter.drawText(hello_world_rect, Qt.AlignRight | Qt.AlignVCenter, time_text)
+        painter.drawText(hello_world_rect, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, time_text)
 
         return time_text_width
 
@@ -279,7 +320,7 @@ class TaskListItemDelegate(TreeItemDelegate):
         # looks across app versions. I am using the multiplier instead of a fixed value of 39px because the
         # QStyledItemDelegate.sizeHint() can return a different height based on the font size and other factors
         SIZE_MULTIPLIER = 1.3
-        size.setHeight(size.height() * SIZE_MULTIPLIER)
+        size.setHeight(int(size.height() * SIZE_MULTIPLIER))
 
         min_height = self.button_size + 2 * self.margin
         if size.height() < min_height:

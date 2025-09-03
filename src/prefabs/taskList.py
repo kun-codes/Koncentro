@@ -60,12 +60,7 @@ class TaskList(TreeView):
         self.collapsed.connect(self._onItemCollapsed)
 
     def paintEvent(self, event) -> None:
-        # Delete all buttons when there are no items in the model
-        if self.model() and self.model().rowCount() == 0:
-            delegate = self.itemDelegate()
-            if hasattr(delegate, "deleteAllButtons"):
-                delegate.deleteAllButtons()
-
+        # Only call parent paintEvent - no button management needed
         super().paintEvent(event)
 
     def startDrag(self, supportedActions) -> None:
@@ -157,19 +152,9 @@ class TaskList(TreeView):
             self.viewport().update()
 
     def _onItemExpanded(self, index):
-        delegate = self.itemDelegate()
-        # self.model().dataChanged.emit(index, index, [Qt.ItemDataRole.DisplayRole])
-        if hasattr(delegate, "updateButtonVisibility"):
-            delegate.updateButtonVisibility()
-        # Force update all button positions after expansion
-        if hasattr(delegate, "forceUpdateAllButtonPositions"):
-            delegate.forceUpdateAllButtonPositions()
+        # Trigger a repaint to update button visibility after expansion
+        self.viewport().update()
 
     def _onItemCollapsed(self, index):
-        delegate = self.itemDelegate()
-        # self.model().dataChanged.emit(index, index, [Qt.ItemDataRole.DisplayRole])
-        if hasattr(delegate, "updateButtonVisibility"):
-            delegate.updateButtonVisibility()
-        # # Force update all button positions after collapse
-        if hasattr(delegate, "forceUpdateAllButtonPositions"):
-            delegate.forceUpdateAllButtonPositions()
+        # Trigger a repaint to update button visibility after collapse
+        self.viewport().update()
