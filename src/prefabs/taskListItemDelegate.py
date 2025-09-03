@@ -155,6 +155,11 @@ class TaskListItemDelegate(TreeItemDelegate):
 
     def editorEvent(self, event: QEvent, model, option: QStyleOptionViewItem, index: QModelIndex) -> bool:
         """Handle mouse events for button clicks"""
+
+        # make buttons of completed tasks list non interactive
+        if self.parent().objectName() == "completedTasksList":
+            return False
+
         if event.type() == QEvent.Type.MouseButtonRelease:
             mouse_event = event
             if hasattr(mouse_event, "pos"):
