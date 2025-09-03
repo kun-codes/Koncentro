@@ -36,6 +36,8 @@ class TaskListItemDelegate(TreeItemDelegate):
         self._pomodoro_interface = None
         # Track button states for checked appearance
         self._button_states = {}  # task_id -> bool (checked state)
+        # Track which button is currently being hovered
+        self._hovered_button_task_id = None
 
     def _get_pomodoro_interface(self):
         # find the parent widget with the name "pomodoro_interface"
@@ -69,13 +71,10 @@ class TaskListItemDelegate(TreeItemDelegate):
             self._pomodoro_interface = self._get_pomodoro_interface()
 
         if self._pomodoro_interface:
-            # Get the checked state from pomodoro button
             pomodoro_checked = self._pomodoro_interface.pauseResumeButton.isChecked()
 
-            # Update the delegate button state to match
             self._button_states[current_task_id] = pomodoro_checked
 
-            # Update the icon in the model to match
             icon = FluentIcon.PAUSE if pomodoro_checked else FluentIcon.PLAY
             current_index = model.currentTaskIndex()
             if current_index and current_index.isValid():
@@ -96,7 +95,7 @@ class TaskListItemDelegate(TreeItemDelegate):
         if task_id is None:
             return
 
-        # Check if this is the current task to sync state with main buttons
+        # check if this is the current task to sync state with main buttons
         model = self.parent().model()
         is_current_task = model.currentTaskID() == task_id
 
@@ -110,12 +109,12 @@ class TaskListItemDelegate(TreeItemDelegate):
                 pomodoro_checked = self._pomodoro_interface.pauseResumeButton.isChecked()
                 self._button_states[task_id] = pomodoro_checked
 
-        # Get button state
         is_checked = self._button_states.get(task_id, False)
 
-        # Get icon from model - sync with main buttons for current task
+        is_button_hovered = self._hovered_button_task_id == task_id
+
         if is_current_task and self._pomodoro_interface:
-            # Use the same icon as the pomodoro button for current task
+            # use the same icon as the pomodoro button for current task
             icon = FluentIcon.PAUSE if is_checked else FluentIcon.PLAY
         else:
             icon = index.data(TaskListModel.IconRole)
@@ -124,14 +123,22 @@ class TaskListItemDelegate(TreeItemDelegate):
 
         button_rect = self._getButtonRect(option)
 
-        # Draw button background if checked using app theme color
-        if is_checked:
+        # draw button background only when checked or when specifically hovering over button
+        if is_checked or is_button_hovered:
             painter.save()
             painter.setPen(Qt.PenStyle.NoPen)
 
-            # Use app's theme color for checked state background
-            theme_color = app_settings.get(app_settings.themeColor)
-            painter.setBrush(theme_color)
+            if is_checked:
+                theme_color = app_settings.get(app_settings.themeColor)
+                painter.setBrush(theme_color)
+            else:
+                if isDarkTheme():
+                    painter.setBrush(QColor(255, 255, 255, int(255 * 0.09)))  # colour from button.qss in
+                    # pyqt-fluent-widgets repo
+                else:
+                    painter.setBrush(QColor(0, 0, 0, int(255 * 0.09)))  # colour from button.qss in
+                    # pyqt-fluent-widgets repo
+
             painter.drawRoundedRect(button_rect, 4, 4)
             painter.restore()
 
@@ -141,7 +148,7 @@ class TaskListItemDelegate(TreeItemDelegate):
         # Set opacity based on state (similar to ToolButton paintEvent)
         if not self.parent().isEnabled():
             painter.setOpacity(0.43)
-        elif option.state & QStyle.StateFlag.State_MouseOver:
+        elif is_button_hovered:
             painter.setOpacity(0.8)
 
         # Draw icon centered in button rect
@@ -157,22 +164,42 @@ class TaskListItemDelegate(TreeItemDelegate):
         painter.restore()
 
     def editorEvent(self, event: QEvent, model, option: QStyleOptionViewItem, index: QModelIndex) -> bool:
-        """Handle mouse events for button clicks"""
+        """Handle mouse events for button clicks and hover"""
 
         # make buttons of completed tasks list non interactive
         if self.parent().objectName() == "completedTasksList":
             return False
 
-        if event.type() == QEvent.Type.MouseButtonRelease:
+        task_id = index.data(TaskListModel.IDRole)
+        if task_id is None:
+            return False
+
+        button_rect = self._getButtonRect(option)
+
+        if event.type() == QEvent.Type.MouseMove:
             mouse_event = event
             if hasattr(mouse_event, "pos"):
-                button_rect = self._getButtonRect(option)
-
                 if button_rect.contains(mouse_event.pos()):
-                    task_id = index.data(TaskListModel.IDRole)
-                    if task_id is None:
-                        return False
+                    if self._hovered_button_task_id != task_id:
+                        self._hovered_button_task_id = task_id
+                        # repaint to show hover effect
+                        self.parent().viewport().update()
+                else:
+                    if self._hovered_button_task_id == task_id:
+                        self._hovered_button_task_id = None
+                        # repaint to remove hover effect
+                        self.parent().viewport().update()
 
+        elif event.type() == QEvent.Type.Leave:
+            # clear hover state as mouse left the view entirely
+            if self._hovered_button_task_id is not None:
+                self._hovered_button_task_id = None
+                self.parent().viewport().update()
+
+        elif event.type() == QEvent.Type.MouseButtonRelease:
+            mouse_event = event
+            if hasattr(mouse_event, "pos"):
+                if button_rect.contains(mouse_event.pos()):
                     # Toggle button state
                     current_state = self._button_states.get(task_id, False)
                     new_state = not current_state
@@ -352,7 +379,7 @@ class TaskListItemDelegate(TreeItemDelegate):
         text = self.parent().model().data(index, Qt.ItemDataRole.DisplayRole)
         editor.setText(text)
 
-    def setModelData(self, editor, model, index) -> None:
+    def setModelData(self, editor, model, index: QModelIndex) -> None:
         text = editor.text()
         if text:
             model.setData(index, text, Qt.ItemDataRole.DisplayRole)
