@@ -89,6 +89,43 @@ class TaskListItemDelegate(TreeItemDelegate):
         button_y = option.rect.top() + (option.rect.height() - self.button_size) // 2
         return QRect(button_x, button_y, self.button_size, self.button_size)
 
+    def _getTimeTextRect(self, option: QStyleOptionViewItem, index: QModelIndex) -> QRect:
+        """Get the rectangle where the time text is drawn"""
+        font_metrics = QFontMetrics(option.font)
+
+        elapsed_time_ms = index.data(TaskListModel.ElapsedTimeRole)
+        target_time_ms = index.data(TaskListModel.TargetTimeRole)
+
+        ehh, emm, ess = convert_ms_to_hh_mm_ss(elapsed_time_ms)
+        thh, tmm, tss = convert_ms_to_hh_mm_ss(target_time_ms)
+
+        time_text = f"{ehh:02d}:{emm:02d}:{ess:02d} / {thh:02d}:{tmm:02d}:{tss:02d}"
+        time_text_width = font_metrics.horizontalAdvance(time_text)
+        time_text_x = option.rect.right() - time_text_width - 10
+
+        return QRect(time_text_x, option.rect.top(), time_text_width, option.rect.height())
+
+    def _getTreeArrowRect(self, option: QStyleOptionViewItem, index: QModelIndex) -> QRect:
+        """Get the rectangle where the tree expand/collapse arrow is drawn"""
+        # Based on the actual implementation in tree_view.py
+        indent_size = self.parent().indentation()
+
+        level = 0
+        current_index = index
+        while current_index.parent().isValid():
+            current_index = current_index.parent()
+            level += 1
+
+        # arrow positioning is based on pyqt-fluent-widget's TreeView.viewportEvent() logic
+        # arrow click area is between indent and indent + 10 in the above mentioned logic
+        indent = level * indent_size + 20
+        arrow_x = indent
+        arrow_width = 10  # width of the clickable arrow area
+        arrow_height = 16  # guessed the height of the arrow
+        arrow_y = option.rect.top() + (option.rect.height() - arrow_height) // 2
+
+        return QRect(arrow_x, arrow_y, arrow_width, arrow_height)
+
     def _paintButton(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         """Paint the button manually"""
         task_id = index.data(TaskListModel.IDRole)
@@ -208,6 +245,22 @@ class TaskListItemDelegate(TreeItemDelegate):
                     self._onButtonClicked(new_state, task_id, index)
                     return True
 
+        elif event.type() == QEvent.Type.MouseButtonDblClick:
+            # handle double-click events to prevent editor spawning when double clicked on restricted areas
+            mouse_event = event
+            if hasattr(mouse_event, "pos"):
+                button_rect = self._getButtonRect(option)
+                time_text_rect = self._getTimeTextRect(option, index)
+
+                if button_rect.contains(mouse_event.pos()) or time_text_rect.contains(mouse_event.pos()):
+                    return True  # Consume the event to prevent editor spawning
+
+                # Check if double-click is on tree arrow (only for parent items)
+                if model.hasChildren(index):
+                    tree_arrow_rect = self._getTreeArrowRect(option, index)
+                    if tree_arrow_rect.contains(mouse_event.pos()):
+                        return True  # Consume the event to prevent editor spawning
+
         return False
 
     def _onButtonClicked(self, checked: bool, task_id: int, index: QModelIndex) -> None:
@@ -317,7 +370,8 @@ class TaskListItemDelegate(TreeItemDelegate):
         isDark = isDarkTheme()
         # draw time elapsed and target time
         painter.setPen(Qt.GlobalColor.white if isDark else Qt.GlobalColor.black)
-        font_metrics = QFontMetrics(option.font)
+
+        time_text_rect = self._getTimeTextRect(option, index)
 
         elapsed_time_ms = index.data(TaskListModel.ElapsedTimeRole)
         target_time_ms = index.data(TaskListModel.TargetTimeRole)
@@ -326,12 +380,10 @@ class TaskListItemDelegate(TreeItemDelegate):
         thh, tmm, tss = convert_ms_to_hh_mm_ss(target_time_ms)
 
         time_text = f"{ehh:02d}:{emm:02d}:{ess:02d} / {thh:02d}:{tmm:02d}:{tss:02d}"
-        time_text_width = font_metrics.horizontalAdvance(time_text)
-        hello_world_x = option.rect.right() - time_text_width - 10
-        hello_world_rect = QRect(hello_world_x, option.rect.top(), time_text_width, option.rect.height())
-        painter.drawText(hello_world_rect, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, time_text)
 
-        return time_text_width
+        painter.drawText(time_text_rect, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, time_text)
+
+        return time_text_rect.width()
 
     def updateEditorGeometry(self, editor: QWidget, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         rect = option.rect
