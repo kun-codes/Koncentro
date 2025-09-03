@@ -1,5 +1,5 @@
 from loguru import logger
-from PySide6.QtCore import QModelIndex, QRect, Qt, Signal
+from PySide6.QtCore import QEvent, QModelIndex, QRect, Qt, Signal
 from PySide6.QtGui import QColor, QFontMetrics, QPainter
 from PySide6.QtWidgets import (
     QApplication,
@@ -12,10 +12,8 @@ from PySide6.QtWidgets import (
 from qfluentwidgets import (
     FluentIcon,
     LineEdit,
-    ToolTipFilter,
-    ToolTipPosition,
-    TransparentToggleToolButton,
     TreeItemDelegate,
+    drawIcon,
     isDarkTheme,
 )
 from qfluentwidgets.common.color import autoFallbackThemeColor
@@ -31,44 +29,12 @@ class TaskListItemDelegate(TreeItemDelegate):
 
     def __init__(self, parent: QTreeView) -> None:
         super().__init__(parent)
-        self.buttons = {}  # Store buttons for each row
         self.button_size = 24  # Size of the tool button
         self.button_margin = 5  # Margin around the button
         self.margin = 2
-
-        # Connect to the parent's viewport to listen for mouse events
-        parent.viewport().installEventFilter(self)
-
         self._pomodoro_interface = None
-
-    def deleteAllButtons(self) -> None:
-        """Delete all buttons when there are no tasks"""
-        for button in list(self.buttons.values()):
-            button.deleteLater()
-        self.buttons.clear()
-
-    def createButton(self, index):
-        """Create a ToolButton for the specified index"""
-        model = self.parent().model()
-        task_id = model.data(index, TaskListModel.IDRole)  # Get task ID
-
-        button = TransparentToggleToolButton(self.parent().viewport())
-
-        if self.parent().objectName() == "completedTasksList":
-            button.setCheckable(False)  # buttons in completedTasksList cannot be clicked
-
-        button.setIcon(model.data(index, TaskListModel.IconRole))
-
-        button.setFixedSize(self.button_size, self.button_size)
-        if self.parent().objectName() == "todoTasksList":
-            button.setToolTip("Pause/Resume")
-            button.installEventFilter(ToolTipFilter(button, showDelay=300, position=ToolTipPosition.BOTTOM))
-
-        button.clicked.connect(lambda checked, tid=task_id: self.onButtonClicked(checked, tid))
-
-        # Store button with task_id as key
-        self.buttons[task_id] = button
-        return button
+        # Track button states for checked appearance
+        self._button_states = {}  # task_id -> bool (checked state)
 
     def _get_pomodoro_interface(self):
         # find the parent widget with the name "pomodoro_interface"
@@ -84,43 +50,101 @@ class TaskListItemDelegate(TreeItemDelegate):
         # find child of parent with name pomodoro_interface
         return parent.findChild(QWidget, "pomodoro_interface", options=Qt.FindChildOption.FindChildrenRecursively)
 
-    def onButtonClicked(self, checked, task_id) -> None:
-        """Handle button clicks using task_id"""
+    def setCheckedStateOfButton(self, task_id, checked) -> None:
+        """Update the checked state of a button"""
+        self._button_states[task_id] = checked
+        # Trigger a repaint to update the visual state
+        self.parent().viewport().update()
+
+    def _getButtonRect(self, option: QStyleOptionViewItem) -> QRect:
+        """Get the rectangle where the button should be drawn"""
+        button_x = option.rect.left() + 3 * self.button_margin
+        button_y = option.rect.top() + (option.rect.height() - self.button_size) // 2
+        return QRect(button_x, button_y, self.button_size, self.button_size)
+
+    def _paintButton(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+        """Paint the button manually"""
+        task_id = index.data(TaskListModel.IDRole)
+        if task_id is None:
+            return
+
+        # Get button state
+        is_checked = self._button_states.get(task_id, False)
+
+        # Get icon from model
+        icon = index.data(TaskListModel.IconRole)
+        if icon is None:
+            icon = FluentIcon.PLAY
+
+        button_rect = self._getButtonRect(option)
+
+        # Draw button background if checked (similar to TransparentToggleToolButton)
+        if is_checked:
+            painter.save()
+            painter.setPen(Qt.NoPen)
+
+            # Draw checked background similar to PrimaryToolButton
+            isDark = isDarkTheme()
+            if isDark:
+                bg_color = QColor(255, 255, 255, 20)
+            else:
+                bg_color = QColor(0, 0, 0, 15)
+
+            painter.setBrush(bg_color)
+            painter.drawRoundedRect(button_rect, 4, 4)
+            painter.restore()
+
+        # Draw the icon
+        painter.save()
+
+        # Set opacity based on state (similar to ToolButton paintEvent)
+        if not self.parent().isEnabled():
+            painter.setOpacity(0.43)
+        elif option.state & QStyle.State_MouseOver:
+            painter.setOpacity(0.8)
+
+        # Draw icon centered in button rect
+        icon_size = min(self.button_size - 4, 16)  # Leave some padding
+        icon_x = button_rect.center().x() - icon_size // 2
+        icon_y = button_rect.center().y() - icon_size // 2
+        icon_rect = QRect(icon_x, icon_y, icon_size, icon_size)
+
+        drawIcon(icon, painter, icon_rect)
+        painter.restore()
+
+    def editorEvent(self, event: QEvent, model, option: QStyleOptionViewItem, index: QModelIndex) -> bool:
+        """Handle mouse events for button clicks"""
+        if event.type() == QEvent.Type.MouseButtonRelease:
+            mouse_event = event
+            if hasattr(mouse_event, "pos"):
+                button_rect = self._getButtonRect(option)
+
+                if button_rect.contains(mouse_event.pos()):
+                    task_id = index.data(TaskListModel.IDRole)
+                    if task_id is None:
+                        return False
+
+                    # Toggle button state
+                    current_state = self._button_states.get(task_id, False)
+                    new_state = not current_state
+                    self._button_states[task_id] = new_state
+
+                    self._onButtonClicked(new_state, task_id, index)
+                    return True
+
+        return False
+
+    def _onButtonClicked(self, checked: bool, task_id: int, index: QModelIndex) -> None:
+        """Handle button clicks"""
         logger.debug(f"Button clicked for task ID {task_id}, checked: {checked}")
         if self.parent().objectName() == "completedTasksList":
             return
 
         model = self.parent().model()
 
-        # find the index for this task_id
-        index = None
+        self.pauseResumeButtonClicked.emit(task_id, checked)
 
-        # check root level tasks
-        for i in range(model.rowCount()):
-            root_index = model.index(i, 0)
-            if model.data(root_index, TaskListModel.IDRole) == task_id:
-                index = root_index
-                break
-
-            # check subtasks of this root task
-            for j in range(model.rowCount(root_index)):
-                subtask_index = model.index(j, 0, root_index)
-                if model.data(subtask_index, TaskListModel.IDRole) == task_id:
-                    index = subtask_index
-                    break
-
-            if index is not None:
-                break
-
-        if index is None:
-            logger.warning(f"Triggered after clicking buttons inside taskList. Task ID {task_id} not found in model.")
-            return
-
-        # simulate the click the pauseResumeButton of pomodoro_interface but don't actually click it
-        button = self.buttons[task_id]
-        self.pauseResumeButtonClicked.emit(task_id, button.isChecked())
-
-        if self._pomodoro_interface is None:  # get the pomodoro_interface only if it is not already set
+        if self._pomodoro_interface is None:
             self._pomodoro_interface = self._get_pomodoro_interface()
 
         # hack to stop the timer so that when another item in this delegate is clicked while timer is running, the
@@ -131,104 +155,26 @@ class TaskListItemDelegate(TreeItemDelegate):
 
         icon = FluentIcon.PAUSE if checked else FluentIcon.PLAY
         model.setData(index, icon, TaskListModel.IconRole, update_db=False)
-        button.setIcon(icon)
 
         # Set every other button to unchecked
         for i in range(model.rowCount()):
             root_idx = model.index(i, 0)
             root_tid = model.data(root_idx, TaskListModel.IDRole)
-            if root_tid != task_id and root_tid in self.buttons:
-                self.buttons[root_tid].setChecked(False)
+            if root_tid != task_id and root_tid in self._button_states:
+                self._button_states[root_tid] = False
                 model.setData(root_idx, FluentIcon.PLAY, TaskListModel.IconRole, update_db=False)
-                self.buttons[root_tid].setIcon(FluentIcon.PLAY)
 
             # check subtasks
             for j in range(model.rowCount(root_idx)):
                 subtask_idx = model.index(j, 0, root_idx)
                 subtask_tid = model.data(subtask_idx, TaskListModel.IDRole)
-                if subtask_tid != task_id and subtask_tid in self.buttons:
-                    self.buttons[subtask_tid].setChecked(False)
+                if subtask_tid != task_id and subtask_tid in self._button_states:
+                    self._button_states[subtask_tid] = False
                     model.setData(subtask_idx, FluentIcon.PLAY, TaskListModel.IconRole, update_db=False)
-                    self.buttons[subtask_tid].setIcon(FluentIcon.PLAY)
 
         if self.parent().objectName() == "todoTasksList":
             model.setCurrentTaskID(task_id)
             self.parent().viewport().update()
-
-    def setCheckedStateOfButton(self, task_id, checked) -> None:
-        button = self.buttons.get(task_id)
-        if button:
-            button.setChecked(checked)
-            button.setIcon(FluentIcon.PAUSE if checked else FluentIcon.PLAY)
-
-    def updateButtonVisibility(self):
-        """Update button visibility and positions based on tree expanded/collapsed state"""
-        model = self.parent().model()
-        if not model:
-            return
-
-        visible_task_ids = set()
-
-        # add root tasks (always visible)
-        for i in range(model.rowCount()):
-            root_index = model.index(i, 0)
-            task_id = model.data(root_index, TaskListModel.IDRole)
-            if task_id:
-                visible_task_ids.add(task_id)
-                # Update button position for root task
-                self._updateButtonPosition(task_id, root_index)
-
-            # add subtasks only if parent is expanded
-            if self.parent().isExpanded(root_index):
-                for j in range(model.rowCount(root_index)):
-                    subtask_index = model.index(j, 0, root_index)
-                    subtask_id = model.data(subtask_index, TaskListModel.IDRole)
-                    if subtask_id:
-                        visible_task_ids.add(subtask_id)
-                        # Update button position for subtask
-                        self._updateButtonPosition(subtask_id, subtask_index)
-
-        # hide buttons for non visible tasks and show buttons for visible tasks
-        # setting to visible and invisible because its faster than destroying and creating buttons everytime
-        # some index is expanded or collapsed
-        for task_id, button in self.buttons.items():
-            if task_id in visible_task_ids:
-                button.setVisible(True)
-            else:
-                button.setVisible(False)
-
-    def _updateButtonPosition(self, task_id: int, index: QModelIndex) -> None:
-        """Update the position of a button based on its current index"""
-        if task_id not in self.buttons:
-            return
-
-        button = self.buttons[task_id]
-        rect = self.parent().visualRect(index)
-
-        button_x = rect.left() + 3 * self.button_margin
-        button_y = rect.top() + (rect.height() - self.button_size) // 2
-        button.setGeometry(button_x, button_y, self.button_size, self.button_size)
-
-    def forceUpdateAllButtonPositions(self):
-        """Force update all button positions - useful after layout changes"""
-        model = self.parent().model()
-        if not model:
-            return
-
-        # Update positions for all root tasks
-        for i in range(model.rowCount()):
-            root_index = model.index(i, 0)
-            task_id = model.data(root_index, TaskListModel.IDRole)
-            if task_id and task_id in self.buttons:
-                self._updateButtonPosition(task_id, root_index)
-
-            # Update positions for all subtasks if parent is expanded
-            if self.parent().isExpanded(root_index):
-                for j in range(model.rowCount(root_index)):
-                    subtask_index = model.index(j, 0, root_index)
-                    subtask_id = model.data(subtask_index, TaskListModel.IDRole)
-                    if subtask_id and subtask_id in self.buttons:
-                        self._updateButtonPosition(subtask_id, subtask_index)
 
     def paint(self, painter, option, index) -> None:
         ## pasted from TreeItemDelegate.paint()
@@ -257,50 +203,10 @@ class TaskListItemDelegate(TreeItemDelegate):
 
         self._paintBackground(painter, option, index)
 
+        # Paint the button manually
+        self._paintButton(painter, option, index)
+
         time_text_width: int = self._paintTimeText(painter, option, index)
-
-        # Get task ID
-        task_id = index.data(TaskListModel.IDRole)
-
-        # Delete buttons for tasks that no longer exist
-        task_ids = set()
-        model = self.parent().model()
-
-        # add root task IDs
-        for i in range(model.rowCount()):
-            root_idx = model.index(i, 0)
-            task_ids.add(model.data(root_idx, TaskListModel.IDRole))
-
-            # add subtask IDs
-            for j in range(model.rowCount(root_idx)):
-                subtask_idx = model.index(j, 0, root_idx)
-                task_ids.add(model.data(subtask_idx, TaskListModel.IDRole))
-
-        for tid in list(self.buttons.keys()):
-            if tid not in task_ids:
-                button = self.buttons.pop(tid)
-                button.deleteLater()
-
-        # Create or position the button for this task
-        if task_id not in self.buttons:
-            self.createButton(index)
-
-        button = self.buttons[task_id]
-        button_x = option.rect.left() + 3 * self.button_margin  # 3 * self.button_margin for left margin from left edge
-        # of item's rect
-        button_y = option.rect.top() + (option.rect.height() - self.button_size) // 2
-        button.setGeometry(button_x, button_y, self.button_size, self.button_size)
-
-        # don't draw buttons of subtasks which aren't visible anymore after expanding and collapsing their parent task
-        if not index.parent().isValid():
-            # Root item - always visible
-            should_be_visible = True
-        else:
-            # Child item - visible only if parent is expanded
-            parent_index = index.parent()
-            should_be_visible = self.parent().isExpanded(parent_index)
-
-        button.setVisible(should_be_visible)
 
         # Adjust option.rect to account for button and time text
         button_width = self.button_size + 2 * self.button_margin
@@ -401,5 +307,3 @@ class TaskListItemDelegate(TreeItemDelegate):
         text = editor.text()
         if text:
             model.setData(index, text, Qt.ItemDataRole.DisplayRole)
-        # else:
-        #     model.setData(index, "", Qt.ItemDataRole.DisplayRole)

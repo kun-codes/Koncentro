@@ -739,9 +739,8 @@ class MainWindow(KoncentroFluentWindow):
         if skip_delegate_button or self.get_current_task_id() is None:
             return
 
-        self.get_todo_task_list_item_delegate().buttons[self.get_current_task_id()].setChecked(True)
         self.get_todo_task_list_item_delegate().setCheckedStateOfButton(
-            checked=True, task_id=self.get_current_task_id()
+            task_id=self.get_current_task_id(), checked=True
         )
 
     def setPauseResumeButtonsToPlayIcon(self, skip_delegate_button: bool = False) -> None:
@@ -754,9 +753,8 @@ class MainWindow(KoncentroFluentWindow):
         if skip_delegate_button or self.get_current_task_id() is None:
             return
 
-        self.get_todo_task_list_item_delegate().buttons[self.get_current_task_id()].setChecked(False)
         self.get_todo_task_list_item_delegate().setCheckedStateOfButton(
-            checked=False, task_id=self.get_current_task_id()
+            task_id=self.get_current_task_id(), checked=False
         )
 
     def updateBottomBarTaskLabel(self, topLeft: QModelIndex, bottomRight: QModelIndex, roles) -> None:
