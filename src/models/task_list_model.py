@@ -292,7 +292,7 @@ class TaskListModel(QAbstractItemModel):
             # Update the database with the current elapsed time to avoid losing time during drag
             current_node = self.getTaskNodeById(self.current_task_id)
             if current_node is not None:
-                current_index = self._get_index_for_node(current_node)
+                current_index = self.getIndexByNode(current_node)
                 if current_index.isValid():
                     self.setData(current_index, current_node.elapsed_time, self.ElapsedTimeRole, update_db=True)
 
@@ -773,7 +773,7 @@ class TaskListModel(QAbstractItemModel):
     def currentTaskIndex(self):
         node = self.getTaskNodeById(self.current_task_id)
         if node:
-            return self._get_index_for_node(node)
+            return self.getIndexByNode(node)
         return None
 
     def getTaskNodeById(self, task_id) -> Optional[TaskNode]:
@@ -790,12 +790,19 @@ class TaskListModel(QAbstractItemModel):
                     return child
         return None
 
-    def _get_index_for_node(self, node: TaskNode) -> QModelIndex:
+    def getIndexByNode(self, node: TaskNode) -> QModelIndex:
         """Get the QModelIndex for a given node"""
         if node.is_root():
             row = self.root_nodes.index(node)
             return self.index(row, 0)
         else:
-            parent_index = self._get_index_for_node(node.parent_node)
+            parent_index = self.getIndexByNode(node.parent_node)
             row = node.row()
             return self.index(row, 0, parent_index)
+
+    def getIndexByTaskId(self, task_id: int) -> QModelIndex:
+        """Get the QModelIndex for a given task_id"""
+        node = self.getTaskNodeById(task_id)
+        if node:
+            return self.getIndexByNode(node)
+        return QModelIndex()

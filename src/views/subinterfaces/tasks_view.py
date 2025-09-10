@@ -124,6 +124,12 @@ class TaskListView(Ui_TaskView, QWidget):
                 task_type=TaskType.TODO,
             )
 
+            # set time of parent task as sum of all its subtask
+            for childTask in taskNode.children:
+                taskNode.elapsed_time += childTask.elapsed_time
+                taskNode.target_time += childTask.target_time
+            self.todoTasksList.model().update_db()
+
     def findMainWindow(self):
         widget = self.parent()
         while widget:
@@ -139,8 +145,43 @@ class TaskListView(Ui_TaskView, QWidget):
         todo_selected_index = self.todoTasksList.selectionModel().currentIndex()
         completed_selected_index = self.completedTasksList.selectionModel().currentIndex()
 
+        todoTaskListModel: TaskListModel = self.todoTasksList.model()
+
         if self.todoTasksList.selectionModel().hasSelection():
-            parent_index = self.todoTasksList.model().parent(todo_selected_index)
+            parent_index = todoTaskListModel.parent(todo_selected_index)
+
+            # check if todo_selected_index is a child task
+            taskID = todo_selected_index.data(TaskListModel.IDRole)
+            taskNode = todoTaskListModel.getTaskNodeById(taskID)
+
+            # if to be deleted task is a child
+            if not taskNode.is_root():
+                parentTaskNode: TaskNode = taskNode.parent_node
+                parentTaskIndex = todoTaskListModel.getIndexByNode(parentTaskNode)
+                children = parentTaskNode.children
+                # and it is the only child of the parent task, then set the parent's time equal to this last child's
+                # time'
+                if len(children) == 1:
+                    childNode = children[0]
+                    childIndex = todoTaskListModel.getIndexByNode(childNode)
+                    childTargetTime = todoTaskListModel.data(childIndex, TaskListModel.TargetTimeRole)
+                    childElapsedTime = todoTaskListModel.data(childIndex, TaskListModel.ElapsedTimeRole)
+                    todoTaskListModel.setData(parentTaskIndex, childTargetTime, TaskListModel.TargetTimeRole)
+                    todoTaskListModel.setData(parentTaskIndex, childElapsedTime, TaskListModel.ElapsedTimeRole)
+                    todoTaskListModel.update_db()
+                # else set the parent's time as sum of all its children except the to be deleted child
+                else:
+                    elapsedTime = 0
+                    targetTime = 0
+                    for child in children:
+                        if child != taskNode:
+                            elapsedTime += child.elapsed_time
+                            targetTime += child.target_time
+
+                    todoTaskListModel.setData(parentTaskIndex, targetTime, TaskListModel.TargetTimeRole)
+                    todoTaskListModel.setData(parentTaskIndex, elapsedTime, TaskListModel.ElapsedTimeRole)
+                    todoTaskListModel.update_db()
+
             self.todoTasksList.model().deleteTask(todo_selected_index.row(), parent_index)
         elif self.completedTasksList.selectionModel().hasSelection():
             parent_index = self.completedTasksList.model().parent(completed_selected_index)
@@ -151,22 +192,63 @@ class TaskListView(Ui_TaskView, QWidget):
         task_list_model = None
         if self.todoTasksList.selectionModel().hasSelection():
             row = self.todoTasksList.selectionModel().currentIndex()
-            task_list_model = self.todoTasksList.model()
+            task_list_model: TaskListModel = self.todoTasksList.model()
         elif self.completedTasksList.selectionModel().hasSelection():
             row = self.completedTasksList.selectionModel().currentIndex()
-            task_list_model = self.completedTasksList.model()
+            task_list_model: TaskListModel = self.completedTasksList.model()
 
         if row is not None:
             task_id = row.data(TaskListModel.IDRole)
             self.editTaskTimeDialog = EditTaskTimeDialog(self.window(), task_id)
 
+            taskIndex: QModelIndex = task_list_model.getIndexByTaskId(task_id)
+            isChildTask: bool = taskIndex.parent().isValid()
+
             if self.editTaskTimeDialog.exec():
-                elapsed_time = self.editTaskTimeDialog.getElapsedTime()
-                if elapsed_time is not None:
-                    task_list_model.setData(row, elapsed_time, TaskListModel.ElapsedTimeRole, update_db=True)
-                estimated_time = self.editTaskTimeDialog.getTargetTime()
-                if estimated_time is not None:
-                    task_list_model.setData(row, estimated_time, TaskListModel.TargetTimeRole, update_db=True)
+                if isChildTask:
+                    childElapsedTime = self.editTaskTimeDialog.getElapsedTime()
+                    childEstimatedTime = self.editTaskTimeDialog.getTargetTime()
+
+                    parentTaskIndex = task_list_model.parent(row)
+                    parentTaskNode = task_list_model.get_node(parentTaskIndex)
+                    children = parentTaskNode.children
+
+                    parentElapsedTime = 0
+                    parentEstimatedTime = 0
+                    for child in children:
+                        if child.task_id != task_id:
+                            parentElapsedTime += child.elapsed_time
+                            parentEstimatedTime += child.target_time
+                        else:
+                            if childElapsedTime is not None:
+                                parentElapsedTime += childElapsedTime
+                            else:
+                                parentElapsedTime += child.elapsed_time
+
+                            if childEstimatedTime is not None:
+                                parentEstimatedTime += childEstimatedTime
+                            else:
+                                parentEstimatedTime += child.target_time
+
+                    if childElapsedTime is not None:
+                        task_list_model.setData(row, childElapsedTime, TaskListModel.ElapsedTimeRole, update_db=True)
+                        task_list_model.setData(
+                            parentTaskIndex, parentElapsedTime, TaskListModel.ElapsedTimeRole, update_db=True
+                        )
+
+                    if childEstimatedTime is not None:
+                        task_list_model.setData(row, childEstimatedTime, TaskListModel.TargetTimeRole, update_db=True)
+                        task_list_model.setData(
+                            parentTaskIndex, parentEstimatedTime, TaskListModel.TargetTimeRole, update_db=True
+                        )
+
+                else:
+                    elapsed_time = self.editTaskTimeDialog.getElapsedTime()
+                    if elapsed_time is not None:
+                        task_list_model.setData(row, elapsed_time, TaskListModel.ElapsedTimeRole, update_db=True)
+                    estimated_time = self.editTaskTimeDialog.getTargetTime()
+                    if estimated_time is not None:
+                        task_list_model.setData(row, estimated_time, TaskListModel.TargetTimeRole, update_db=True)
 
     def setupSelectionBehavior(self) -> None:
         """

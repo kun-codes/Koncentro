@@ -588,34 +588,70 @@ class MainWindow(KoncentroFluentWindow):
             if self.pomodoro_interface.pomodoro_timer_obj.getTimerState() in [TimerState.BREAK, TimerState.LONG_BREAK]:
                 return
 
-            final_elapsed_time = (
-                self.task_interface.todoTasksList.model().data(
-                    self.get_current_task_index(), TaskListModel.ElapsedTimeRole
+            model: TaskListModel = self.task_interface.todoTasksList.model()
+            currentTaskIndex: QModelIndex = self.get_current_task_index()
+            timerResolution = self.pomodoro_interface.pomodoro_timer_obj.timer_resolution
+            logger.debug(f"timer resolution: {timerResolution}ms")
+
+            if currentTaskIndex.parent().isValid():  # is a child task
+                childElapsedTime = model.data(currentTaskIndex, TaskListModel.ElapsedTimeRole) + timerResolution
+                parentIndex = currentTaskIndex.parent()
+
+                # Calculate parent's elapsed time as sum of all its children
+                parentNode = model.get_node(parentIndex)
+                parentElapsedTime = 0
+                for child in parentNode.children:
+                    if child.task_id == model.data(currentTaskIndex, TaskListModel.IDRole):
+                        # Use the updated time for the current child
+                        parentElapsedTime += childElapsedTime
+                    else:
+                        # Use existing time for other children
+                        parentElapsedTime += child.elapsed_time
+
+                logger.debug(f"Child Elapsed Time: {childElapsedTime}")
+                logger.debug(f"Parent Elapsed Time: {parentElapsedTime}")
+
+                if childElapsedTime % 1000 == 0:
+                    logger.debug(f"updating child task {currentTaskIndex.row()} elapsed time to {childElapsedTime}ms")
+                    model.setData(currentTaskIndex, childElapsedTime, TaskListModel.ElapsedTimeRole, update_db=False)
+                    model.setData(parentIndex, parentElapsedTime, TaskListModel.ElapsedTimeRole, update_db=False)
+                if childElapsedTime % 5000 == 0:
+                    self.updateTaskTimeDB()
+            else:  # is a parent task
+                finalElapsedTime = (
+                    model.data(self.get_current_task_index(), TaskListModel.ElapsedTimeRole) + timerResolution
                 )
-                + self.pomodoro_interface.pomodoro_timer_obj.timer_resolution
-            )
-            if final_elapsed_time % 1000 == 0:  # only update db when the elapsed time is a multiple of 1000
-                self.task_interface.todoTasksList.model().setData(
-                    self.get_current_task_index(), final_elapsed_time, TaskListModel.ElapsedTimeRole, update_db=False
-                )
-            if final_elapsed_time % 5000 == 0:
-                self.updateTaskTimeDB()
+                if finalElapsedTime % 1000 == 0:  # only update db when the elapsed time is a multiple of 1000
+                    model.setData(
+                        self.get_current_task_index(), finalElapsedTime, TaskListModel.ElapsedTimeRole, update_db=False
+                    )
+                if finalElapsedTime % 5000 == 0:
+                    self.updateTaskTimeDB()
 
     def updateTaskTimeDB(self) -> None:
         # since sessionStoppedSignal is emitted when the timer is stopped, we have to check if the current task index
         # is valid or not. Current Task Index can be invalid due to it being None when there are no tasks in todo list
         # when timer began or when current task is deleted and session is stopped automatically
-        current_task_index = self.get_current_task_id()
+        current_task_index = self.get_current_task_index()
         if current_task_index is None:
             return
 
-        final_elapsed_time = self.task_interface.todoTasksList.model().data(
-            self.get_current_task_index(), TaskListModel.ElapsedTimeRole
-        )
-        self.task_interface.todoTasksList.model().setData(
-            self.get_current_task_index(), final_elapsed_time, TaskListModel.ElapsedTimeRole, update_db=True
-        )
-        logger.debug(f"Updated DB with elapsed time: {final_elapsed_time}")
+        model = self.task_interface.todoTasksList.model()
+        if current_task_index.parent().isValid():  # is a child task
+            childElapsedTime = model.data(current_task_index, TaskListModel.ElapsedTimeRole)
+            parentIndex = current_task_index.parent()
+            parentElapsedTime = model.data(parentIndex, TaskListModel.ElapsedTimeRole)
+            model.setData(current_task_index, TaskListModel.ElapsedTimeRole, childElapsedTime, update_db=True)
+            model.setData(parentIndex, TaskListModel.ElapsedTimeRole, parentElapsedTime, update_db=True)
+            logger.debug(
+                f"Updated DB with elapsed time for child: {childElapsedTime} and for parent: {parentElapsedTime}"
+            )
+        else:  # is a parent task
+            finalElapsedTime = model.data(self.get_current_task_index(), TaskListModel.ElapsedTimeRole)
+            model.setData(
+                self.get_current_task_index(), finalElapsedTime, TaskListModel.ElapsedTimeRole, update_db=True
+            )
+            logger.debug(f"Updated DB with elapsed time: {finalElapsedTime}")
 
     def connectSignalsToSlots(self) -> None:
         self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(
