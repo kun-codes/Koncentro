@@ -679,7 +679,7 @@ class TaskListModel(QAbstractItemModel):
             return True
 
         if parent.isValid():
-            # Removing subtasks (future implementation)
+            # Removing subtasks
             parent_node = self.get_node(parent)
             if parent_node:
                 self.beginRemoveRows(parent, row, row + count - 1)
@@ -728,35 +728,43 @@ class TaskListModel(QAbstractItemModel):
         """
         Delete tasks
         """
-        logger.debug(f"Deleting task at row: {row}")
+        logger.debug(f"Deleting parent/child task at row: {row}")
 
-        task_id = None
+        taskIDs: Optional[List[int]] = []  # stores task IDs to be deleted, multiple IDs as when parent task is
+        # deleted, all its child tasks need to be deleted as well
+
         if parent.isValid():
             # Deleting subtask
             parent_node = self.get_node(parent)
             if parent_node and row < len(parent_node.children):
                 child_node = parent_node.children[row]
-                task_id = child_node.task_id
+                taskIDs.append(child_node.task_id)
         else:
             # Deleting root task
             if row < len(self.root_nodes):
-                task_id = self.root_nodes[row].task_id
-            else:
-                return False
+                taskIDs.append(self.root_nodes[row].task_id)
+                for child in self.root_nodes[row].children:
+                    taskIDs.insert(0, child.task_id)  # inserting child tasks before root task to
+                    # prevent foreign key constraint violation when deleting root task
 
-        if task_id is None:
+        if taskIDs is None:
             return False
 
-        # Delete from database
+        # delete from database
         with get_session() as session:
-            task = session.query(Task).get(task_id)
+            # delete all child tasks first using bulk delete
+            session.query(Task).filter(Task.id.in_(taskIDs[:-1])).delete(synchronize_session=False)
+            # delete the parent task at last
+            last_id = taskIDs[-1]
+            task = session.query(Task).get(last_id)
             if task:
                 session.delete(task)
 
-        logger.debug(f"Deleting task with ID: {task_id}")
+        logger.debug(f"Deleting tasks with ID: {taskIDs}")
         self.removeRows(row, 1, parent)
 
-        self.taskDeletedSignal.emit(task_id)
+        for taskID in taskIDs:
+            self.taskDeletedSignal.emit(taskID)
         self.layoutChanged.emit()
         return True
 
