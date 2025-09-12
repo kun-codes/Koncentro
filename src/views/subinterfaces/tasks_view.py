@@ -139,6 +139,7 @@ class TaskListView(Ui_TaskView, QWidget):
         self.addSubTaskDialog = AddSubTaskDialog(self.window())
 
         selectedRootTask: bool = False
+        isFirstSubTask: bool = False
 
         # check if a parent task is selected
         if self.todoTasksList.selectionModel().hasSelection():
@@ -166,6 +167,9 @@ class TaskListView(Ui_TaskView, QWidget):
                 parentTaskNode: TaskNode = parentTaskIndex.internalPointer()
                 row = self.todoTasksList.model().rowCount(parentTaskIndex)
 
+            if len(parentTaskNode.children) == 0:
+                isFirstSubTask = True
+
             model.insertRow(
                 row,
                 parentTaskIndex,
@@ -173,7 +177,15 @@ class TaskListView(Ui_TaskView, QWidget):
                 task_type=TaskType.TODO,
             )
 
+            # if this is the first subtask of the parent task then make time of child task = time of parent task
+            if isFirstSubTask:
+                childTaskNode: TaskNode = parentTaskNode.children[0]
+                childTaskNode.elapsed_time = parentTaskNode.elapsed_time
+                childTaskNode.target_time = parentTaskNode.target_time
+
             # set time of parent task as sum of all its subtask
+            parentTaskNode.elapsed_time = 0
+            parentTaskNode.target_time = 0
             for childTask in parentTaskNode.children:
                 parentTaskNode.elapsed_time += childTask.elapsed_time
                 parentTaskNode.target_time += childTask.target_time
