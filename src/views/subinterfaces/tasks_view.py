@@ -83,11 +83,9 @@ class TaskListView(Ui_TaskView, QWidget):
         )
 
         # set icons of buttons
-        self.addTaskButton.setIcon(FluentIcon.ADD)
-        self.addSubTaskButton.setIcon(FluentIcon.VPN)
+        self.addTaskSplitButton.setIcon(FluentIcon.ADD)
         self.deleteTaskButton.setIcon(FluentIcon.DELETE)
         self.editTaskTimeButton.setIcon(FluentIcon.EDIT)
-        self.addTaskSplitButton.setIcon(FluentIcon.ADD)
 
         self.addTaskSplitButton.setFlyout(self.addTaskMenu)
         self.lastTriggeredAddTaskMenuAction = self.addTaskAction
@@ -95,14 +93,6 @@ class TaskListView(Ui_TaskView, QWidget):
         self.addTaskSplitButton.setToolTip("Add Task")
         self.addTaskSplitButton.installEventFilter(
             ToolTipFilter(self.addTaskSplitButton, showDelay=300, position=ToolTipPosition.BOTTOM)
-        )
-        self.addTaskButton.setToolTip("Add Task")
-        self.addTaskButton.installEventFilter(
-            ToolTipFilter(self.addTaskButton, showDelay=300, position=ToolTipPosition.BOTTOM)
-        )
-        self.addSubTaskButton.setToolTip("Add Subtask")
-        self.addSubTaskButton.installEventFilter(
-            ToolTipFilter(self.addSubTaskButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
         self.deleteTaskButton.setToolTip("Delete Task")
         self.deleteTaskButton.installEventFilter(
@@ -115,8 +105,6 @@ class TaskListView(Ui_TaskView, QWidget):
 
     def connectSignalsToSlots(self) -> None:
         self.addTaskSplitButton.clicked.connect(self.addTaskSplitButtonClicked)
-        self.addTaskButton.clicked.connect(self.addTask)
-        self.addSubTaskButton.clicked.connect(self.addSubTask)
         self.deleteTaskButton.clicked.connect(self.deleteTask)
         self.editTaskTimeButton.clicked.connect(self.editTaskTime)
 

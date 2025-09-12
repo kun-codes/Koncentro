@@ -95,7 +95,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
 
         self.main_window.task_interface.editTaskTimeButton.setDisabled(True)
         self.main_window.task_interface.deleteTaskButton.setDisabled(True)
-        self.main_window.task_interface.addTaskButton.setDisabled(True)
+        self.main_window.task_interface.addTaskSplitButton.setDisabled(True)
 
         # Create teaching tip targeting the first item
         self._select_first_task_step_tip = TargetClickTeachingTip.create(
@@ -230,10 +230,10 @@ class TaskInterfaceTutorial(InterfaceTutorial):
 
     def _invoke_add_new_task_dialog_step(self) -> None:
         self.main_window.task_interface.deleteTaskButton.setDisabled(True)
-        self.main_window.task_interface.addTaskButton.setDisabled(False)
+        self.main_window.task_interface.addTaskSplitButton.setDisabled(False)
 
         self._invoke_add_new_task_dialog_step_tip = TargetClickTeachingTip.create(
-            target=self.main_window.task_interface.addTaskButton,
+            target=self.main_window.task_interface.addTaskSplitButton.button,
             title="Now lets add a new task",
             content="",
             mainWindow=self.main_window,
@@ -309,7 +309,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.teaching_tips.append(self._save_new_task_step_tip)
 
     def _start_first_task_step(self) -> None:
-        self.main_window.task_interface.addTaskButton.setDisabled(True)
+        self.main_window.task_interface.addTaskSplitButton.setDisabled(True)
 
         todo_task_list = self.main_window.task_interface.todoTasksList
 
@@ -397,7 +397,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
     def _enable_buttons(self) -> None:
         self.main_window.task_interface.editTaskTimeButton.setDisabled(False)
         self.main_window.task_interface.deleteTaskButton.setDisabled(False)
-        self.main_window.task_interface.addTaskButton.setDisabled(False)
+        self.main_window.task_interface.addTaskSplitButton.setDisabled(False)
 
         self.next_step()
 

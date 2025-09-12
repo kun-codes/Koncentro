@@ -51,16 +51,6 @@ class Ui_TaskView(object):
 
         self.horizontalLayout.addWidget(self.addTaskSplitButton)
 
-        self.addTaskButton = ToolButton(self.scrollAreaWidgetContents)
-        self.addTaskButton.setObjectName(u"addTaskButton")
-
-        self.horizontalLayout.addWidget(self.addTaskButton)
-
-        self.addSubTaskButton = ToolButton(self.scrollAreaWidgetContents)
-        self.addSubTaskButton.setObjectName(u"addSubTaskButton")
-
-        self.horizontalLayout.addWidget(self.addSubTaskButton)
-
         self.editTaskTimeButton = ToolButton(self.scrollAreaWidgetContents)
         self.editTaskTimeButton.setObjectName(u"editTaskTimeButton")
 
