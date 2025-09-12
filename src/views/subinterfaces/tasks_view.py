@@ -234,6 +234,18 @@ class TaskListView(Ui_TaskView, QWidget):
 
         taskIndex: QModelIndex = task_list_model.getIndexByTaskId(task_id)
         isChildTask: bool = taskIndex.parent().isValid()
+        taskNode: TaskNode = task_list_model.get_node(taskIndex)
+
+        # if is a parent task and has child tasks
+        if not isChildTask and len(taskNode.children) > 0:
+            InfoBar.warning(
+                "Cannot Edit Time for Parent Task",
+                "You cannot edit time for a parent task. Edit time for its subtasks instead.",
+                orient=Qt.Orientation.Vertical,
+                duration=3000,
+                parent=self,
+            )
+            return
 
         if self.editTaskTimeDialog.exec():
             if isChildTask:
