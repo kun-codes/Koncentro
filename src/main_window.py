@@ -591,7 +591,6 @@ class MainWindow(KoncentroFluentWindow):
             model: TaskListModel = self.task_interface.todoTasksList.model()
             currentTaskIndex: QModelIndex = self.get_current_task_index()
             timerResolution = self.pomodoro_interface.pomodoro_timer_obj.timer_resolution
-            logger.debug(f"timer resolution: {timerResolution}ms")
 
             if currentTaskIndex.parent().isValid():  # is a child task
                 childElapsedTime = model.data(currentTaskIndex, TaskListModel.ElapsedTimeRole) + timerResolution
