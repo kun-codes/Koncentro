@@ -733,12 +733,34 @@ class TaskListModel(QAbstractItemModel):
         taskIDs: Optional[List[int]] = []  # stores task IDs to be deleted, multiple IDs as when parent task is
         # deleted, all its child tasks need to be deleted as well
 
+        # if to be deleted task is a subtask
         if parent.isValid():
-            # Deleting subtask
             parent_node = self.get_node(parent)
             if parent_node and row < len(parent_node.children):
                 child_node = parent_node.children[row]
                 taskIDs.append(child_node.task_id)
+
+                # and it is the only child of the parent task, then set the parent's time equal to this last child's
+                # time'
+                if len(parent_node.children) == 1:
+                    childTargetTime = child_node.target_time
+                    childElapsedTime = child_node.elapsed_time
+                    parent_index = self.getIndexByNode(parent_node)
+                    self.setData(parent_index, childTargetTime, self.TargetTimeRole)
+                    self.setData(parent_index, childElapsedTime, self.ElapsedTimeRole)
+                    self.update_db()
+                # else set the parent's time as sum of all its children except the to be deleted child
+                else:
+                    elapsedTime = 0
+                    targetTime = 0
+                    for child in parent_node.children:
+                        if child != child_node:
+                            elapsedTime += child.elapsed_time
+                            targetTime += child.target_time
+                    parent_index = self.getIndexByNode(parent_node)
+                    self.setData(parent_index, targetTime, self.TargetTimeRole)
+                    self.setData(parent_index, elapsedTime, self.ElapsedTimeRole)
+                    self.update_db()
         else:
             # Deleting root task
             if row < len(self.root_nodes):
