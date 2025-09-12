@@ -165,58 +165,60 @@ class TaskListView(Ui_TaskView, QWidget):
             row = self.completedTasksList.selectionModel().currentIndex()
             task_list_model: TaskListModel = self.completedTasksList.model()
 
-        if row is not None:
-            task_id = row.data(TaskListModel.IDRole)
-            self.editTaskTimeDialog = EditTaskTimeDialog(self.window(), task_id)
+        if row is None:
+            return
 
-            taskIndex: QModelIndex = task_list_model.getIndexByTaskId(task_id)
-            isChildTask: bool = taskIndex.parent().isValid()
+        task_id = row.data(TaskListModel.IDRole)
+        self.editTaskTimeDialog = EditTaskTimeDialog(self.window(), task_id)
 
-            if self.editTaskTimeDialog.exec():
-                if isChildTask:
-                    childElapsedTime = self.editTaskTimeDialog.getElapsedTime()
-                    childEstimatedTime = self.editTaskTimeDialog.getTargetTime()
+        taskIndex: QModelIndex = task_list_model.getIndexByTaskId(task_id)
+        isChildTask: bool = taskIndex.parent().isValid()
 
-                    parentTaskIndex = task_list_model.parent(row)
-                    parentTaskNode = task_list_model.get_node(parentTaskIndex)
-                    children = parentTaskNode.children
+        if self.editTaskTimeDialog.exec():
+            if isChildTask:
+                childElapsedTime = self.editTaskTimeDialog.getElapsedTime()
+                childEstimatedTime = self.editTaskTimeDialog.getTargetTime()
 
-                    parentElapsedTime = 0
-                    parentEstimatedTime = 0
-                    for child in children:
-                        if child.task_id != task_id:
-                            parentElapsedTime += child.elapsed_time
-                            parentEstimatedTime += child.target_time
+                parentTaskIndex = task_list_model.parent(row)
+                parentTaskNode = task_list_model.get_node(parentTaskIndex)
+                children = parentTaskNode.children
+
+                parentElapsedTime = 0
+                parentEstimatedTime = 0
+                for child in children:
+                    if child.task_id != task_id:
+                        parentElapsedTime += child.elapsed_time
+                        parentEstimatedTime += child.target_time
+                    else:
+                        if childElapsedTime is not None:
+                            parentElapsedTime += childElapsedTime
                         else:
-                            if childElapsedTime is not None:
-                                parentElapsedTime += childElapsedTime
-                            else:
-                                parentElapsedTime += child.elapsed_time
+                            parentElapsedTime += child.elapsed_time
 
-                            if childEstimatedTime is not None:
-                                parentEstimatedTime += childEstimatedTime
-                            else:
-                                parentEstimatedTime += child.target_time
+                        if childEstimatedTime is not None:
+                            parentEstimatedTime += childEstimatedTime
+                        else:
+                            parentEstimatedTime += child.target_time
 
-                    if childElapsedTime is not None:
-                        task_list_model.setData(row, childElapsedTime, TaskListModel.ElapsedTimeRole, update_db=True)
-                        task_list_model.setData(
-                            parentTaskIndex, parentElapsedTime, TaskListModel.ElapsedTimeRole, update_db=True
-                        )
+                if childElapsedTime is not None:
+                    task_list_model.setData(row, childElapsedTime, TaskListModel.ElapsedTimeRole, update_db=True)
+                    task_list_model.setData(
+                        parentTaskIndex, parentElapsedTime, TaskListModel.ElapsedTimeRole, update_db=True
+                    )
 
-                    if childEstimatedTime is not None:
-                        task_list_model.setData(row, childEstimatedTime, TaskListModel.TargetTimeRole, update_db=True)
-                        task_list_model.setData(
-                            parentTaskIndex, parentEstimatedTime, TaskListModel.TargetTimeRole, update_db=True
-                        )
+                if childEstimatedTime is not None:
+                    task_list_model.setData(row, childEstimatedTime, TaskListModel.TargetTimeRole, update_db=True)
+                    task_list_model.setData(
+                        parentTaskIndex, parentEstimatedTime, TaskListModel.TargetTimeRole, update_db=True
+                    )
 
-                else:
-                    elapsed_time = self.editTaskTimeDialog.getElapsedTime()
-                    if elapsed_time is not None:
-                        task_list_model.setData(row, elapsed_time, TaskListModel.ElapsedTimeRole, update_db=True)
-                    estimated_time = self.editTaskTimeDialog.getTargetTime()
-                    if estimated_time is not None:
-                        task_list_model.setData(row, estimated_time, TaskListModel.TargetTimeRole, update_db=True)
+            else:
+                elapsed_time = self.editTaskTimeDialog.getElapsedTime()
+                if elapsed_time is not None:
+                    task_list_model.setData(row, elapsed_time, TaskListModel.ElapsedTimeRole, update_db=True)
+                estimated_time = self.editTaskTimeDialog.getTargetTime()
+                if estimated_time is not None:
+                    task_list_model.setData(row, estimated_time, TaskListModel.TargetTimeRole, update_db=True)
 
     def setupSelectionBehavior(self) -> None:
         """
