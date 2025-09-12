@@ -140,29 +140,44 @@ class TaskListView(Ui_TaskView, QWidget):
 
         selectedRootTask: bool = False
 
-        # check if a parent task is selected first
+        # check if a parent task is selected
         if self.todoTasksList.selectionModel().hasSelection():
-            taskIndex = self.todoTasksList.selectionModel().currentIndex()
-            taskID = taskIndex.data(TaskListModel.IDRole)
-            taskNode: TaskNode = self.todoTasksList.model().getTaskNodeById(taskID)
+            selectedTaskIndex = self.todoTasksList.selectionModel().currentIndex()
+            selectedTaskID = selectedTaskIndex.data(TaskListModel.IDRole)
+            selectedTaskNode: TaskNode = self.todoTasksList.model().getTaskNodeById(selectedTaskID)
 
-            if taskNode.is_root():
+            if selectedTaskNode.is_root():
                 selectedRootTask = True
+        else:
+            return
 
-        if selectedRootTask and self.addSubTaskDialog.exec():
+        model: TaskListModel = self.todoTasksList.model()
+
+        if self.addSubTaskDialog.exec():
             subtaskName = self.addSubTaskDialog.taskEdit.text()
-            row = self.todoTasksList.model().rowCount(taskIndex)
-            self.todoTasksList.model().insertRow(
+
+            if selectedRootTask:
+                row = self.todoTasksList.model().rowCount(selectedTaskIndex)
+                # selected task is a parent(root) task
+                parentTaskIndex: QModelIndex = selectedTaskIndex
+                parentTaskNode: TaskNode = selectedTaskNode
+            else:
+                parentTaskIndex: QModelIndex = selectedTaskIndex.parent()
+                parentTaskNode: TaskNode = parentTaskIndex.internalPointer()
+                row = self.todoTasksList.model().rowCount(parentTaskIndex)
+
+            model.insertRow(
                 row,
-                taskIndex,
+                parentTaskIndex,
                 task_name=subtaskName,
                 task_type=TaskType.TODO,
             )
 
             # set time of parent task as sum of all its subtask
-            for childTask in taskNode.children:
-                taskNode.elapsed_time += childTask.elapsed_time
-                taskNode.target_time += childTask.target_time
+            for childTask in parentTaskNode.children:
+                parentTaskNode.elapsed_time += childTask.elapsed_time
+                parentTaskNode.target_time += childTask.target_time
+
             self.todoTasksList.model().update_db()
 
     def findMainWindow(self):
