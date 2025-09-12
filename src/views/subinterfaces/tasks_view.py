@@ -19,6 +19,7 @@ from models.db_tables import TaskType
 from models.task_list_model import TaskListModel, TaskNode
 from prefabs.customFluentIcon import CustomFluentIcon
 from prefabs.taskList import TaskList
+from prefabs.taskListItemDelegate import TaskListItemDelegate
 from ui_py.ui_tasks_list_view import Ui_TaskView
 from views.dialogs.addSubTaskDialog import AddSubTaskDialog
 from views.dialogs.addTaskDialog import AddTaskDialog
@@ -110,6 +111,9 @@ class TaskListView(Ui_TaskView, QWidget):
 
         self.todoTasksList.model().invalidTaskDropSignal.connect(self.onInvalidDrop)
         self.completedTasksList.model().invalidTaskDropSignal.connect(self.onInvalidDrop)
+
+        todoTasksListItemDelegate: TaskListItemDelegate = self.todoTasksList.itemDelegate()
+        todoTasksListItemDelegate.parentTaskWithChildrenStartDeniedSignal.connect(self.showParentTaskStartDeniedInfoBar)
 
         self.addTaskAction.triggered.connect(self.addTask)
         self.addSubTaskAction.triggered.connect(self.addSubTask)
@@ -284,6 +288,15 @@ class TaskListView(Ui_TaskView, QWidget):
         self.todoTasksList.selectionModel().selectionChanged.connect(self.onTodoTasksSelectionChanged)
         self.completedTasksList.selectionModel().selectionChanged.connect(self.onCompletedTasksSelectionChanged)
 
+    def showParentTaskStartDeniedInfoBar(self, _taskID: int) -> None:
+        InfoBar.warning(
+            "Task Start Denied",
+            "You cannot start a task with subtasks. Start one of its subtasks instead.",
+            orient=Qt.Orientation.Vertical,
+            duration=3000,
+            parent=self,
+        )
+
     def onTodoTasksSelectionChanged(self) -> None:
         if self.todoTasksList.selectionModel().hasSelection():
             # disconnecting and connecting again so that the other SelectionChanged method is not called
@@ -305,15 +318,32 @@ class TaskListView(Ui_TaskView, QWidget):
         self.completedTasksList.model().load_data()
 
     def autoSetCurrentTaskID(self) -> None:
-        if self.todoTasksList.model().currentTaskID() is not None:  # if current task is already set then return
+        model: TaskListModel = self.todoTasksList.model()
+
+        if model.currentTaskID() is not None:  # if current task is already set then return
             return
         # else set current task according to below rules
         if self.todoTasksList.selectionModel().hasSelection():
-            self.todoTasksList.model().setCurrentTaskID(
-                self.todoTasksList.selectionModel().currentIndex().data(TaskListModel.IDRole)
-            )
+            selectedIndex: QModelIndex = self.todoTasksList.selectionModel().currentIndex()
+            selectedNode: TaskNode = selectedIndex.internalPointer()
+
+            # if selected index is a parent task and has child tasks
+            if not selectedIndex.parent().isValid() and len(selectedNode.children) > 0:
+                # set current task as first child of selected parent task
+                firstChildIndex = self.todoTasksList.model().index(0, 0, selectedIndex)
+                model.setCurrentTaskID(firstChildIndex.data(TaskListModel.IDRole))
+            else:  # set current task as selected task
+                model.setCurrentTaskID(selectedIndex.data(TaskListModel.IDRole))
         elif self.todoTasksList.model().rowCount(QModelIndex()) > 0:
-            self.todoTasksList.model().setCurrentTaskID(self.todoTasksList.model().index(0).data(TaskListModel.IDRole))
+            firstIndex: QModelIndex = model.index(0, 0)
+            firstNode: TaskNode = firstIndex.internalPointer()
+
+            if not firstIndex.parent().isValid() and len(firstNode.children) > 0:
+                # set current task as first child of first parent task
+                firstChildIndex = self.todoTasksList.model().index(0, 0, firstIndex)
+                model.setCurrentTaskID(firstChildIndex.data(TaskListModel.IDRole))
+            else:  # set current task as first task
+                model.setCurrentTaskID(firstIndex.data(TaskListModel.IDRole))
         else:
             self.todoTasksList.model().setCurrentTaskID(None)
 

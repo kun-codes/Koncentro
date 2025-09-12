@@ -19,7 +19,7 @@ from qfluentwidgets import (
 from qfluentwidgets.common.color import autoFallbackThemeColor
 
 from models.config import app_settings
-from models.task_list_model import TaskListModel
+from models.task_list_model import TaskListModel, TaskNode
 from utils.time_conversion import convert_ms_to_hh_mm_ss
 
 
@@ -27,6 +27,7 @@ class TaskListItemDelegate(TreeItemDelegate):
     """List item delegate"""
 
     pauseResumeButtonClicked = Signal(int, bool)  # task_id of clicked button, checked state of clicked button
+    parentTaskWithChildrenStartDeniedSignal = Signal(int)
 
     def __init__(self, parent: QTreeView) -> None:
         super().__init__(parent)
@@ -267,6 +268,16 @@ class TaskListItemDelegate(TreeItemDelegate):
         """Handle button clicks"""
         logger.debug(f"Button clicked for task ID {task_id}, checked: {checked}")
         if self.parent().objectName() == "completedTasksList":
+            return
+
+        # now will work on todo task list
+        parentIndex = index.parent()
+        parentTaskNode: TaskNode = index.internalPointer()
+        # if is a parent task and has child tasks
+        if not parentIndex.isValid() and len(parentTaskNode.children) > 0:
+            # then don't allow starting the task
+            self._button_states[task_id] = False
+            self.parentTaskWithChildrenStartDeniedSignal.emit(task_id)
             return
 
         model = self.parent().model()
