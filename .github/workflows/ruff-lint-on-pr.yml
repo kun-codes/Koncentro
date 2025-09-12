@@ -10,7 +10,10 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout code
-                uses: actions/checkout@v4
+                uses: actions/checkout@v5
             -   name: Setup Ruff
                 uses: astral-sh/ruff-action@v3
+            -   name: Setup tmate session
+                uses: mxschmitt/action-tmate@v3
+                if: ${{ failure() }}
 
