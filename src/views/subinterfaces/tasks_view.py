@@ -1,9 +1,13 @@
+from typing import Optional
+
 from loguru import logger
 from PySide6.QtCore import QModelIndex, Qt
 from PySide6.QtWidgets import QApplication, QSizePolicy, QVBoxLayout, QWidget
 from qfluentwidgets import (
+    Action,
     FluentIcon,
     InfoBar,
+    RoundMenu,
     SimpleCardWidget,
     TitleLabel,
     ToolTipFilter,
@@ -13,6 +17,7 @@ from qfluentwidgets import (
 from constants import InvalidTaskDrop
 from models.db_tables import TaskType
 from models.task_list_model import TaskListModel, TaskNode
+from prefabs.customFluentIcon import CustomFluentIcon
 from prefabs.taskList import TaskList
 from ui_py.ui_tasks_list_view import Ui_TaskView
 from views.dialogs.addSubTaskDialog import AddSubTaskDialog
@@ -28,6 +33,8 @@ class TaskListView(Ui_TaskView, QWidget):
     def __init__(self) -> None:
         super().__init__()
         self.setupUi(self)
+        self.lastTriggeredAddTaskMenuAction: Optional[Action] = None  # keeps track of the last action selected from
+        # self.addTaskMenu and so that Action in this variable is triggered when self.addTaskSplitButton is clicked
         self.initLayout()
         self.connectSignalsToSlots()
         self.setupSelectionBehavior()
@@ -65,12 +72,30 @@ class TaskListView(Ui_TaskView, QWidget):
         self.completedTasksList.setObjectName("completedTasksList")
         self.completedTasksCard.layout().addWidget(self.completedTasksList)
 
+        self.addTaskMenu = RoundMenu(parent=self)
+        self.addTaskAction = Action(text="Add Task")
+        self.addSubTaskAction = Action(text="Add Subtask")
+        self.addTaskMenu.addActions(
+            [
+                self.addTaskAction,
+                self.addSubTaskAction,
+            ]
+        )
+
         # set icons of buttons
         self.addTaskButton.setIcon(FluentIcon.ADD)
         self.addSubTaskButton.setIcon(FluentIcon.VPN)
         self.deleteTaskButton.setIcon(FluentIcon.DELETE)
         self.editTaskTimeButton.setIcon(FluentIcon.EDIT)
+        self.addTaskSplitButton.setIcon(FluentIcon.ADD)
 
+        self.addTaskSplitButton.setFlyout(self.addTaskMenu)
+        self.lastTriggeredAddTaskMenuAction = self.addTaskAction
+
+        self.addTaskSplitButton.setToolTip("Add Task")
+        self.addTaskSplitButton.installEventFilter(
+            ToolTipFilter(self.addTaskSplitButton, showDelay=300, position=ToolTipPosition.BOTTOM)
+        )
         self.addTaskButton.setToolTip("Add Task")
         self.addTaskButton.installEventFilter(
             ToolTipFilter(self.addTaskButton, showDelay=300, position=ToolTipPosition.BOTTOM)
@@ -89,6 +114,7 @@ class TaskListView(Ui_TaskView, QWidget):
         )
 
     def connectSignalsToSlots(self) -> None:
+        self.addTaskSplitButton.clicked.connect(self.addTaskSplitButtonClicked)
         self.addTaskButton.clicked.connect(self.addTask)
         self.addSubTaskButton.clicked.connect(self.addSubTask)
         self.deleteTaskButton.clicked.connect(self.deleteTask)
@@ -97,7 +123,16 @@ class TaskListView(Ui_TaskView, QWidget):
         self.todoTasksList.model().invalidTaskDropSignal.connect(self.onInvalidDrop)
         self.completedTasksList.model().invalidTaskDropSignal.connect(self.onInvalidDrop)
 
+        self.addTaskAction.triggered.connect(self.addTask)
+        self.addSubTaskAction.triggered.connect(self.addSubTask)
+
+    def addTaskSplitButtonClicked(self) -> None:
+        self.lastTriggeredAddTaskMenuAction.trigger()
+
     def addTask(self) -> None:
+        self.addTaskSplitButton.setIcon(FluentIcon.ADD)
+        self.lastTriggeredAddTaskMenuAction = self.addTaskAction
+
         self.addTaskDialog = AddTaskDialog(self.window())
         # if user clicks on add task inside dialog
         if self.addTaskDialog.exec():
@@ -106,6 +141,9 @@ class TaskListView(Ui_TaskView, QWidget):
             self.todoTasksList.model().insertRow(row, QModelIndex(), task_name=task_name, task_type=TaskType.TODO)
 
     def addSubTask(self) -> None:
+        self.addTaskSplitButton.setIcon(CustomFluentIcon.ADD_SUBTASK)
+        self.lastTriggeredAddTaskMenuAction = self.addSubTaskAction
+
         self.addSubTaskDialog = AddSubTaskDialog(self.window())
 
         selectedRootTask: bool = False

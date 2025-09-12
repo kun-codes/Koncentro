@@ -69,6 +69,9 @@
           </spacer>
          </item>
          <item>
+          <widget class="SplitToolButton" name="addTaskSplitButton"/>
+         </item>
+         <item>
           <widget class="ToolButton" name="addTaskButton"/>
          </item>
          <item>
@@ -92,6 +95,11 @@
   <customwidget>
    <class>ToolButton</class>
    <extends>QToolButton</extends>
+   <header>qfluentwidgets</header>
+  </customwidget>
+  <customwidget>
+   <class>SplitToolButton</class>
+   <extends>QWidget</extends>
    <header>qfluentwidgets</header>
   </customwidget>
   <customwidget>

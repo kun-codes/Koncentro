@@ -40,5 +40,7 @@
     <file>icons/minimize_to_system_tray_win_black.svg</file>
     <file>icons/minimize_to_system_tray_mac_white.svg</file>
     <file>icons/minimize_to_system_tray_mac_black.svg</file>
+    <file>icons/add_subtask_white.svg</file>
+    <file>icons/add_subtask_black.svg</file>
   </qresource>
 </RCC>

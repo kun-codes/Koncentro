@@ -18,7 +18,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QHBoxLayout, QSizePolicy, QSpacerItem,
     QVBoxLayout, QWidget)
 
-from qfluentwidgets import (SingleDirectionScrollArea, ToolButton)
+from qfluentwidgets import (SingleDirectionScrollArea, SplitToolButton, ToolButton)
 
 class Ui_TaskView(object):
     def setupUi(self, TaskView):
@@ -46,10 +46,10 @@ class Ui_TaskView(object):
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
 
-        self.editTaskTimeButton = ToolButton(self.scrollAreaWidgetContents)
-        self.editTaskTimeButton.setObjectName(u"editTaskTimeButton")
+        self.addTaskSplitButton = SplitToolButton(self.scrollAreaWidgetContents)
+        self.addTaskSplitButton.setObjectName(u"addTaskSplitButton")
 
-        self.horizontalLayout.addWidget(self.editTaskTimeButton)
+        self.horizontalLayout.addWidget(self.addTaskSplitButton)
 
         self.addTaskButton = ToolButton(self.scrollAreaWidgetContents)
         self.addTaskButton.setObjectName(u"addTaskButton")
@@ -60,6 +60,11 @@ class Ui_TaskView(object):
         self.addSubTaskButton.setObjectName(u"addSubTaskButton")
 
         self.horizontalLayout.addWidget(self.addSubTaskButton)
+
+        self.editTaskTimeButton = ToolButton(self.scrollAreaWidgetContents)
+        self.editTaskTimeButton.setObjectName(u"editTaskTimeButton")
+
+        self.horizontalLayout.addWidget(self.editTaskTimeButton)
 
         self.deleteTaskButton = ToolButton(self.scrollAreaWidgetContents)
         self.deleteTaskButton.setObjectName(u"deleteTaskButton")

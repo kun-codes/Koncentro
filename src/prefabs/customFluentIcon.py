@@ -28,6 +28,7 @@ class CustomFluentIcon(FluentIconBase, Enum):
     UNINSTALL = "uninstall"
     MINIMIZE_TO_SYSTEM_TRAY_WIN = "minimize_to_system_tray_win"
     MINIMIZE_TO_SYSTEM_TRAY_MAC = "minimize_to_system_tray_mac"
+    ADD_SUBTASK = "add_subtask"
 
     def path(self, theme=Theme.AUTO) -> str:
         # getIconColor() return "white" or "black" according to current theme
