@@ -1,14 +1,16 @@
 from loguru import logger
-from PySide6.QtCore import QModelIndex
+from PySide6.QtCore import QModelIndex, Qt
 from PySide6.QtWidgets import QApplication, QSizePolicy, QVBoxLayout, QWidget
 from qfluentwidgets import (
     FluentIcon,
+    InfoBar,
     SimpleCardWidget,
     TitleLabel,
     ToolTipFilter,
     ToolTipPosition,
 )
 
+from constants import InvalidTaskDrop
 from models.db_tables import TaskType
 from models.task_list_model import TaskListModel, TaskNode
 from prefabs.taskList import TaskList
@@ -92,6 +94,9 @@ class TaskListView(Ui_TaskView, QWidget):
         self.deleteTaskButton.clicked.connect(self.deleteTask)
         self.editTaskTimeButton.clicked.connect(self.editTaskTime)
 
+        self.todoTasksList.model().invalidTaskDropSignal.connect(self.onInvalidDrop)
+        self.completedTasksList.model().invalidTaskDropSignal.connect(self.onInvalidDrop)
+
     def addTask(self) -> None:
         self.addTaskDialog = AddTaskDialog(self.window())
         # if user clicks on add task inside dialog
@@ -139,6 +144,32 @@ class TaskListView(Ui_TaskView, QWidget):
             widget = widget.parent()
 
         return None
+
+    def onInvalidDrop(self, dropType: InvalidTaskDrop) -> None:
+        if dropType == InvalidTaskDrop.DROPPED_PARENT_TASK_AT_CHILD_LEVEL:
+            InfoBar.warning(
+                "Invalid Drop",
+                "You cannot transform a task to a subtask.",
+                orient=Qt.Orientation.Vertical,
+                duration=3000,
+                parent=self,
+            )
+        elif dropType == InvalidTaskDrop.DROPPED_CHILD_TASK_AT_ROOT_LEVEL:
+            InfoBar.warning(
+                "Invalid Drop",
+                "You cannot transform a subtask to a task.",
+                orient=Qt.Orientation.Vertical,
+                duration=3000,
+                parent=self,
+            )
+        elif dropType == InvalidTaskDrop.DROPPED_CHILD_TASK_IN_ANOTHER_PARENT_TASK:
+            InfoBar.warning(
+                "Invalid Drop",
+                "You cannot change a subtask's parent task.",
+                orient=Qt.Orientation.Vertical,
+                duration=3000,
+                parent=self,
+            )
 
     def deleteTask(self) -> None:
         # one task would be selected from one of these task lists

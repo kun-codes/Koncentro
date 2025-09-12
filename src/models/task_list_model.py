@@ -15,6 +15,7 @@ from PySide6.QtGui import QColor
 from qfluentwidgets import FluentIcon
 from sqlalchemy import update
 
+from constants import InvalidTaskDrop
 from models.config import AppSettings
 from models.db_tables import Task, TaskType
 from models.workspace_lookup import WorkspaceLookup
@@ -92,6 +93,7 @@ class TaskListModel(QAbstractItemModel):
     taskDeletedSignal = Signal(int)  # task_id
     taskMovedSignal = Signal(int, TaskType)  # task_id and TaskType
     currentTaskChangedSignal = Signal(int)  # task_id
+    invalidTaskDropSignal = Signal(InvalidTaskDrop)
 
     def __init__(self, task_type: TaskType, parent=None) -> None:
         super().__init__(parent)
@@ -348,7 +350,7 @@ class TaskListModel(QAbstractItemModel):
             is_root = stream.readBool()
             _ = stream.readInt32()  # parent task id of the task before it was dragged
 
-            if is_root:  # only root tasks for now
+            if is_root:
                 return self._handleDroppedRootNode(data, action, row, column, parent)
             else:
                 return self._handleDroppedChildNode(data, action, row, column, parent)
@@ -372,6 +374,7 @@ class TaskListModel(QAbstractItemModel):
 
         # Use the parent index row when dropping directly onto an item
         if parent.isValid():
+            self.invalidTaskDropSignal.emit(InvalidTaskDrop.DROPPED_PARENT_TASK_AT_CHILD_LEVEL)
             logger.debug("Can't drop parent task within another parent task")
             return False
         else:
@@ -496,11 +499,13 @@ class TaskListModel(QAbstractItemModel):
         drop_nodes = []
         task_ids = []
         if not parent.isValid():
+            self.invalidTaskDropSignal.emit(InvalidTaskDrop.DROPPED_CHILD_TASK_AT_ROOT_LEVEL)
             logger.debug("Can't drop subtask at root level")
             return False
 
         droppedOnParentNode = self.get_node(parent)
         if not droppedOnParentNode:
+            self.invalidTaskDropSignal.emit(InvalidTaskDrop.DROPPED_CHILD_TASK_AT_ROOT_LEVEL)
             logger.debug("Invalid parent node")
             return False
 
@@ -518,6 +523,7 @@ class TaskListModel(QAbstractItemModel):
             droppedOnParentTaskId = droppedOnParentNode.task_id
 
             if droppedOnParentTaskId != _original_parent_task_id:
+                self.invalidTaskDropSignal.emit(InvalidTaskDrop.DROPPED_CHILD_TASK_IN_ANOTHER_PARENT_TASK)
                 logger.debug("Can't drop subtask within another parent task")
                 return False
             else:  # dropped within its own parent, which is valid
