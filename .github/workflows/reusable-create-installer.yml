@@ -181,7 +181,7 @@ jobs:
                 run: |
                     Get-ChildItem -Recurse "."
 
-            -   name: Upload Installer (Windows)
+            -   name: Upload Unsigned Installer (Windows)
                 if: matrix.os == 'windows-latest'
                 id: upload-unsigned-artifact-windows
                 uses: actions/upload-artifact@v4
