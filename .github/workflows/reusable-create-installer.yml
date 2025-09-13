@@ -116,7 +116,7 @@ jobs:
                     api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
                     organization-id: ${{ secrets.SIGNPATH_ORG_ID }}
                     project-slug: 'Koncentro_'
-                    signing-policy-slug: $ {{ inputs.deployment && 'release-signing' || 'test-signing' }}
+                    signing-policy-slug: 'release-signing'
                     artifact-configuration-slug: 'compiled-files'
                     github-artifact-id: ${{ steps.get-artifact-id.outputs.artifact-id }}
                     wait-for-completion: 'true'
@@ -183,10 +183,38 @@ jobs:
 
             -   name: Upload Installer (Windows)
                 if: matrix.os == 'windows-latest'
+                id: upload-unsigned-artifact-windows
                 uses: actions/upload-artifact@v4
                 with:
                     name: Koncentro-${{ env.KONCENTRO_VERSION }}-Windows-x86_64-Installer
                     path: dist/Koncentro-${{ env.KONCENTRO_VERSION }}-Installer.exe
+
+            -   name: Release-sign installer (Windows)
+                uses: signpath/github-action-submit-signing-request@v1
+                if: matrix.os == 'windows-latest'
+                with:
+                    api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+                    organization-id: ${{ secrets.SIGNPATH_ORG_ID }}
+                    project-slug: 'Koncentro_'
+                    signing-policy-slug: ${{ inputs.deployment && 'release-signing' || 'test-signing' }}
+                    artifact-configuration-slug: 'installer-exe'
+                    github-artifact-id: ${{ steps.upload-unsigned-artifact-windows.outputs.artifact-id }}
+                    wait-for-completion: 'true'
+                    output-artifact-directory: 'dist/Koncentro-${{ env.KONCENTRO_VERSION }}-Installer-signed.exe'
+
+            -   name: Delete unsigned installer artifact (Windows)
+                if: matrix.os == 'windows-latest'
+                uses: geekyeggo/delete-artifact@v5
+                with:
+                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-Windows-x86_64-Installer
+
+            -   name: Upload Signed Installer (Windows)
+                if: matrix.os == 'windows-latest'
+                uses: actions/upload-artifact@v4
+                with:
+                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-Windows-x86_64-Installer
+                    path: dist/Koncentro-${{ env.KONCENTRO_VERSION }}-Installer-signed.exe
+
 
             -  name: Upload Installer (macOS)
                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
