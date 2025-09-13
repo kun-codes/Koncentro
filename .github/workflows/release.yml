@@ -15,7 +15,8 @@ jobs:
         uses: ./.github/workflows/reusable-build-app.yml
         needs: check-mitmproxy-version
         with:
-            deployment: true
+            deployment: ${{github.event_name == 'push' }}  # will be set to true if the tag is of release tag format
+            # push is only allowed for release tags
             mitmproxy-version: ${{ needs.check-mitmproxy-version.outputs.mitmproxy-version }}
         secrets: inherit
 
