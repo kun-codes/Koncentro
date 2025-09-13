@@ -75,10 +75,10 @@ jobs:
             -   name: Get artifact ID
                 id: get-artifact-id
                 run: |
-                    artifact-id=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts \
+                    artifact_id=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts \
                       --jq ".artifacts[] | select(.name == \"${{ steps.set-artifact.outputs.artifact-name }}\") | .id")
-                    echo "artifact-id=$artifact-id" >> $GITHUB_OUTPUT
-                    echo "Found artifact ID: $artifact-id for artifact: ${{ steps.set-artifact.outputs.artifact-name }}"
+                    echo "artifact-id=$artifact_id" >> $GITHUB_OUTPUT
+                    echo "Found artifact ID: $artifact_id for artifact: ${{ steps.set-artifact.outputs.artifact-name }}"
                 shell: bash
                 env:
                     GITHUB_TOKEN: ${{ github.token }}
