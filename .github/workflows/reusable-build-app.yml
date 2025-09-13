@@ -216,7 +216,7 @@ jobs:
                     project-slug: 'Koncentro_'
                     signing-policy-slug: 'test-signing'
                     artifact-configuration-slug: 'compiled-files'
-                    github-artifact-id: ${{ steps.upload-unsigned-artifact-windows.outputs.artifact_id }}
+                    github-artifact-id: ${{ steps.upload-unsigned-artifact-windows.outputs.artifact-id }}
                     wait-for-completion: 'true'
                     output-artifact-directory: 'build\signed-win-artifact\'
 
