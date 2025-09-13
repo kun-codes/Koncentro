@@ -3,8 +3,8 @@ name: Create Installer (Reusable)
 on:
     workflow_call:
         inputs:
-            should_sign:
-                description: 'Whether to sign the installer packages'
+            deployment:
+                description: 'Whether to use release-signing for windows build or not'
                 type: boolean
                 required: true
                 default: false
@@ -54,20 +54,42 @@ jobs:
                 id: set-artifact
                 run: |
                     if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-                        echo "artifact_name=macOS_arm64-build" >> $GITHUB_OUTPUT
+                        echo "artifact-name=macOS_arm64-build" >> $GITHUB_OUTPUT
                     elif [[ "${{ matrix.os }}" == "macos-13" ]]; then
-                        echo "artifact_name=macOS_x86_64-build" >> $GITHUB_OUTPUT
+                        echo "artifact-name=macOS_x86_64-build" >> $GITHUB_OUTPUT
                     elif [[ "${{ matrix.os }}" == "ubuntu-22.04" || "${{ matrix.os }}" == "ubuntu-24.04-arm" ]]; then
-                        echo "artifact_name=Linux_${{ env.ARCHITECTURE }}-build" >> $GITHUB_OUTPUT
+                        echo "artifact-name=Linux_${{ env.ARCHITECTURE }}-build" >> $GITHUB_OUTPUT
                     elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-                        echo "artifact_name=Windows_x86_64-build" >> $GITHUB_OUTPUT
+                        if [[ "${{ inputs.deployment }}" == "true" ]]; then
+                            # for release build, artifacts would be signed using release-signing so 
+                            # downloading unsigned artifact
+                            echo "artifact-name=Windows_x86_64-build" >> $GITHUB_OUTPUT
+                        else
+                            # for test build, artifacts would be signed using test-signing so 
+                            # downloading artifact signed using test-signing
+                            echo "artifact-name=Windows_x86_64-build-test-signed" >> $GITHUB_OUTPUT
+                        fi
                     fi
                 shell: bash
 
+            -   name: Get artifact ID
+                id: get-artifact-id
+                run: |
+                    artifact-id=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts \
+                      --jq ".artifacts[] | select(.name == \"${{ steps.set-artifact.outputs.artifact-name }}\") | .id")
+                    echo "artifact-id=$artifact-id" >> $GITHUB_OUTPUT
+                    echo "Found artifact ID: $artifact-id for artifact: ${{ steps.set-artifact.outputs.artifact-name }}"
+                shell: bash
+                env:
+                    GITHUB_TOKEN: ${{ github.token }}
+
             -   name: Download Artifacts
-                uses: actions/download-artifact@v4
+                id: download-artifacts
+                if: ${{ !(matrix.os == 'windows-latest' && inputs.deployment == 'true') }} # for release build,
+                # artifacts would be downloaded directly from github by signpath signing step
+                uses: actions/download-artifact@v5
                 with:
-                    name: ${{ steps.set-artifact.outputs.artifact_name }}
+                    artifact-ids: ${{ steps.get-artifact-id.outputs.artifact-id }}
                     path: artifacts
 
             -   name: Get app version (macOS and Linux)
@@ -86,6 +108,19 @@ jobs:
                     $version = python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])"
                     echo "KONCENTRO_VERSION=$version" >> $env:GITHUB_ENV
                     Write-Output "Koncentro version: $version"
+
+            -   name: Release-sign artifacts (Windows)
+                uses: signpath/github-action-submit-signing-request@v1
+                if: matrix.os == 'windows-latest' && inputs.deployment == 'true'
+                with:
+                    api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+                    organization-id: ${{ secrets.SIGNPATH_ORG_ID }}
+                    project-slug: 'Koncentro_'
+                    signing-policy-slug: $ {{ inputs.deployment && 'release-signing' || 'test-signing' }}
+                    artifact-configuration-slug: 'compiled-files'
+                    github-artifact-id: ${{ steps.get-artifact-id.outputs.artifact-id }}
+                    wait-for-completion: 'true'
+                    output-artifact-directory: 'artifacts'
 
             -   name: tree command (Windows)
                 if: matrix.os == 'windows-latest'

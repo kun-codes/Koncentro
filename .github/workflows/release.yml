@@ -23,7 +23,8 @@ jobs:
         uses: ./.github/workflows/reusable-create-installer.yml
         needs: build
         with:
-            should_sign: ${{ github.event_name != 'workflow_dispatch' }}
+            deployment: ${{ github.ref matches '^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$' }}  # willl be set to true if
+            # the tag is of release tag format
         secrets: inherit
 
     release:
