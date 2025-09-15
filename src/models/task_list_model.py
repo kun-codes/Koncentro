@@ -119,7 +119,7 @@ class TaskListModel(QAbstractItemModel):
                 session.query(Task)
                 .filter(Task.task_type == self.task_type)
                 .filter(Task.workspace_id == current_workspace_id)
-                .filter(Task.is_primary_task)
+                .filter(Task.is_parent_task)
                 .order_by(Task.task_position)
                 .all()
             )
@@ -140,7 +140,7 @@ class TaskListModel(QAbstractItemModel):
                 session.query(Task)
                 .filter(Task.task_type == self.task_type)
                 .filter(Task.workspace_id == current_workspace_id)
-                .filter(~Task.is_primary_task)
+                .filter(~Task.is_parent_task)
                 .order_by(Task.task_position)
                 .all()
             )
@@ -420,7 +420,7 @@ class TaskListModel(QAbstractItemModel):
                     session.query(Task)
                     .filter(Task.parent_task_id == task_id)
                     .filter(Task.workspace_id == current_workspace_id)
-                    .filter(~Task.is_primary_task)
+                    .filter(~Task.is_parent_task)
                     .order_by(Task.task_position)
                     .all()
                 )
@@ -592,7 +592,7 @@ class TaskListModel(QAbstractItemModel):
                         "task_position": node.task_position,
                         "elapsed_time": node.elapsed_time,
                         "target_time": node.target_time,
-                        "is_primary_task": node.is_root(),
+                        "is_parent_task": node.is_root(),
                         "parent_task_id": node.parent_node.task_id if node.parent_node else None,
                     }
                     for node in all_nodes
@@ -628,7 +628,7 @@ class TaskListModel(QAbstractItemModel):
                     task_name=task_name,
                     task_type=task_type,
                     task_position=row,
-                    is_primary_task=False,
+                    is_parent_task=False,
                     parent_task_id=self.get_node(parent).task_id,
                 )
             else:  # add root task

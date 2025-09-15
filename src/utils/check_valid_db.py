@@ -100,7 +100,7 @@ def checkValidDB() -> None:
                             task_name=subtask_name,
                             task_type=task.task_type,
                             task_position=i,
-                            is_primary_task=False,
+                            is_parent_task=False,
                             parent_task_id=task.id,
                         )
                         session.add(subtask)
