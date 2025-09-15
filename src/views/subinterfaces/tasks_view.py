@@ -91,9 +91,13 @@ class TaskListView(Ui_TaskView, QWidget):
         self.addTaskSplitButton.setFlyout(self.addTaskMenu)
         self.lastTriggeredAddTaskMenuAction = self.addTaskAction
 
-        self.addTaskSplitButton.setToolTip("Add Task")
-        self.addTaskSplitButton.installEventFilter(
-            ToolTipFilter(self.addTaskSplitButton, showDelay=300, position=ToolTipPosition.BOTTOM)
+        self.addTaskSplitButton.button.setToolTip("Add Task")
+        self.addTaskSplitButton.button.installEventFilter(
+            ToolTipFilter(self.addTaskSplitButton.button, showDelay=300, position=ToolTipPosition.BOTTOM)
+        )
+        self.addTaskSplitButton.dropButton.setToolTip("More actions")
+        self.addTaskSplitButton.dropButton.installEventFilter(
+            ToolTipFilter(self.addTaskSplitButton.dropButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
         self.deleteTaskButton.setToolTip("Delete Task")
         self.deleteTaskButton.installEventFilter(
@@ -123,7 +127,7 @@ class TaskListView(Ui_TaskView, QWidget):
 
     def addTask(self) -> None:
         self.addTaskSplitButton.setIcon(FluentIcon.ADD)
-        self.addTaskSplitButton.setToolTip("Add Task")
+        self.addTaskSplitButton.button.setToolTip("Add Task")
         self.lastTriggeredAddTaskMenuAction = self.addTaskAction
 
         self.addTaskDialog = AddTaskDialog(self.window())
@@ -135,7 +139,7 @@ class TaskListView(Ui_TaskView, QWidget):
 
     def addSubTask(self) -> None:
         self.addTaskSplitButton.setIcon(CustomFluentIcon.ADD_SUBTASK)
-        self.addTaskSplitButton.setToolTip("Add Subtask")
+        self.addTaskSplitButton.button.setToolTip("Add Subtask")
         self.lastTriggeredAddTaskMenuAction = self.addSubTaskAction
 
         self.addSubTaskDialog = AddSubTaskDialog(self.window())
