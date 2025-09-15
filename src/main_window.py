@@ -635,13 +635,14 @@ class MainWindow(KoncentroFluentWindow):
         if current_task_index is None:
             return
 
-        model = self.task_interface.todoTasksList.model()
+        model: TaskListModel = self.task_interface.todoTasksList.model()
         if current_task_index.parent().isValid():  # is a child task
             childElapsedTime = model.data(current_task_index, TaskListModel.ElapsedTimeRole)
             parentIndex = current_task_index.parent()
             parentElapsedTime = model.data(parentIndex, TaskListModel.ElapsedTimeRole)
-            model.setData(current_task_index, TaskListModel.ElapsedTimeRole, childElapsedTime, update_db=True)
-            model.setData(parentIndex, TaskListModel.ElapsedTimeRole, parentElapsedTime, update_db=True)
+            model.setData(current_task_index, childElapsedTime, TaskListModel.ElapsedTimeRole)
+            model.setData(parentIndex, parentElapsedTime, TaskListModel.ElapsedTimeRole)
+            model.update_db()  # update both the child and parent task time at once
             logger.debug(
                 f"Updated DB with elapsed time for child: {childElapsedTime} and for parent: {parentElapsedTime}"
             )
