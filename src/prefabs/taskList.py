@@ -46,8 +46,6 @@ class TaskList(TreeView):
 
         self._mousePressedOnItem = False
 
-        self.entered.disconnect()  # see mouseMoveEvent method's docstring
-
         self.setItemDelegate(TaskListItemDelegate(self))
 
         self.editor_width_reduction = 5  # the same number in TaskListItemDelegate's updateEditorGeometry method
