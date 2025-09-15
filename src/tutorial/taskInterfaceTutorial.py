@@ -1,6 +1,6 @@
 from loguru import logger
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QStyleOptionViewItem, QWidget
 from qfluentwidgets import FluentIcon, FluentWindow, TeachingTipTailPosition
 
 from config_values import ConfigValues
@@ -318,22 +318,30 @@ class TaskInterfaceTutorial(InterfaceTutorial):
             last_index = todo_task_list.model().index(last_row, 0)
             task_id = todo_task_list.model().data(last_index, TaskListModel.IDRole)
 
-            # Get the delegate to access the buttons dictionary
-            delegate = todo_task_list.itemDelegate()
+            item_rect = todo_task_list.visualRect(last_index)
 
-            # Find the button for the first task
-            button = delegate.buttons.get(task_id)
+            delegate = todo_task_list.itemDelegate()
+            option = QStyleOptionViewItem()
+            option.rect = item_rect
+            button_rect = delegate._getButtonRect(option)
+
+            overlay = QWidget(todo_task_list.viewport())
+            overlay.setGeometry(button_rect)
+            overlay.show()
 
             self._start_first_task_step_tip = TargetClickTeachingTip.create(
-                target=button,
-                title="Start this new task",
-                content="Click on it's play button to start the task",
-                mainWindow=self.main_window,
-                interface_type=InterfaceType.TASK_INTERFACE,
-                tailPosition=TeachingTipTailPosition.TOP,  # on wayland it doesn't point at the play button
-                # instead points at task name
-                icon=CustomFluentIcon.CLICK,
-                parent=self.main_window,
+                overlay,  # target
+                "Start this new task",  # title
+                "Click on it's play button to start the task",  # content
+                self.main_window,  # mainWindow
+                InterfaceType.TASK_INTERFACE,  # interface_type
+                CustomFluentIcon.CLICK,  # icon
+                None,  # image
+                TeachingTipTailPosition.TOP,  # tailPosition
+                self.main_window,  # parent
+                todo_task_list.itemDelegate().pauseResumeButtonClicked,  # customSignalToDestroy
+                task_id,  # task_id and True are Expected signal parameters
+                True,  # True because button should be checked
             )
             self._start_first_task_step_tip.destroyed.connect(self.next_step)
             self.teaching_tips.append(self._start_first_task_step_tip)
@@ -365,7 +373,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
                 tailPosition=TeachingTipTailPosition.TOP,
                 icon=CustomFluentIcon.CLICK,
                 parent=self.main_window,
-                customSignalToDestroy=completed_task_list.model().modelReset,
+                customSignalToDestroy=completed_task_list.model().rowsInserted,
             )
             self._move_to_completed_task_list_step_tip.destroyed.connect(self.next_step)
             self.teaching_tips.append(self._move_to_completed_task_list_step_tip)
