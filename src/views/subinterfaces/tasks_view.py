@@ -74,8 +74,8 @@ class TaskListView(Ui_TaskView, QWidget):
         self.completedTasksCard.layout().addWidget(self.completedTasksList)
 
         self.addTaskMenu = RoundMenu(parent=self)
-        self.addTaskAction = Action(text="Add Task")
-        self.addSubTaskAction = Action(text="Add Subtask")
+        self.addTaskAction = Action(icon=FluentIcon.ADD, text="Add Task")
+        self.addSubTaskAction = Action(icon=CustomFluentIcon.ADD_SUBTASK, text="Add Subtask")
         self.addTaskMenu.addActions(
             [
                 self.addTaskAction,
