@@ -79,6 +79,7 @@ class Task(Base):
     parent_task_id = Column(
         Integer, ForeignKey("tasks.id", name="fk_tasks_parent_task_id"), nullable=True, default=None
     )
+    is_expanded = Column(Boolean, default=False, nullable=True)
 
     workspace = relationship("Workspace", back_populates="tasks")
 

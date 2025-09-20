@@ -23,6 +23,15 @@ def upgrade() -> None:
         batch_op.add_column(sa.Column('is_parent_task', sa.Boolean(), nullable=False))
         batch_op.add_column(sa.Column('parent_task_id', sa.Integer(), nullable=True))
         batch_op.create_foreign_key('fk_tasks_parent_task_id', 'tasks', ['parent_task_id'], ['id'])
+        batch_op.add_column(sa.Column('is_expanded', sa.Boolean(), nullable=True, default=False))
+
+    op.execute(
+        """
+        UPDATE tasks
+        SET is_expanded = 1
+        WHERE is_parent_task = 1 and task_type = 'TODO'
+        """
+    )
 
     # ### end Alembic commands ###
 
@@ -33,5 +42,6 @@ def downgrade() -> None:
         batch_op.drop_constraint('fk_tasks_parent_task_id', type_='foreignkey')
         batch_op.drop_column('parent_task_id')
         batch_op.drop_column('is_parent_task')
+        batch_op.drop_column('is_expanded')
 
     # ### end Alembic commands ###

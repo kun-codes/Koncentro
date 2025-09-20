@@ -26,36 +26,42 @@ def checkValidDB() -> None:
                     task_name="🛍️ Create shopping list for the week",
                     task_type=TaskType.TODO,
                     task_position=0,
+                    is_expanded=True,
                 ),
                 Task(
                     workspace_id=workspace.id,
                     task_name="☎️ Call family this weekend",
                     task_type=TaskType.TODO,
                     task_position=1,
+                    is_expanded=True,
                 ),
                 Task(
                     workspace_id=workspace.id,
                     task_name="🏞️ Go for a nature walk",
                     task_type=TaskType.TODO,
                     task_position=2,
+                    is_expanded=True,
                 ),
                 Task(
                     workspace_id=workspace.id,
                     task_name="🍽️ Prepare dinner for tonight",
                     task_type=TaskType.COMPLETED,
                     task_position=0,
+                    is_expanded=False,
                 ),
                 Task(
                     workspace_id=workspace.id,
                     task_name="💌 Send thank you notes",
                     task_type=TaskType.COMPLETED,
                     task_position=1,
+                    is_expanded=False,
                 ),
                 Task(
                     workspace_id=workspace.id,
                     task_name="📚 Finish reading current book",
                     task_type=TaskType.COMPLETED,
                     task_position=2,
+                    is_expanded=False,
                 ),
             ]
             session.add_all(sample_tasks)
@@ -102,6 +108,7 @@ def checkValidDB() -> None:
                             task_position=i,
                             is_parent_task=False,
                             parent_task_id=task.id,
+                            is_expanded=False,
                         )
                         session.add(subtask)
 

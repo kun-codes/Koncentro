@@ -37,6 +37,7 @@ class TaskNode:
         target_time: int = 0,
         icon=None,
         parent: "TaskNode" = None,
+        is_expanded: bool = False,
     ):
         self.task_id = task_id
         self.task_name = task_name
@@ -44,6 +45,7 @@ class TaskNode:
         self.elapsed_time = elapsed_time
         self.target_time = target_time
         self.icon = icon
+        self.is_expanded = is_expanded
 
         self.parent_node = parent
         self.children: List["TaskNode"] = []
@@ -83,14 +85,19 @@ class TaskNode:
     def can_have_children(self) -> bool:
         return self.is_root()
 
+    def set_expanded(self, expanded: bool):
+        self.is_expanded = expanded
+
 
 class TaskListModel(QAbstractItemModel):
     IDRole = Qt.ItemDataRole.UserRole + 1
     IconRole = Qt.ItemDataRole.UserRole + 3
     ElapsedTimeRole = Qt.ItemDataRole.UserRole + 5
     TargetTimeRole = Qt.ItemDataRole.UserRole + 7
+    IsExpandedRole = Qt.ItemDataRole.UserRole + 9
 
     taskDeletedSignal = Signal(int)  # task_id
+    taskAddedSignal = Signal(int)  # task_id
     taskMovedSignal = Signal(int, TaskType)  # task_id and TaskType
     currentTaskChangedSignal = Signal(int)  # task_id
     invalidTaskDropSignal = Signal(InvalidTaskDrop)
@@ -133,6 +140,7 @@ class TaskListModel(QAbstractItemModel):
                     elapsed_time=task.elapsed_time,
                     target_time=task.target_time,
                     icon=FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
+                    is_expanded=task.is_expanded,
                 )
                 self.root_nodes.append(node)
 
@@ -154,6 +162,7 @@ class TaskListModel(QAbstractItemModel):
                     elapsed_time=subtask.elapsed_time,
                     target_time=subtask.target_time,
                     icon=FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
+                    is_expanded=False,
                 )
                 parent_node = next((n for n in self.root_nodes if n.task_id == subtask.parent_task_id), None)
                 if parent_node:
@@ -235,6 +244,8 @@ class TaskListModel(QAbstractItemModel):
                 return theme_color
             else:
                 return None
+        elif role == self.IsExpandedRole:
+            return node.is_expanded
 
         return None
 
@@ -272,6 +283,10 @@ class TaskListModel(QAbstractItemModel):
             node.icon = value
             self.dataChanged.emit(index, index, [self.IconRole])
             return True
+        elif role == self.IsExpandedRole:
+            node.is_expanded = value
+            self.dataChanged.emit(index, index, [self.IsExpandedRole])
+            self.layoutChanged.emit()
 
         return False
 
@@ -320,6 +335,7 @@ class TaskListModel(QAbstractItemModel):
                     # parent of task before dragging
                     parent_task_id = node.parent_node.task_id if node.parent_node else -1
                     stream.writeInt32(parent_task_id)
+                    stream.writeBool(node.is_expanded)
 
         logger.debug(f"Dragging from task type: {self.task_type}")
         logger.debug(f"Nodes being dragged: {[node.task_id for node in nodes_being_dragged]}")
@@ -349,6 +365,7 @@ class TaskListModel(QAbstractItemModel):
             _ = stream.readInt64()
             is_root = stream.readBool()
             _ = stream.readInt32()  # parent task id of the task before it was dragged
+            _ = stream.readBool()
 
             if is_root:
                 return self._handleDroppedRootNode(data, action, row, column, parent)
@@ -394,6 +411,7 @@ class TaskListModel(QAbstractItemModel):
             _is_root = stream.readBool()
             _original_parent_task_id = stream.readInt32()  # parent task id of the task before it was dragged
             # will have -1 since this is a root node
+            is_expanded = stream.readBool()
 
             # For the current task, check if we need to update the elapsed time from in-memory cache
             if self.task_type == TaskType.TODO and self.current_task_id == task_id:
@@ -409,6 +427,7 @@ class TaskListModel(QAbstractItemModel):
                 elapsed_time=elapsed_time,
                 target_time=target_time,
                 icon=FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
+                is_expanded=is_expanded,
             )
 
             # have to read child tasks from database instead from in memory data structure as the task ids of
@@ -435,6 +454,7 @@ class TaskListModel(QAbstractItemModel):
                         target_time=subtask.target_time,
                         icon=FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
                         parent=node,  # Set the new parent node
+                        is_expanded=subtask.is_expanded,
                     )
 
             drop_nodes.append(node)
@@ -519,6 +539,7 @@ class TaskListModel(QAbstractItemModel):
             _target_time = stream.readInt64()
             _is_root = stream.readBool()  # would be False as child node
             _original_parent_task_id = stream.readInt32()  # parent task id of the task before it was dragged
+            _is_expanded = stream.readBool()
 
             droppedOnParentTaskId = droppedOnParentNode.task_id
 
@@ -594,6 +615,7 @@ class TaskListModel(QAbstractItemModel):
                         "target_time": node.target_time,
                         "is_parent_task": node.is_root(),
                         "parent_task_id": node.parent_node.task_id if node.parent_node else None,
+                        "is_expanded": node.is_expanded,
                     }
                     for node in all_nodes
                     if node.task_id is not None
@@ -630,6 +652,7 @@ class TaskListModel(QAbstractItemModel):
                     task_position=row,
                     is_parent_task=False,
                     parent_task_id=self.get_node(parent).task_id,
+                    is_expanded=False,
                 )
             else:  # add root task
                 task = Task(
@@ -637,6 +660,7 @@ class TaskListModel(QAbstractItemModel):
                     task_name=task_name,
                     task_type=task_type,
                     task_position=row,
+                    is_expanded=True,
                 )
             session.add(task)
             session.commit()
@@ -652,6 +676,7 @@ class TaskListModel(QAbstractItemModel):
                 target_time=0,
                 icon=FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
                 parent=parent_node,
+                is_expanded=False,
             )
             logger.debug(f"Creating new subtask node: {newChildNode.task_id} under parent: {parent_node.task_id}")
             # TaskNode constructor already adds child to parent
@@ -663,9 +688,12 @@ class TaskListModel(QAbstractItemModel):
                 elapsed_time=0,
                 target_time=0,
                 icon=FluentIcon.PLAY if self.task_type == TaskType.TODO else FluentIcon.MENU,
+                is_expanded=True,
             )
             logger.debug(f"Creating new task node: {newRootNode.task_id}")
             self.root_nodes.insert(row, newRootNode)
+
+        self.taskAddedSignal.emit(new_id)
 
         self.endInsertRows()
         self.layoutChanged.emit()

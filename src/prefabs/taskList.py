@@ -3,6 +3,7 @@ from PySide6.QtGui import QColor, QPainter, QPen
 from PySide6.QtWidgets import QAbstractItemView, QProxyStyle
 from qfluentwidgets import ListItemDelegate, TreeView, isDarkTheme
 
+from models.task_list_model import TaskListModel
 from prefabs.taskListItemDelegate import TaskListItemDelegate
 from ui_py.ui_tasks_list_view import Ui_TaskView
 
@@ -149,10 +150,49 @@ class TaskList(TreeView):
             delegate.setHoverRow(row)
             self.viewport().update()
 
+    def setModel(self, model: TaskListModel):
+        super().setModel(model)
+
+        self._restoreExpansionStateOfAllTasks()
+
+        model.taskMovedSignal.connect(self._restoreExpansionStateOfATask)
+        model.taskAddedSignal.connect(self._restoreExpansionStateOfATask)
+
+    def _restoreExpansionStateOfAllTasks(self):
+        model: TaskListModel = self.model()
+        if not model:
+            return
+
+        for row in range(model.rowCount()):
+            index = model.index(row, 0)
+            is_expanded = model.data(index, model.IsExpandedRole)
+            if is_expanded:
+                self.expand(index)
+            else:
+                self.collapse(index)
+
+    def _restoreExpansionStateOfATask(self, task_id: int):
+        model: TaskListModel = self.model()
+
+        index = model.getIndexByTaskId(task_id)
+        is_expanded = index.data(model.IsExpandedRole)
+        if is_expanded:
+            self.expand(index)
+        else:
+            self.collapse(index)
+
     def _onItemExpanded(self, index):
         # Trigger a repaint to update button visibility after expansion
         self.viewport().update()
 
+        model: TaskListModel = self.model()
+        if model:
+            model.setData(index, True, model.IsExpandedRole)
+
     def _onItemCollapsed(self, index):
         # Trigger a repaint to update button visibility after collapse
         self.viewport().update()
+
+        model: TaskListModel = self.model()
+        if model:
+            model.setData(index, False, model.IsExpandedRole)
