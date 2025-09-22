@@ -1,7 +1,7 @@
 from typing import Optional
 
 from loguru import logger
-from PySide6.QtCore import QModelIndex, Qt
+from PySide6.QtCore import QModelIndex, Qt, Signal
 from PySide6.QtWidgets import QApplication, QSizePolicy, QVBoxLayout, QWidget
 from qfluentwidgets import (
     Action,
@@ -30,6 +30,8 @@ class TaskListView(Ui_TaskView, QWidget):
     """
     For tasks view of the app
     """
+
+    subTaskDialogAboutToOpen = Signal()  # emitted right before AddSubTaskDialog is opened
 
     def __init__(self) -> None:
         super().__init__()
@@ -143,6 +145,7 @@ class TaskListView(Ui_TaskView, QWidget):
         self.lastTriggeredAddTaskMenuAction = self.addSubTaskAction
 
         self.addSubTaskDialog = AddSubTaskDialog(self.window())
+        self.subTaskDialogAboutToOpen.emit()
 
         selectedRootTask: bool = False
         isFirstSubTask: bool = False

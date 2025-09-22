@@ -1,5 +1,7 @@
+from typing import Optional
+
 from loguru import logger
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import QModelIndex, QRect, Qt, QTimer
 from PySide6.QtWidgets import QStyleOptionViewItem, QWidget
 from qfluentwidgets import FluentIcon, FluentWindow, TeachingTipTailPosition
 
@@ -9,9 +11,11 @@ from models.config import app_settings
 from models.task_list_model import TaskListModel
 from prefabs.customFluentIcon import CustomFluentIcon
 from prefabs.targetClickTeachingTip import TargetClickTeachingTip
+from prefabs.taskList import TaskList
 from prefabs.transientPopupTeachingTip import TransientPopupTeachingTip
 from tutorial.interfaceTutorial import InterfaceTutorial
 from utils.setNavButtonEnabled import setNavButtonEnabled
+from views.dialogs.addSubTaskDialog import AddSubTaskDialog
 from views.dialogs.addTaskDialog import AddTaskDialog
 from views.dialogs.editTaskTimeDialog import EditTaskTimeDialog
 
@@ -32,11 +36,19 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.tutorial_steps.append(self._invoke_add_new_task_dialog_step)
         self.tutorial_steps.append(self._name_new_task_step)
         self.tutorial_steps.append(self._save_new_task_step)
+        self.tutorial_steps.append(self._select_new_task_step_pre_requisite)
+        self.tutorial_steps.append(self._select_new_task_step)
+        self.tutorial_steps.append(self._invoke_add_new_subtask_dialog_step_part_1)
+        self.tutorial_steps.append(self._name_new_subtask_step)
+        self.tutorial_steps.append(self._save_new_subtask_step)
+        self.tutorial_steps.append(self._start_first_task_step_pre_requisite)
         self.tutorial_steps.append(self._start_first_task_step)
         self.tutorial_steps.append(self._move_to_completed_task_list_step)
         self.tutorial_steps.append(self._stop_timer_step)
         self.tutorial_steps.append(self._enable_buttons)
         self.tutorial_steps.append(self._last_step)
+
+        self.overlay: Optional[QWidget] = None
 
     def _first_step(self) -> None:
         self.main_window.isSafeToShowTutorial = False  # block tutorials of other interfaces from showing
@@ -84,14 +96,16 @@ class TaskInterfaceTutorial(InterfaceTutorial):
 
     def _select_first_task_step(self) -> None:
         # Get the todo task list
-        todo_task_list = self.main_window.task_interface.todoTasksList
-        first_index = todo_task_list.model().index(0, 0)
-        rect = todo_task_list.visualRect(first_index)
+        todoTaskList = self.main_window.task_interface.todoTasksList
+        todoTaskListModel: TaskListModel = todoTaskList.model()
+        firstParentTask = todoTaskListModel.index(0, 0)
+        firstChildTask = todoTaskListModel.index(0, 0, firstParentTask)
 
-        overlay = QWidget(todo_task_list.viewport())
-        overlay.setGeometry(rect)
-        # overlay.setAttribute(Qt.WA_TransparentForMouseEvents)  # Let clicks go through
-        overlay.show()
+        rect = todoTaskList.visualRect(firstChildTask)
+
+        self.overlay = QWidget(todoTaskList.viewport())
+        self.overlay.setGeometry(rect)
+        self.overlay.show()
 
         self.main_window.task_interface.editTaskTimeButton.setDisabled(True)
         self.main_window.task_interface.deleteTaskButton.setDisabled(True)
@@ -99,7 +113,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
 
         # Create teaching tip targeting the first item
         self._select_first_task_step_tip = TargetClickTeachingTip.create(
-            target=overlay,
+            target=self.overlay,
             title="Select this task",
             content="Click on this task to select it",
             mainWindow=self.main_window,
@@ -112,6 +126,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.teaching_tips.append(self._select_first_task_step_tip)
 
     def _invoke_first_task_edit_task_time_step(self) -> None:
+        self.overlay.hide()
         self.main_window.task_interface.editTaskTimeButton.setDisabled(False)
 
         self._invoke_first_task_edit_task_time_step_tip = TargetClickTeachingTip.create(
@@ -308,39 +323,165 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self._save_new_task_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._save_new_task_step_tip)
 
+    def _select_new_task_step_pre_requisite(self) -> None:
+        self._scroll_todo_task_list_to_bottom()
+
+        QTimer.singleShot(1000, self.next_step)  # wait for 1 second for scroll animation to complete before
+        # going to next step
+
+    def _select_new_task_step(self) -> None:
+        todoTaskList: TaskList = self.main_window.task_interface.todoTasksList
+
+        self._scroll_todo_task_list_to_bottom()
+
+        todoTaskListModel: TaskListModel = todoTaskList.model()
+        lastParentIndex: QModelIndex = todoTaskListModel.index(todoTaskListModel.rowCount() - 1, 0)
+        lastParentIndexRect: QRect = todoTaskList.visualRect(lastParentIndex)
+
+        self.overlay = QWidget(todoTaskList.viewport())
+        self.overlay.setGeometry(lastParentIndexRect)
+        self.overlay.show()
+
+        self._select_new_task_step_tip = TargetClickTeachingTip.create(
+            target=self.overlay,
+            title="Select the new task. We will add a new subtask to it",
+            content="",
+            mainWindow=self.main_window,
+            interface_type=InterfaceType.TASK_INTERFACE,
+            icon=CustomFluentIcon.CLICK,
+            tailPosition=TeachingTipTailPosition.TOP,
+            parent=self.main_window,
+            customSignalToDestroy=todoTaskList.selectionModel().selectionChanged,
+        )
+        self._select_new_task_step_tip.destroyed.connect(self.next_step)
+        self.teaching_tips.append(self._select_new_task_step_tip)
+
+    def _invoke_add_new_subtask_dialog_step_part_1(self) -> None:
+        self.overlay.hide()
+
+        self.main_window.task_interface.deleteTaskButton.setDisabled(True)
+        self.main_window.task_interface.addTaskSplitButton.setDisabled(False)
+        self.main_window.task_interface.addTaskSplitButton.button.setDisabled(True)
+        self.main_window.task_interface.editTaskTimeButton.setDisabled(True)
+
+        self.main_window.task_interface.addTaskAction.setEnabled(False)
+
+        self._invoke_add_new_subtask_dialog_step_part_1_tip = TargetClickTeachingTip.create(
+            target=self.main_window.task_interface.addTaskSplitButton.dropButton,
+            title="Click on this dropdown button and then click on the add subtask button to add a new subtask",
+            content="",
+            mainWindow=self.main_window,
+            interface_type=InterfaceType.TASK_INTERFACE,
+            icon=CustomFluentIcon.CLICK,
+            tailPosition=TeachingTipTailPosition.TOP,
+            parent=self.main_window,
+            customSignalToDestroy=self.main_window.task_interface.subTaskDialogAboutToOpen,
+        )
+        self._invoke_add_new_subtask_dialog_step_part_1_tip.destroyed.connect(self.next_step)
+        self.teaching_tips.append(self._invoke_add_new_subtask_dialog_step_part_1_tip)
+
+    def _name_new_subtask_step(self) -> None:
+        self.main_window.task_interface.addTaskAction.setEnabled(True)
+
+        if not hasattr(self.main_window.task_interface, "addSubTaskDialog"):
+            logger.debug("AddSubTaskDialog not found, retrying in 100ms")
+            QTimer.singleShot(100, self._name_new_subtask_step)
+            return
+
+        addSubTaskDialog: AddSubTaskDialog = self.main_window.task_interface.addSubTaskDialog
+        logger.debug("Found AddSubTaskDialog")
+
+        addSubTaskDialog.cancelButton.setDisabled(True)
+        addSubTaskDialog.yesButton.setDisabled(True)
+
+        def on_key_press(event) -> None:
+            if event.key() in [Qt.Key_Escape, Qt.Key_Return, Qt.Key_Enter]:
+                event.ignore()
+            else:
+                super(AddTaskDialog, self).keyPressEvent(event)
+
+        addSubTaskDialog.keyPressEvent = on_key_press  # disabling enter and escape key so that user cannot
+        # close the dialog
+
+        self._name_new_subtask_step_tip = TargetClickTeachingTip.create(
+            target=addSubTaskDialog.taskEdit,
+            title="Enter the name of the new subtask",
+            content="",
+            mainWindow=self.main_window,
+            interface_type=InterfaceType.TASK_INTERFACE,
+            icon=CustomFluentIcon.TEXT_ADD,
+            tailPosition=TeachingTipTailPosition.TOP,
+            parent=self.main_window,
+            customSignalToDestroy=addSubTaskDialog.taskEdit.textEdited,
+        )
+        self._name_new_subtask_step_tip.destroyed.connect(self.next_step)
+        self.teaching_tips.append(self._name_new_subtask_step_tip)
+
+    def _save_new_subtask_step(self) -> None:
+        if not hasattr(self.main_window.task_interface, "addSubTaskDialog"):
+            logger.debug("AddSubTaskDialog not found, retrying in 100ms")
+            QTimer.singleShot(100, self._invoke_add_new_subtask_dialog_step_part_2)
+            return
+        addSubTaskDialog: AddSubTaskDialog = self.main_window.task_interface.addSubTaskDialog
+        logger.debug("Found AddSubTaskDialog")
+
+        addSubTaskDialog.yesButton.setDisabled(False)
+
+        self._save_new_subtask_step_tip = TargetClickTeachingTip.create(
+            target=addSubTaskDialog.yesButton,
+            title="Save the new subtask",
+            content="",
+            mainWindow=self.main_window,
+            interface_type=InterfaceType.TASK_INTERFACE,
+            icon=CustomFluentIcon.CLICK,
+            tailPosition=TeachingTipTailPosition.TOP,
+            parent=self.main_window,
+            customSignalToDestroy=self.main_window.task_interface.todoTasksList.model().rowsInserted,
+        )
+        self._save_new_subtask_step_tip.destroyed.connect(self.next_step)
+        self.teaching_tips.append(self._save_new_subtask_step_tip)
+
+    def _start_first_task_step_pre_requisite(self) -> None:
+        # scroll todoTaskList to the bottom to show child task of last parent task
+        self._scroll_todo_task_list_to_bottom()
+
+        QTimer.singleShot(1000, self.next_step)
+
     def _start_first_task_step(self) -> None:
         self.main_window.task_interface.addTaskSplitButton.setDisabled(True)
 
-        todo_task_list = self.main_window.task_interface.todoTasksList
+        todoTaskList: TaskList = self.main_window.task_interface.todoTasksList
+        todoTaskListModel: TaskListModel = todoTaskList.model()
 
-        if todo_task_list.model().rowCount() > 0:
-            last_row = todo_task_list.model().rowCount() - 1
-            last_index = todo_task_list.model().index(last_row, 0)
-            task_id = todo_task_list.model().data(last_index, TaskListModel.IDRole)
+        if todoTaskList.model().rowCount() > 0:
+            lastParentRow = todoTaskListModel.rowCount() - 1
+            lastParentIndex = todoTaskListModel.index(lastParentRow, 0)
+            firstChildOfLastParentIndex = todoTaskListModel.index(0, 0, lastParentIndex)
+            firstChildOfLastParentTaskID = todoTaskListModel.data(firstChildOfLastParentIndex, todoTaskListModel.IDRole)
 
-            item_rect = todo_task_list.visualRect(last_index)
+            item_rect = todoTaskList.visualRect(firstChildOfLastParentIndex)
 
-            delegate = todo_task_list.itemDelegate()
+            delegate = todoTaskList.itemDelegate()
             option = QStyleOptionViewItem()
             option.rect = item_rect
             button_rect = delegate._getButtonRect(option)
 
-            overlay = QWidget(todo_task_list.viewport())
+            overlay = QWidget(todoTaskList.viewport())
             overlay.setGeometry(button_rect)
             overlay.show()
 
             self._start_first_task_step_tip = TargetClickTeachingTip.create(
                 overlay,  # target
-                "Start this new task",  # title
-                "Click on it's play button to start the task",  # content
+                "Start this new subtask",  # title
+                "Click on it's play button to start the subtask",  # content
                 self.main_window,  # mainWindow
                 InterfaceType.TASK_INTERFACE,  # interface_type
                 CustomFluentIcon.CLICK,  # icon
                 None,  # image
                 TeachingTipTailPosition.TOP,  # tailPosition
                 self.main_window,  # parent
-                todo_task_list.itemDelegate().pauseResumeButtonClicked,  # customSignalToDestroy
-                task_id,  # task_id and True are Expected signal parameters
+                todoTaskList.itemDelegate().pauseResumeButtonClicked,  # customSignalToDestroy
+                firstChildOfLastParentTaskID,  # task_id and True are Expected signal parameters
                 True,  # True because button should be checked
             )
             self._start_first_task_step_tip.destroyed.connect(self.next_step)
@@ -366,7 +507,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
 
             self._move_to_completed_task_list_step_tip = TargetClickTeachingTip.create(
                 target=overlay,
-                title="Drag this task to the completed task list to mark it as completed",
+                title="Drag its parent task to the completed task list to mark it as completed",
                 content="",
                 mainWindow=self.main_window,
                 interface_type=InterfaceType.TASK_INTERFACE,
@@ -406,6 +547,10 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.main_window.task_interface.editTaskTimeButton.setDisabled(False)
         self.main_window.task_interface.deleteTaskButton.setDisabled(False)
         self.main_window.task_interface.addTaskSplitButton.setDisabled(False)
+        self.main_window.task_interface.addTaskSplitButton.button.setDisabled(False)
+        self.main_window.task_interface.addTaskSplitButton.dropButton.setDisabled(False)
+
+        self.main_window.task_interface.addTaskAction.setEnabled(True)
 
         self.next_step()
 
@@ -421,3 +566,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
 
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.WORKSPACE_MANAGER_DIALOG, True)
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.SETTINGS_INTERFACE, True)
+
+    def _scroll_todo_task_list_to_bottom(self) -> None:
+        todo_task_list = self.main_window.task_interface.todoTasksList
+        todo_task_list.scrollDelagate.vScrollBar.scrollTo(todo_task_list.scrollDelagate.vScrollBar.maximum())
