@@ -132,6 +132,14 @@ This project is licensed under the [GPL-3.0-or-later license](LICENSE).
 
 - Thanks to [RepoFlow](https://www.repoflow.io/) for providing a license for hosting linux repositories.
  
+<div align="center">
+  <a href="https://www.signpath.io/">
+    <img src="screenshots/signpath_logo.svg" alt="Signpath" height="48"/>
+  </a>
+</div>
+
+- Koncentro uses free code signing provided by [SignPath.io](https://signpath.io), and a free code signing certificate by the [SignPath Foundation](https://signpath.org) for its Windows builds.
+ 
 ## Credits
 
 - [Super Productivity](https://github.com/johannesjo/super-productivity): The app is inspired by Super Productivity.
