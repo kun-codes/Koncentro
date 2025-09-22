@@ -133,7 +133,7 @@ This project is licensed under the [GPL-3.0-or-later license](LICENSE).
 - Thanks to [RepoFlow](https://www.repoflow.io/) for providing a license for hosting linux repositories.
  
 <div align="center">
-  <a href="https://www.signpath.io/">
+  <a href="https://signpath.io/">
     <img src="screenshots/signpath_logo.svg" alt="Signpath" height="48"/>
   </a>
 </div>
