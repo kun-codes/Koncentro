@@ -4,7 +4,7 @@ on:
     workflow_dispatch:
     push:
         tags:
-            - 'v*.*.*'
+            - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
     check-mitmproxy-version:
@@ -15,7 +15,8 @@ jobs:
         uses: ./.github/workflows/reusable-build-app.yml
         needs: check-mitmproxy-version
         with:
-            deployment: true
+            deployment: ${{github.event_name == 'push' }}  # will be set to true if the tag is of release tag format
+            # push is only allowed for release tags
             mitmproxy-version: ${{ needs.check-mitmproxy-version.outputs.mitmproxy-version }}
         secrets: inherit
 
@@ -23,7 +24,8 @@ jobs:
         uses: ./.github/workflows/reusable-create-installer.yml
         needs: build
         with:
-            should_sign: ${{ github.event_name != 'workflow_dispatch' }}
+            deployment: ${{github.event_name == 'push' }}  # will be set to true if the tag is of release tag format
+            # push is only allowed for release tags
         secrets: inherit
 
     release:
