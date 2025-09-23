@@ -101,7 +101,12 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         firstParentTask = todoTaskListModel.index(0, 0)
         firstChildTask = todoTaskListModel.index(0, 0, firstParentTask)
 
-        rect = todoTaskList.visualRect(firstChildTask)
+        # check if firstParentTask has a child task
+        targetTask: QModelIndex = firstChildTask
+        if not firstChildTask.isValid():
+            targetTask = firstParentTask
+
+        rect = todoTaskList.visualRect(targetTask)
 
         self.overlay = QWidget(todoTaskList.viewport())
         self.overlay.setGeometry(rect)
