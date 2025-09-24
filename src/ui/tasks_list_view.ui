@@ -58,7 +58,7 @@
          <item>
           <spacer name="horizontalSpacer">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -69,10 +69,10 @@
           </spacer>
          </item>
          <item>
-          <widget class="ToolButton" name="editTaskTimeButton"/>
+          <widget class="SplitToolButton" name="addTaskSplitButton"/>
          </item>
          <item>
-          <widget class="ToolButton" name="addTaskButton"/>
+          <widget class="ToolButton" name="editTaskTimeButton"/>
          </item>
          <item>
           <widget class="ToolButton" name="deleteTaskButton"/>
@@ -89,6 +89,11 @@
   <customwidget>
    <class>ToolButton</class>
    <extends>QToolButton</extends>
+   <header>qfluentwidgets</header>
+  </customwidget>
+  <customwidget>
+   <class>SplitToolButton</class>
+   <extends>QWidget</extends>
    <header>qfluentwidgets</header>
   </customwidget>
   <customwidget>

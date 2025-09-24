@@ -1,8 +1,9 @@
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QPainter, QPen
-from PySide6.QtWidgets import QAbstractItemView, QListView, QProxyStyle, QWidget
-from qfluentwidgets import ListItemDelegate, ListView, isDarkTheme
+from PySide6.QtWidgets import QAbstractItemView, QProxyStyle
+from qfluentwidgets import ListItemDelegate, TreeView, isDarkTheme
 
+from models.task_list_model import TaskListModel
 from prefabs.taskListItemDelegate import TaskListItemDelegate
 from ui_py.ui_tasks_list_view import Ui_TaskView
 
@@ -27,7 +28,7 @@ class TaskListStyle(QProxyStyle):
             super().drawPrimitive(element, option, painter, widget)
 
 
-class TaskList(ListView):
+class TaskList(TreeView):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setDragEnabled(True)
@@ -38,14 +39,13 @@ class TaskList(ListView):
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setAutoScroll(True)
         self.setStyle(TaskListStyle())
+        self.setHeaderHidden(True)
 
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.current_editor = None
 
         self._mousePressedOnItem = False
-
-        self.entered.disconnect()  # see mouseMoveEvent method's docstring
 
         self.setItemDelegate(TaskListItemDelegate(self))
 
@@ -54,17 +54,12 @@ class TaskList(ListView):
         # Track drag operations to handle failed drops
         self._dragInProgress = False
         self._draggedIndexes = []
-        self._dragSuccessTimer = QTimer()
-        self._dragSuccessTimer.setSingleShot(True)
-        self._dragSuccessTimer.timeout.connect(self._checkDragResult)
+
+        self.expanded.connect(self._onItemExpanded)
+        self.collapsed.connect(self._onItemCollapsed)
 
     def paintEvent(self, event) -> None:
-        # Delete all buttons when there are no items in the model
-        if self.model() and self.model().rowCount() == 0:
-            delegate = self.itemDelegate()
-            if hasattr(delegate, "deleteAllButtons"):
-                delegate.deleteAllButtons()
-
+        # Only call parent paintEvent - no button management needed
         super().paintEvent(event)
 
     def startDrag(self, supportedActions) -> None:
@@ -74,10 +69,6 @@ class TaskList(ListView):
         # Store the indexes being dragged
         self._draggedIndexes = self.selectedIndexes()
         self._dragInProgress = True
-
-        # Start a timer to check for failed drags after a delay
-        # This helps handle cases where drag callbacks aren't properly called on Wayland
-        self._dragSuccessTimer.start(100)  # Check after 100ms
 
         # Call the parent implementation to start the drag
         super().startDrag(supportedActions)
@@ -90,15 +81,6 @@ class TaskList(ListView):
         # Reset drag state
         self._dragInProgress = False
         self._draggedIndexes = []
-        self._dragSuccessTimer.stop()
-
-    def _checkDragResult(self) -> None:
-        """
-        Called by timer to check if drag operation completed successfully
-        """
-        if self._dragInProgress:
-            # Drag is still in progress, extend the timer
-            self._dragSuccessTimer.start(100)
 
     def _handleFailedDrag(self) -> None:
         """
@@ -106,29 +88,8 @@ class TaskList(ListView):
         This ensures the task doesn't disappear from the original list
         """
         # Cancel the drag operation in the model
-        if self.model() and hasattr(self.model(), "cancelDrag"):
-            self.model().cancelDrag()
-
-        # Force the view to refresh
-        if self.model():
-            self.model().layoutChanged.emit()
-
-        # Make sure the view is updated to reflect the current state
-        self.viewport().update()
-
-        # Also check if we have a parent TaskView and cancel drag on both lists
-        parent_view = self.parentWidget()
-        while parent_view is not None:
-            if isinstance(parent_view, Ui_TaskView):
-                if hasattr(parent_view.todoTasksList.model(), "cancelDrag"):
-                    parent_view.todoTasksList.model().cancelDrag()
-                if hasattr(parent_view.completedTasksList.model(), "cancelDrag"):
-                    parent_view.completedTasksList.model().cancelDrag()
-                # Also update the viewports of both task lists
-                parent_view.todoTasksList.viewport().update()
-                parent_view.completedTasksList.viewport().update()
-                break
-            parent_view = parent_view.parentWidget()
+        if self.model() and hasattr(self.model(), "finishDrag"):
+            self.model().finishDrag()
 
     def dragEnterEvent(self, event) -> None:
         """
@@ -151,44 +112,6 @@ class TaskList(ListView):
         if self.current_editor:
             self.current_editor.setFixedWidth(self.viewport().width() - self.editor_width_reduction)
 
-    def mousePressEvent(self, e):
-        """
-        This method modifies the behaviour of ListView according to which items are selected when mouse is pressed on
-        them.
-        Items are selected in TaskList when mouse is clicked (pressed and released) on them
-        """
-        if e.button() == Qt.LeftButton or self._isSelectRightClickedRow:
-            return QListView.mousePressEvent(self, e)
-
-        # to select the row on which mouse is clicked
-        index = self.indexAt(e.pos())
-        if index.isValid():
-            self._mousePressedOnItem = True
-        else:
-            self._mousePressedOnItem = False
-
-        QWidget.mousePressEvent(self, e)
-
-    def mouseReleaseEvent(self, e) -> None:
-        """
-        This method modifies the behaviour of ListView according to which items are selected when mouse is pressed on
-        them.
-        Items are selected in TaskList when mouse is clicked (pressed and released) on them
-        """
-        # I don't know if I have to keep the below two lines
-        QListView.mouseReleaseEvent(self, e)
-        self.updateSelectedRows()
-
-        # to select the row on which mouse is clicked
-        if self._mousePressedOnItem:
-            index = self.indexAt(e.pos())
-            if index.isValid():
-                self._setPressedRow(index.row())
-                # self.updateSelectedRows()
-
-        self._mousePressedOnItem = False
-        super().mouseReleaseEvent(e)
-
     def dropEvent(self, e) -> None:
         """
         This method is called when an item is dropped onto a TaskList. This will go through a while loop till it finds
@@ -196,9 +119,6 @@ class TaskList(ListView):
         is done to overcome bugs in the original code in qfluentwidgets where the pressed row was not getting reset
         when an item was dropped.
         """
-        # Clear drop indicator before processing the drop
-        self.viewport().update()
-
         # Mark drag as successful if this is our own drag operation
         if self._dragInProgress:
             self._dragInProgress = False
@@ -208,10 +128,6 @@ class TaskList(ListView):
             if isinstance(parent_view, Ui_TaskView):  # using Ui_TaskView because view.subinterfaces.tasks_view.TaskList
                 # is a child class of Ui_TaskView and it cannot be imported here due to circular import
 
-                parent_view.todoTasksList._setPressedRow(-1)
-                parent_view.completedTasksList._setPressedRow(-1)
-                parent_view.todoTasksList._setHoverRow(-1)
-                parent_view.completedTasksList._setHoverRow(-1)
                 parent_view.todoTasksList.viewport().update()
                 parent_view.completedTasksList.viewport().update()
 
@@ -220,31 +136,63 @@ class TaskList(ListView):
                 parent_view.completedTasksList._dragInProgress = False
 
                 # Cancel any pending drag operations in the models
-                if hasattr(parent_view.todoTasksList.model(), "cancelDrag"):
-                    parent_view.todoTasksList.model().cancelDrag()
-                if hasattr(parent_view.completedTasksList.model(), "cancelDrag"):
-                    parent_view.completedTasksList.model().cancelDrag()
+                if hasattr(parent_view.todoTasksList.model(), "finishDrag"):
+                    parent_view.todoTasksList.model().finishDrag()
+                if hasattr(parent_view.completedTasksList.model(), "finishDrag"):
+                    parent_view.completedTasksList.model().finishDrag()
                 break
             parent_view = parent_view.parentWidget()
         super().dropEvent(e)
-
-    def mouseMoveEvent(self, e) -> None:
-        """
-        This method is called when mouse is moved over the TaskList. This will set the hover row of the delegate to the
-        row over which mouse is hovering. This is done because in qfluentwidgets if mouse is moved away from an already
-        hovered row to empty space of TaskList such that it doesn't cross any other row, the hovered row is not reset
-
-        Also for the same reason self.entered signal has been disconnected in __init__ method
-        """
-
-        index = self.indexAt(e.pos())
-        new_hover_row = index.row() if index.isValid() else -1
-        if new_hover_row != self.delegate.hoverRow:
-            self._setHoverRow(new_hover_row)
-        super().mouseMoveEvent(e)
 
     def _setHoverRow(self, row: int) -> None:
         delegate = self.itemDelegate()
         if isinstance(delegate, ListItemDelegate):
             delegate.setHoverRow(row)
             self.viewport().update()
+
+    def setModel(self, model: TaskListModel):
+        super().setModel(model)
+
+        self._restoreExpansionStateOfAllTasks()
+
+        model.taskMovedSignal.connect(self._restoreExpansionStateOfATask)
+        model.taskAddedSignal.connect(self._restoreExpansionStateOfATask)
+
+    def _restoreExpansionStateOfAllTasks(self):
+        model: TaskListModel = self.model()
+        if not model:
+            return
+
+        for row in range(model.rowCount()):
+            index = model.index(row, 0)
+            is_expanded = model.data(index, model.IsExpandedRole)
+            if is_expanded:
+                self.expand(index)
+            else:
+                self.collapse(index)
+
+    def _restoreExpansionStateOfATask(self, task_id: int):
+        model: TaskListModel = self.model()
+
+        index = model.getIndexByTaskId(task_id)
+        is_expanded = index.data(model.IsExpandedRole)
+        if is_expanded:
+            self.expand(index)
+        else:
+            self.collapse(index)
+
+    def _onItemExpanded(self, index):
+        # Trigger a repaint to update button visibility after expansion
+        self.viewport().update()
+
+        model: TaskListModel = self.model()
+        if model:
+            model.setData(index, True, model.IsExpandedRole)
+
+    def _onItemCollapsed(self, index):
+        # Trigger a repaint to update button visibility after collapse
+        self.viewport().update()
+
+        model: TaskListModel = self.model()
+        if model:
+            model.setData(index, False, model.IsExpandedRole)

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'tasks_list_view.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.2
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -18,10 +18,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QHBoxLayout, QSizePolicy, QSpacerItem,
     QVBoxLayout, QWidget)
 
-from qfluentwidgets import (SingleDirectionScrollArea, ToolButton)
+from qfluentwidgets import (SingleDirectionScrollArea, SplitToolButton, ToolButton)
 
 class Ui_TaskView(object):
-    def setupUi(self, TaskView) -> None:
+    def setupUi(self, TaskView):
         if not TaskView.objectName():
             TaskView.setObjectName(u"TaskView")
         TaskView.resize(800, 600)
@@ -46,15 +46,15 @@ class Ui_TaskView(object):
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
 
+        self.addTaskSplitButton = SplitToolButton(self.scrollAreaWidgetContents)
+        self.addTaskSplitButton.setObjectName(u"addTaskSplitButton")
+
+        self.horizontalLayout.addWidget(self.addTaskSplitButton)
+
         self.editTaskTimeButton = ToolButton(self.scrollAreaWidgetContents)
         self.editTaskTimeButton.setObjectName(u"editTaskTimeButton")
 
         self.horizontalLayout.addWidget(self.editTaskTimeButton)
-
-        self.addTaskButton = ToolButton(self.scrollAreaWidgetContents)
-        self.addTaskButton.setObjectName(u"addTaskButton")
-
-        self.horizontalLayout.addWidget(self.addTaskButton)
 
         self.deleteTaskButton = ToolButton(self.scrollAreaWidgetContents)
         self.deleteTaskButton.setObjectName(u"deleteTaskButton")
@@ -74,7 +74,7 @@ class Ui_TaskView(object):
         QMetaObject.connectSlotsByName(TaskView)
     # setupUi
 
-    def retranslateUi(self, TaskView) -> None:
+    def retranslateUi(self, TaskView):
         TaskView.setWindowTitle(QCoreApplication.translate("TaskView", u"Form", None))
     # retranslateUi
 

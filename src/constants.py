@@ -110,3 +110,9 @@ class InstallMitmproxyCertificateResult(Enum):
     TIMEOUT = "Operation timed out"
     ERROR = "An error occurred while installing the certificate"
     ALREADY_INSTALLED = "Mitmproxy certificate is already installed"
+
+
+class InvalidTaskDrop(Enum):
+    DROPPED_PARENT_TASK_AT_CHILD_LEVEL = 0
+    DROPPED_CHILD_TASK_AT_ROOT_LEVEL = 1
+    DROPPED_CHILD_TASK_IN_ANOTHER_PARENT_TASK = 2
