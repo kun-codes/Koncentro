@@ -56,6 +56,13 @@
           <number>4</number>
          </property>
          <item>
+          <widget class="TitleLabel" name="todoTasksLabel">
+           <property name="text">
+            <string>To Do Tasks</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="horizontalSpacer">
            <property name="orientation">
             <enum>Qt::Orientation::Horizontal</enum>
@@ -101,6 +108,11 @@
    <extends>QScrollArea</extends>
    <header>qfluentwidgets</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TitleLabel</class>
+   <extends>QLabel</extends>
+   <header>qfluentwidgets</header>
   </customwidget>
  </customwidgets>
  <resources/>

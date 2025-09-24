@@ -45,11 +45,6 @@ class TaskListView(Ui_TaskView, QWidget):
     def initLayout(self) -> None:
         label_size_policy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
 
-        self.todoTasksLabel = TitleLabel()
-        self.todoTasksLabel.setText("To Do Tasks")
-        self.todoTasksLabel.setSizePolicy(label_size_policy)
-        self.scrollAreaWidgetContents.layout().addWidget(self.todoTasksLabel)
-
         # card inside which todo tasks list will be kept
         self.todoTasksCard = SimpleCardWidget()
         self.todoTasksCard.setLayout(QVBoxLayout())
