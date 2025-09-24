@@ -4,7 +4,7 @@ import threading
 from pathlib import Path
 
 from loguru import logger
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QModelIndex, QSize, Qt
 from PySide6.QtGui import QFont, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import QApplication
 from qfluentwidgets import (
