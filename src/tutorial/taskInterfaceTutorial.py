@@ -1,7 +1,7 @@
 from typing import Optional
 
 from loguru import logger
-from PySide6.QtCore import QModelIndex, QRect, Qt, QTimer
+from PySide6.QtCore import QItemSelection, QModelIndex, QRect, Qt, QTimer
 from PySide6.QtWidgets import QStyleOptionViewItem, QWidget
 from qfluentwidgets import FluentIcon, FluentWindow, TeachingTipTailPosition
 
@@ -348,15 +348,18 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.overlay.show()
 
         self._select_new_task_step_tip = TargetClickTeachingTip.create(
-            target=self.overlay,
-            title="Select the new task. We will add a new subtask to it",
-            content="",
-            mainWindow=self.main_window,
-            interface_type=InterfaceType.TASK_INTERFACE,
-            icon=CustomFluentIcon.CLICK,
-            tailPosition=TeachingTipTailPosition.TOP,
-            parent=self.main_window,
-            customSignalToDestroy=todoTaskList.selectionModel().selectionChanged,
+            self.overlay,
+            "Select the new task. We will add a new subtask to it",
+            "",
+            self.main_window,
+            InterfaceType.TASK_INTERFACE,
+            CustomFluentIcon.CLICK,
+            None,
+            TeachingTipTailPosition.TOP,
+            self.main_window,
+            todoTaskList.selectionModel().selectionChanged,
+            QItemSelection(lastParentIndex, lastParentIndex),
+            None,  # will be matched with anything for customSignalToDestroy paramaters
         )
         self._select_new_task_step_tip.destroyed.connect(self.next_step)
         self.teaching_tips.append(self._select_new_task_step_tip)
