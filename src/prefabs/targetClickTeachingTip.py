@@ -48,7 +48,16 @@ class TargetClickTeachingTip(TeachingTip):
 
         if self.expectedSignalParams is not None:
             if len(args) == len(self.expectedSignalParams):
-                if args == self.expectedSignalParams:
+                doesParametersMatch = True
+                for actual, expected in zip(args, self.expectedSignalParams):
+                    if expected is None:
+                        logger.debug("Expected parameter is None, so it matches any value")
+                    elif actual != expected:
+                        logger.debug(f"Signal parameter {actual} does not match expected value {expected}")
+                        doesParametersMatch = False
+                        break
+
+                if doesParametersMatch:
                     logger.debug("Signal parameters match expected values, calling _fadeOut")
                     self._fadeOut()
                 else:
