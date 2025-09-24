@@ -159,6 +159,13 @@ class TaskListView(Ui_TaskView, QWidget):
             if selectedTaskNode.is_root():
                 selectedRootTask = True
         else:
+            InfoBar.warning(
+                "No Task Selected",
+                "Select a parent task (or one of its subtasks) to add a new subtask to it.",
+                orient=Qt.Orientation.Vertical,
+                duration=3000,
+                parent=self,
+            )
             return
 
         model: TaskListModel = self.todoTasksList.model()
@@ -244,6 +251,13 @@ class TaskListView(Ui_TaskView, QWidget):
         elif self.completedTasksList.selectionModel().hasSelection():
             list: TaskList = self.completedTasksList
         else:
+            InfoBar.warning(
+                "No Task Selected",
+                "Select a task to delete it.",
+                orient=Qt.Orientation.Vertical,
+                duration=3000,
+                parent=self,
+            )
             return
 
         model: TaskListModel = list.model()
@@ -263,6 +277,13 @@ class TaskListView(Ui_TaskView, QWidget):
             task_list_model: TaskListModel = self.completedTasksList.model()
 
         if row is None:
+            InfoBar.warning(
+                "No Task Selected",
+                "Select a task to edit its time.",
+                orient=Qt.Orientation.Vertical,
+                duration=3000,
+                parent=self,
+            )
             return
 
         task_id = row.data(TaskListModel.IDRole)
