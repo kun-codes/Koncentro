@@ -1,7 +1,19 @@
 from PySide6.QtCore import QTime
-from qfluentwidgets import MessageBoxBase, SubtitleLabel, TimePicker
+from qfluentwidgets import MessageBoxBase, PickerColumnFormatter, SubtitleLabel, TimePicker
 
 from models.task_lookup import TaskLookup
+
+
+class TimeFormatter(PickerColumnFormatter):
+    def __init__(self, text: str):
+        super().__init__()
+        self.text = text
+
+    def encode(self, value):
+        return str(value) + self.text
+
+    def decode(self, value):
+        return int(value[:-1])
 
 
 class EditTaskTimeDialog(MessageBoxBase):
@@ -13,6 +25,13 @@ class EditTaskTimeDialog(MessageBoxBase):
 
         self.elapsedTimePicker = TimePicker(self, showSeconds=True)
         self.estimateTimePicker = TimePicker(self, showSeconds=True)
+
+        self.elapsedTimePicker.setColumnFormatter(0, TimeFormatter("h"))
+        self.elapsedTimePicker.setColumnFormatter(1, TimeFormatter("m"))
+        self.elapsedTimePicker.setColumnFormatter(2, TimeFormatter("s"))
+        self.estimateTimePicker.setColumnFormatter(0, TimeFormatter("h"))
+        self.estimateTimePicker.setColumnFormatter(1, TimeFormatter("m"))
+        self.estimateTimePicker.setColumnFormatter(2, TimeFormatter("s"))
 
         elapsed_time = TaskLookup.get_elapsed_time(task_id)
         target_time = TaskLookup.get_target_time(task_id)
