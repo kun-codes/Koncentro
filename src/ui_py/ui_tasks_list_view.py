@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'tasks_list_view.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.1
+## Created by: Qt User Interface Compiler version 6.9.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -18,7 +18,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QHBoxLayout, QSizePolicy, QSpacerItem,
     QVBoxLayout, QWidget)
 
-from qfluentwidgets import (SingleDirectionScrollArea, SplitToolButton, ToolButton)
+from qfluentwidgets import (SingleDirectionScrollArea, SplitToolButton, TitleLabel, ToolButton)
 
 class Ui_TaskView(object):
     def setupUi(self, TaskView):
@@ -42,6 +42,11 @@ class Ui_TaskView(object):
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setSpacing(4)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.todoTasksLabel = TitleLabel(self.scrollAreaWidgetContents)
+        self.todoTasksLabel.setObjectName(u"todoTasksLabel")
+
+        self.horizontalLayout.addWidget(self.todoTasksLabel)
+
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
@@ -76,5 +81,6 @@ class Ui_TaskView(object):
 
     def retranslateUi(self, TaskView):
         TaskView.setWindowTitle(QCoreApplication.translate("TaskView", u"Form", None))
+        self.todoTasksLabel.setText(QCoreApplication.translate("TaskView", u"To Do Tasks", None))
     # retranslateUi
 
