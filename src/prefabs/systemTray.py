@@ -68,6 +68,7 @@ class SystemTray(QSystemTrayIcon):
         self.tray_menu_after_show_hide_separator.setSeparator(True)
 
         self.tray_menu_quit_action = self.tray_menu.addAction("Quit")
+        self.tray_menu_quit_action.setShortcut("Ctrl+Q")
         self.tray_menu_quit_action.setIcon(
             CustomFluentIcon.EXIT.icon(Theme.DARK if dark_mode_condition else Theme.LIGHT)
         )
