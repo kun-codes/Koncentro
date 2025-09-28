@@ -251,6 +251,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
     def _invoke_add_new_task_dialog_step(self) -> None:
         self.main_window.task_interface.deleteTaskButton.setDisabled(True)
         self.main_window.task_interface.addTaskSplitButton.setDisabled(False)
+        self.main_window.task_interface.addTaskSplitButton.dropButton.setDisabled(True)
 
         self._invoke_add_new_task_dialog_step_tip = TargetClickTeachingTip.create(
             target=self.main_window.task_interface.addTaskSplitButton.button,
@@ -370,6 +371,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.main_window.task_interface.deleteTaskButton.setDisabled(True)
         self.main_window.task_interface.addTaskSplitButton.setDisabled(False)
         self.main_window.task_interface.addTaskSplitButton.button.setDisabled(True)
+        self.main_window.task_interface.addTaskSplitButton.dropButton.setDisabled(False)
         self.main_window.task_interface.editTaskTimeButton.setDisabled(True)
 
         self.main_window.task_interface.addTaskAction.setEnabled(False)
