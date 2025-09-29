@@ -85,7 +85,7 @@ jobs:
 
             -   name: Download Artifacts
                 id: download-artifacts
-                if: ${{ !(matrix.os == 'windows-latest' && inputs.deployment == 'true') }} # for release build,
+                if: ${{ !(matrix.os == 'windows-latest' && inputs.deployment) }} # for release build,
                 # artifacts would be downloaded directly from github by signpath signing step
                 uses: actions/download-artifact@v5
                 with:
@@ -111,7 +111,7 @@ jobs:
 
             -   name: Release-sign artifacts (Windows)
                 uses: signpath/github-action-submit-signing-request@v1
-                if: matrix.os == 'windows-latest' && inputs.deployment == 'true'
+                if: matrix.os == 'windows-latest' && inputs.deployment
                 with:
                     api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
                     organization-id: ${{ secrets.SIGNPATH_ORG_ID }}
