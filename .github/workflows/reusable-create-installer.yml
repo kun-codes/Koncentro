@@ -60,15 +60,7 @@ jobs:
                     elif [[ "${{ matrix.os }}" == "ubuntu-22.04" || "${{ matrix.os }}" == "ubuntu-24.04-arm" ]]; then
                         echo "artifact-name=Linux_${{ env.ARCHITECTURE }}-build" >> $GITHUB_OUTPUT
                     elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-                        if [[ "${{ inputs.deployment }}" == "true" ]]; then
-                            # for release build, artifacts would be signed using release-signing so 
-                            # downloading unsigned artifact
-                            echo "artifact-name=Windows_x86_64-build" >> $GITHUB_OUTPUT
-                        else
-                            # for test build, artifacts would be signed using test-signing so 
-                            # downloading artifact signed using test-signing
-                            echo "artifact-name=Windows_x86_64-build-test-signed" >> $GITHUB_OUTPUT
-                        fi
+                        echo "artifact-name=Windows_x86_64-build" >> $GITHUB_OUTPUT
                     fi
                 shell: bash
 
@@ -191,25 +183,25 @@ jobs:
 
             -   name: Release-sign installer (Windows)
                 uses: signpath/github-action-submit-signing-request@v1
-                if: matrix.os == 'windows-latest'
+                if: matrix.os == 'windows-latest' && inputs.deployment
                 with:
                     api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
                     organization-id: ${{ secrets.SIGNPATH_ORG_ID }}
                     project-slug: 'Koncentro_'
-                    signing-policy-slug: ${{ inputs.deployment && 'release-signing' || 'test-signing' }}
+                    signing-policy-slug: 'release-signing'
                     artifact-configuration-slug: 'installer-exe'
                     github-artifact-id: ${{ steps.upload-unsigned-artifact-windows.outputs.artifact-id }}
                     wait-for-completion: 'true'
                     output-artifact-directory: 'dist/Koncentro-${{ env.KONCENTRO_VERSION }}-Installer-signed.exe'
 
             -   name: Delete unsigned installer artifact (Windows)
-                if: matrix.os == 'windows-latest'
+                if: matrix.os == 'windows-latest' && inputs.deployment
                 uses: geekyeggo/delete-artifact@v5
                 with:
                     name: Koncentro-${{ env.KONCENTRO_VERSION }}-Windows-x86_64-Installer
 
             -   name: Upload Signed Installer (Windows)
-                if: matrix.os == 'windows-latest'
+                if: matrix.os == 'windows-latest' && inputs.deployment
                 uses: actions/upload-artifact@v4
                 with:
                     name: Koncentro-${{ env.KONCENTRO_VERSION }}-Windows-x86_64-Installer
