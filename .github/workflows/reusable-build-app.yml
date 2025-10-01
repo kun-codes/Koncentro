@@ -206,28 +206,6 @@ jobs:
                     path: 'build\__main__.dist\'
                     include-hidden-files: 'true'
 
-            -   name: Sign artifact (Windows)
-                uses: signpath/github-action-submit-signing-request@v1
-                if: matrix.os == 'windows-latest' && inputs.deployment == false  # deployment is set to false for
-                # test builds and this step is for test signing
-                with:
-                    api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-                    organization-id: ${{ secrets.SIGNPATH_ORG_ID }}
-                    project-slug: 'Koncentro_'
-                    signing-policy-slug: 'test-signing'
-                    artifact-configuration-slug: 'compiled-files'
-                    github-artifact-id: ${{ steps.upload-unsigned-artifact-windows.outputs.artifact-id }}
-                    wait-for-completion: 'true'
-                    output-artifact-directory: 'build\signed-win-artifact\'
-
-            -   name: Upload signed artifacts Windows
-                if: matrix.os == 'windows-latest' && inputs.deployment == false
-                uses: actions/upload-artifact@v4
-                with:
-                    name: 'Windows_${{ env.ARCHITECTURE }}-build-test-signed'
-                    path: 'build\signed-win-artifact\'
-                    include-hidden-files: 'true'
-
             -   name: Upload artifacts Linux
                 if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
                 uses: actions/upload-artifact@v4
