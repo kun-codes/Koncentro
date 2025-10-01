@@ -56,3 +56,52 @@ Name: "{userstartup}\Koncentro"; Parameters: "--autostart"; Filename: "{app}\kon
 
 [Run]
 Filename: "{app}\koncentro.exe"; Description: "Launch Koncentro"; Flags: nowait postinstall skipifsilent
+
+; delete __pycache__ directories on uninstall to not leave Koncentro folder in install location
+[Code]
+procedure DeletePycacheFolders(const Directory: string);
+var
+  FindRec: TFindRec;
+  SearchPath: string;
+begin
+  SearchPath := AddBackslash(Directory) + '*';
+
+  if FindFirst(SearchPath, FindRec) then
+  begin
+    try
+      repeat
+        if (FindRec.Name <> '.') and (FindRec.Name <> '..') then
+        begin
+          if (FindRec.Attributes and FILE_ATTRIBUTE_DIRECTORY) <> 0 then
+          begin
+            if CompareText(FindRec.Name, '__pycache__') = 0 then
+            begin
+              // Delete the __pycache__ folder recursively
+              DelTree(AddBackslash(Directory) + FindRec.Name, True, True, True);
+            end
+            else
+            begin
+              // Recursively search in subdirectories
+              DeletePycacheFolders(AddBackslash(Directory) + FindRec.Name);
+            end;
+          end;
+        end;
+      until not FindNext(FindRec);
+    finally
+      FindClose(FindRec);
+    end;
+  end;
+end;
+
+function InitializeUninstall(): Boolean;
+begin
+  Result := True;
+
+  // Delete all __pycache__ folders recursively before uninstallation
+  try
+    DeletePycacheFolders(ExpandConstant('{app}'));
+  except
+    // If deletion fails, continue with uninstallation anyway
+    Log('Warning: Failed to delete some __pycache__ folders');
+  end;
+end;
