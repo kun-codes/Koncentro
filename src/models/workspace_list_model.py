@@ -11,8 +11,8 @@ class WorkspaceListModel(QAbstractListModel):
     current_workspace_changed: Signal = Signal()
     current_workspace_deleted: Signal = Signal()
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self) -> None:
+        super().__init__()
         self.workspaces: List[Dict[str, Union[int, str]]] = []
         self.load_data()
         self.layoutChanged.connect(self.logList)
