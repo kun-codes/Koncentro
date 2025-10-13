@@ -91,11 +91,11 @@ class TaskNode:
 
 
 class TaskListModel(QAbstractItemModel):
-    IDRole: int = Qt.ItemDataRole.UserRole + 1
-    IconRole: int = Qt.ItemDataRole.UserRole + 3
-    ElapsedTimeRole: int = Qt.ItemDataRole.UserRole + 5
-    TargetTimeRole: int = Qt.ItemDataRole.UserRole + 7
-    IsExpandedRole: int = Qt.ItemDataRole.UserRole + 9
+    IDRole: Qt.ItemDataRole = Qt.ItemDataRole.UserRole + 1
+    IconRole: Qt.ItemDataRole = Qt.ItemDataRole.UserRole + 3
+    ElapsedTimeRole: Qt.ItemDataRole = Qt.ItemDataRole.UserRole + 5
+    TargetTimeRole: Qt.ItemDataRole = Qt.ItemDataRole.UserRole + 7
+    IsExpandedRole: Qt.ItemDataRole = Qt.ItemDataRole.UserRole + 9
 
     taskDeletedSignal: Signal = Signal(int)  # task_id
     taskAddedSignal: Signal = Signal(int)  # task_id
