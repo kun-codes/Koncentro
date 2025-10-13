@@ -85,7 +85,7 @@ class QConfigSQL(QConfig):
 
         self.load_from_db()
 
-    def load_from_db(self, file=None, config=None) -> None:
+    def load_from_db(self) -> None:
         # load from database
         with get_session(is_read_only=True) as session:
             current_workspace = WorkspaceLookup.get_current_workspace_id()
