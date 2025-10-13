@@ -1,6 +1,7 @@
-from typing import Union
+from typing import Optional, Union
 
 from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIconBase, SwitchSettingCard
 
 from prefabs.config.config_item_sql import ConfigItemSQL
@@ -11,10 +12,10 @@ class SwitchSettingCardSQL(SwitchSettingCard):
     def __init__(
         self,
         icon: Union[str, QIcon, FluentIconBase],
-        title,
-        content=None,
-        configItem: ConfigItemSQL = None,
-        parent=None,
+        title: str,
+        content: Optional[str] = None,
+        configItem: Optional[ConfigItemSQL] = None,
+        parent: Optional[QWidget] = None,
     ) -> None:
         super().__init__(icon, title, content, configItem, parent)
         if configItem:
