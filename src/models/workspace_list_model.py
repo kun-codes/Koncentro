@@ -1,3 +1,5 @@
+from typing import Dict, List, Optional, Union
+
 from loguru import logger
 from PySide6.QtCore import QAbstractListModel, QItemSelectionModel, QModelIndex, Qt, Signal
 
@@ -6,15 +8,15 @@ from utils.db_utils import get_session
 
 
 class WorkspaceListModel(QAbstractListModel):
-    current_workspace_changed = Signal()
-    current_workspace_deleted = Signal()
+    current_workspace_changed: Signal = Signal()
+    current_workspace_deleted: Signal = Signal()
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.workspaces = []
+        self.workspaces: List[Dict[str, Union[int, str]]] = []
         self.load_data()
         self.layoutChanged.connect(self.logList)
-        self.selection_model: QItemSelectionModel = None
+        self.selection_model: Optional[QItemSelectionModel] = None
 
     def setSelectionModel(self, selection_model: QItemSelectionModel) -> None:
         self.selection_model = selection_model
@@ -27,13 +29,13 @@ class WorkspaceListModel(QAbstractListModel):
             ]
         self.layoutChanged.emit()
 
-    def data(self, index, role):
+    def data(self, index: QModelIndex, role: int) -> Union[str, int]:
         if role == Qt.ItemDataRole.DisplayRole:
             return self.workspaces[index.row()]["workspace_name"]
         if role == Qt.ItemDataRole.DisplayRole:
             return self.workspaces[index.row()]["id"]
 
-    def setData(self, index, value, role=Qt.EditRole) -> bool:
+    def setData(self, index: QModelIndex, value: str, role: int = Qt.EditRole) -> bool:
         """Update workspace name"""
         if role == Qt.EditRole:
             workspace_name = value.strip()
@@ -48,15 +50,15 @@ class WorkspaceListModel(QAbstractListModel):
                 return True
         return False
 
-    def flags(self, index):
+    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
         if not index.isValid():
             return Qt.ItemIsEnabled
         return super().flags(index) | Qt.ItemIsEditable
 
-    def rowCount(self, index=QModelIndex()) -> int:
+    def rowCount(self, index: QModelIndex = QModelIndex()) -> int:
         return len(self.workspaces)
 
-    def add_workspace(self, workspace) -> None:
+    def add_workspace(self, workspace: Workspace) -> None:
         with get_session() as session:
             session.add(workspace)
             session.commit()
@@ -65,7 +67,7 @@ class WorkspaceListModel(QAbstractListModel):
 
     # TODO: Implement update_workspace method
 
-    def delete_workspace(self, index) -> None:
+    def delete_workspace(self, index: int) -> None:
         if 0 <= index < len(self.workspaces):
             workspace_id = self.workspaces[index]["id"]  # workspace about to be deleted
             selected_workspace_id = self.get_current_workspace_id()
@@ -101,12 +103,12 @@ class WorkspaceListModel(QAbstractListModel):
                 if previous_selected_workspace_id != current_workspace_id:
                     self.current_workspace_changed.emit()
 
-    def get_current_workspace_id(self):
+    def get_current_workspace_id(self) -> Optional[int]:
         with get_session(is_read_only=True) as session:
             current_workspace = session.query(CurrentWorkspace).first()
         return current_workspace.current_workspace_id if current_workspace else None
 
-    def get_workspace_name_by_id(self, workspace_id):
+    def get_workspace_name_by_id(self, workspace_id: int) -> Optional[str]:
         for workspace in self.workspaces:
             if workspace["id"] == workspace_id:
                 return workspace["workspace_name"]
