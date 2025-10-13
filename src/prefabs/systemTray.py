@@ -1,4 +1,5 @@
 import os
+from typing import TYPE_CHECKING, Callable
 
 from loguru import logger
 from PySide6.QtCore import QMetaMethod
@@ -10,10 +11,14 @@ from config_values import ConfigValues
 from constants import TimerState
 from prefabs.customFluentIcon import CustomFluentIcon
 from utils.detect_windows_version import isWin10OrEarlier
+from views.subinterfaces.pomodoro_view import PomodoroView
+
+if TYPE_CHECKING:
+    from main_window import MainWindow
 
 
 class SystemTray(QSystemTrayIcon):
-    def __init__(self, parent):
+    def __init__(self, parent: "MainWindow") -> None:
         super().__init__(parent)
         self.parent = parent
         self.tray_menu = QMenu()
@@ -131,7 +136,7 @@ class SystemTray(QSystemTrayIcon):
             self.tray_menu_show_hide_action.setIcon(FluentIcon.VIEW.icon(Theme.LIGHT))
             self.tray_menu_quit_action.setIcon(CustomFluentIcon.EXIT.icon(Theme.LIGHT))
 
-    def updateSystemTrayActions(self, timerState) -> None:
+    def updateSystemTrayActions(self, timerState: TimerState) -> None:
         if timerState in [TimerState.WORK, TimerState.BREAK, TimerState.LONG_BREAK]:
             self.tray_menu_pause_resume_action.setEnabled(True)
             self.tray_menu_start_action.setEnabled(False)
@@ -139,7 +144,7 @@ class SystemTray(QSystemTrayIcon):
             self.tray_menu_pause_resume_action.setEnabled(False)
             self.tray_menu_start_action.setEnabled(True)
 
-    def showNotifications(self, timerState, isSkipped) -> None:
+    def showNotifications(self, timerState: TimerState, isSkipped: bool) -> None:
         from config_values import ConfigValues
 
         title = ""
@@ -216,7 +221,12 @@ class SystemTray(QSystemTrayIcon):
             if isActivatedSignalConnected:
                 self.activated.disconnect(self.onSystemTrayActivated)
 
-    def connectSignalsToSlots(self, pomodoro_interface, quit_callback, toggle_visibility_callback):
+    def connectSignalsToSlots(
+        self,
+        pomodoro_interface: PomodoroView,
+        quit_callback: Callable[[], None],
+        toggle_visibility_callback: Callable[[], None],
+    ) -> None:
         """Connect system tray signals to main window callbacks"""
         self.tray_menu_start_action.triggered.connect(lambda: pomodoro_interface.pauseResumeButton.click())
         self.tray_menu_pause_resume_action.triggered.connect(lambda: pomodoro_interface.pauseResumeButton.click())
