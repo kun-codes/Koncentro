@@ -1,13 +1,25 @@
+from typing import Optional
+
 from PySide6.QtCore import QStringConverter, Qt, QTextStream, Signal
 from PySide6.QtNetwork import QLocalServer, QLocalSocket
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QWidget
 
 
 # from: https://stackoverflow.com/a/79574637
 class QtSingleApplication(QApplication):
-    messageReceived = Signal()
+    messageReceived = Signal(str)
 
-    def __init__(self, uid, *argv) -> None:
+    _uid: str
+    _activationWindow: Optional[QWidget]
+    _activateOnMessage: bool
+    _outSocket: Optional[QLocalSocket]
+    _outStream: Optional[QTextStream]
+    _inSocket: Optional[QLocalSocket]
+    _inStream: Optional[QTextStream]
+    _server: Optional[QLocalServer]
+    _isRunning: bool
+
+    def __init__(self, uid: str, *argv: list[str]) -> None:
         super(QtSingleApplication, self).__init__(*argv)
         self._uid = uid
         self._activationWindow = None
@@ -32,16 +44,16 @@ class QtSingleApplication(QApplication):
             self._server.listen(self._uid)
             self._server.newConnection.connect(self._onNewConnection)
 
-    def isRunning(self):
+    def isRunning(self) -> bool:
         return self._isRunning
 
-    def uid(self):
+    def uid(self) -> str:
         return self._uid
 
-    def activationWindow(self):
+    def activationWindow(self) -> Optional[QWidget]:
         return self._activationWindow
 
-    def setActivationWindow(self, activationWindow, activateOnMessage: bool = True) -> None:
+    def setActivationWindow(self, activationWindow: Optional[QWidget], activateOnMessage: bool = True) -> None:
         self._activationWindow = activationWindow
         self._activateOnMessage = activateOnMessage
 
@@ -52,7 +64,7 @@ class QtSingleApplication(QApplication):
         self._activationWindow.raise_()
         self._activationWindow.activateWindow()
 
-    def sendMessage(self, msg):
+    def sendMessage(self, msg: str) -> bool:
         if not self._outStream:
             return False
         self._outStream << msg << "\n"  # pyright: ignore[reportUnusedExpression]
