@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from loguru import logger
 from PySide6.QtCore import (
@@ -12,6 +12,7 @@ from PySide6.QtCore import (
     Signal,
 )
 from PySide6.QtGui import QColor
+from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon
 from sqlalchemy import update
 
@@ -30,24 +31,24 @@ class TaskNode:
 
     def __init__(
         self,
-        task_id: int = None,
+        task_id: int,
         task_name: str = "",
         task_position: int = 0,
         elapsed_time: int = 0,
         target_time: int = 0,
-        icon=None,
-        parent: "TaskNode" = None,
+        icon: FluentIcon = None,
+        parent: Optional["TaskNode"] = None,
         is_expanded: bool = False,
-    ):
-        self.task_id = task_id
-        self.task_name = task_name
-        self.task_position = task_position
-        self.elapsed_time = elapsed_time
-        self.target_time = target_time
+    ) -> None:
+        self.task_id: int = task_id
+        self.task_name: str = task_name
+        self.task_position: int = task_position
+        self.elapsed_time: int = elapsed_time
+        self.target_time: int = target_time
         self.icon = icon
-        self.is_expanded = is_expanded
+        self.is_expanded: bool = is_expanded
 
-        self.parent_node = parent
+        self.parent_node: Optional["TaskNode"] = parent
         self.children: List["TaskNode"] = []
 
         if parent is not None:
@@ -85,36 +86,36 @@ class TaskNode:
     def can_have_children(self) -> bool:
         return self.is_root()
 
-    def set_expanded(self, expanded: bool):
+    def set_expanded(self, expanded: bool) -> None:
         self.is_expanded = expanded
 
 
 class TaskListModel(QAbstractItemModel):
-    IDRole = Qt.ItemDataRole.UserRole + 1
-    IconRole = Qt.ItemDataRole.UserRole + 3
-    ElapsedTimeRole = Qt.ItemDataRole.UserRole + 5
-    TargetTimeRole = Qt.ItemDataRole.UserRole + 7
-    IsExpandedRole = Qt.ItemDataRole.UserRole + 9
+    IDRole: int = Qt.ItemDataRole.UserRole + 1
+    IconRole: int = Qt.ItemDataRole.UserRole + 3
+    ElapsedTimeRole: int = Qt.ItemDataRole.UserRole + 5
+    TargetTimeRole: int = Qt.ItemDataRole.UserRole + 7
+    IsExpandedRole: int = Qt.ItemDataRole.UserRole + 9
 
-    taskDeletedSignal = Signal(int)  # task_id
-    taskAddedSignal = Signal(int)  # task_id
-    taskMovedSignal = Signal(int, TaskType)  # task_id and TaskType
-    currentTaskChangedSignal = Signal(int)  # task_id
-    invalidTaskDropSignal = Signal(InvalidTaskDrop)
+    taskDeletedSignal: Signal = Signal(int)  # task_id
+    taskAddedSignal: Signal = Signal(int)  # task_id
+    taskMovedSignal: Signal = Signal(int, TaskType)  # task_id and TaskType
+    currentTaskChangedSignal: Signal = Signal(int)  # task_id
+    invalidTaskDropSignal: Signal = Signal(InvalidTaskDrop)
 
-    def __init__(self, task_type: TaskType, parent=None) -> None:
+    def __init__(self, task_type: TaskType, parent: Optional[QWidget] = None) -> None:  # noqa: F821
         super().__init__(parent)
-        self.task_type = task_type
-        self.current_task_id = None
+        self.task_type: TaskType = task_type
+        self.current_task_id: Optional[int] = None
         self.root_nodes: List[TaskNode] = []  # List of root task nodes
-        self._dragInProgress = False  # Track if we're in a drag operation
+        self._dragInProgress: bool = False  # Track if we're in a drag operation
         self.load_data()
 
-    def setCurrentTaskID(self, id) -> None:
+    def setCurrentTaskID(self, id: int) -> None:
         self.current_task_id = id
         self.currentTaskChangedSignal.emit(id)
 
-    def currentTaskID(self):
+    def currentTaskID(self) -> Optional[int]:
         return self.current_task_id
 
     def load_data(self) -> None:
@@ -220,7 +221,9 @@ class TaskListModel(QAbstractItemModel):
 
         return 0
 
-    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole):
+    def data(
+        self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole
+    ) -> Optional[Union[str, int, QColor, FluentIcon, bool]]:
         if not index.isValid():
             return None
 
@@ -250,7 +253,11 @@ class TaskListModel(QAbstractItemModel):
         return None
 
     def setData(
-        self, index: QModelIndex, value, role: int = Qt.ItemDataRole.DisplayRole, update_db: bool = True
+        self,
+        index: QModelIndex,
+        value: Union[str, int, FluentIcon, bool],
+        role: int = Qt.ItemDataRole.DisplayRole,
+        update_db: bool = True,
     ) -> bool:
         if not index.isValid():
             return False
@@ -290,17 +297,17 @@ class TaskListModel(QAbstractItemModel):
 
         return False
 
-    def revert(self):
+    def revert(self) -> None:
         self.load_data()
         return super().revert()
 
     def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:
         return 1
 
-    def supportedDropActions(self):
+    def supportedDropActions(self) -> Qt.DropAction:
         return Qt.DropAction.MoveAction
 
-    def mimeData(self, indexes):
+    def mimeData(self, indexes: List[QModelIndex]) -> QMimeData:
         # Set drag in progress flag
         self._dragInProgress = True
 
@@ -343,7 +350,7 @@ class TaskListModel(QAbstractItemModel):
         mime_data.setData("application/x-qabstractitemmodeldatalist", encoded_data)
         return mime_data
 
-    def dropMimeData(self, data, action, row, column, parent) -> bool:
+    def dropMimeData(self, data: QMimeData, action: Qt.DropAction, row: int, column: int, parent: QModelIndex) -> bool:
         # Clear drag in progress flag since we're handling the drop
         self._dragInProgress = False
         logger.debug(f"row: {row}, column: {column}, parent: {parent}, action: {action}")
@@ -372,7 +379,9 @@ class TaskListModel(QAbstractItemModel):
             else:
                 return self._handleDroppedChildNode(data, action, row, column, parent)
 
-    def _handleDroppedRootNode(self, data, action, row, column, parent) -> bool:
+    def _handleDroppedRootNode(
+        self, data: QMimeData, action: Qt.DropAction, row: int, column: int, parent: QModelIndex
+    ) -> bool:
         """
         logic followed:
         if parent task
@@ -502,7 +511,9 @@ class TaskListModel(QAbstractItemModel):
 
         return True
 
-    def _handleDroppedChildNode(self, data, action, row, column, parent):
+    def _handleDroppedChildNode(
+        self, data: QMimeData, action: Qt.DropAction, row: int, column: int, parent: QModelIndex
+    ) -> bool:
         """
         if subtask
             if dropped within its own parent
@@ -622,7 +633,7 @@ class TaskListModel(QAbstractItemModel):
                 ],
             )
 
-    def flags(self, index):
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         if not index.isValid():
             return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsDropEnabled
 
@@ -637,7 +648,7 @@ class TaskListModel(QAbstractItemModel):
     def mimeTypes(self) -> List[str]:
         return ["application/x-qabstractitemmodeldatalist"]
 
-    def insertRow(self, row, parent, task_name: str, task_type: TaskType = TaskType.TODO) -> bool:
+    def insertRow(self, row: int, parent: QModelIndex, task_name: str, task_type: TaskType = TaskType.TODO) -> bool:
         """
         Used to insert a new task in the list
         """
@@ -699,7 +710,7 @@ class TaskListModel(QAbstractItemModel):
         self.layoutChanged.emit()
         return True
 
-    def removeRows(self, row, count: int, parent: QModelIndex = QModelIndex()) -> bool:
+    def removeRows(self, row: int, count: int, parent: QModelIndex = QModelIndex()) -> bool:
         """
         Remove rows and save changes to db
         This method can be called by Qt during drag operations.
@@ -758,7 +769,7 @@ class TaskListModel(QAbstractItemModel):
         """
         return self._dragInProgress
 
-    def deleteTask(self, row, parent: QModelIndex = QModelIndex()) -> bool:
+    def deleteTask(self, row: int, parent: QModelIndex = QModelIndex()) -> bool:
         """
         Delete tasks
         """
@@ -824,23 +835,23 @@ class TaskListModel(QAbstractItemModel):
         self.layoutChanged.emit()
         return True
 
-    def setIconForTask(self, row, icon) -> None:
+    def setIconForTask(self, row: int, icon: FluentIcon) -> None:
         if row < len(self.root_nodes):
             self.root_nodes[row].icon = icon
             index = self.index(row, 0)
             self.dataChanged.emit(index, index, [self.IconRole])
 
-    def getTaskNameById(self, task_id):
+    def getTaskNameById(self, task_id: int) -> Optional[str]:
         node = self.getTaskNodeById(task_id)
         return node.task_name if node else None
 
-    def currentTaskIndex(self):
+    def currentTaskIndex(self) -> Optional[QModelIndex]:
         node = self.getTaskNodeById(self.current_task_id)
         if node:
             return self.getIndexByNode(node)
         return None
 
-    def getTaskNodeById(self, task_id) -> Optional[TaskNode]:
+    def getTaskNodeById(self, task_id: Optional[int]) -> Optional[TaskNode]:
         """Find a node by its task_id"""
         if task_id is None:
             return None
