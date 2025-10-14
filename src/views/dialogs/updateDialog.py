@@ -1,13 +1,16 @@
+from typing import Optional
+
 from loguru import logger
 from PySide6.QtCore import QUrl
 from PySide6.QtGui import QDesktopServices
+from PySide6.QtWidgets import QWidget
 from qfluentwidgets import BodyLabel, MessageBoxBase, SubtitleLabel
 
 from constants import NEW_RELEASE_URL
 
 
 class UpdateDialog(MessageBoxBase):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
 
         self.titleLabel = SubtitleLabel("A new update is available", parent=self)
