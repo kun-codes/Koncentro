@@ -7,7 +7,7 @@ from PySide6.QtCore import QThread, Signal
 class CheckInternetWorker(QThread):
     internetCheckCompleted = Signal(bool)
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self) -> None:
         super().__init__()
 
     def run(self) -> None:
