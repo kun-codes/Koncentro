@@ -81,7 +81,7 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
         self.blockTypeComboBox.setDisabled(True)
         # todo: show the user a tip that they can enable the combo box again by clicking on save or cancel buttons
 
-    def checkURLs(self):
+    def checkURLs(self) -> tuple[bool, list[str]] | tuple[bool, list[int]]:
         urls = self.getListOfURLs()
 
         is_all_urls_valid, invalid_url_line_numbers = self.model.validate_urls(urls)
@@ -103,7 +103,7 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
                 self.allowListTextEdit.underline_lines(invalid_url_line_numbers)
             return False, invalid_url_line_numbers
 
-    def getListOfURLs(self):
+    def getListOfURLs(self) -> list[str]:
         current_website_block_type = self.model.get_website_block_type()
 
         if current_website_block_type == WebsiteBlockType.BLOCKLIST:
