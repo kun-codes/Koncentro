@@ -1,12 +1,13 @@
 from contextlib import contextmanager
+from typing import Any, Generator
 
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
 from models.db_tables import engine
 
 
 @contextmanager
-def get_session(is_read_only: bool = False):
+def get_session(is_read_only: bool = False) -> Generator[Session, Any, None]:
     Session = sessionmaker(bind=engine)
     session = Session()
     try:
