@@ -1,6 +1,5 @@
 from typing import Optional
 
-from loguru import logger
 from PySide6.QtCore import QModelIndex, Qt, Signal
 from PySide6.QtWidgets import QApplication, QSizePolicy, QVBoxLayout, QWidget
 from qfluentwidgets import (
@@ -202,16 +201,6 @@ class TaskListView(Ui_TaskView, QWidget):
                 parentTaskNode.target_time += childTask.target_time
 
             self.todoTasksList.model().update_db()
-
-    def findMainWindow(self):
-        widget = self.parent()
-        while widget:
-            if widget.objectName() == "main_window":
-                logger.debug("Found main window.")
-                return widget
-            widget = widget.parent()
-
-        return None
 
     def onInvalidDrop(self, dropType: InvalidTaskDrop) -> None:
         if dropType == InvalidTaskDrop.DROPPED_PARENT_TASK_AT_CHILD_LEVEL:
