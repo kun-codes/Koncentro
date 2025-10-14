@@ -1,4 +1,5 @@
 import sys
+from typing import Optional
 
 from loguru import logger
 from PySide6.QtCore import QItemSelectionModel, Qt
@@ -32,7 +33,7 @@ from prefabs.workspaceListView import WorkspaceListView
 
 
 class ManageWorkspaceDialog(MaskDialogBase):
-    def __init__(self, workspaceListModel: WorkspaceListModel, parent=None) -> None:
+    def __init__(self, workspaceListModel: WorkspaceListModel, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
         self.buttonGroup = QFrame(self.widget)
 
