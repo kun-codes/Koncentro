@@ -6,6 +6,9 @@
 import os
 import sys
 import urllib.parse
+from typing import Set
+
+import mitmproxy.addonmanager
 
 # append directory containing constants.py to path so that BLOCK_HTML_MESSAGE can be imported correctly
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -15,12 +18,14 @@ from mitmproxy import ctx, http
 from website_blocker.constants import BLOCK_HTML_MESSAGE, MITMDUMP_CHECK_URL, MITMDUMP_SHUTDOWN_URL
 
 
-def load(loader) -> None:
+def load(loader: mitmproxy.addonmanager.Loader) -> None:
+    print(type(loader))
     loader.add_option("addresses_str", str, "", "Concatenated addresses.")
     loader.add_option("block_type", str, "", "Allowlist or blocklist.")
 
 
-def request(flow) -> None:
+def request(flow: mitmproxy.http.HTTPFlow) -> None:
+    print(type(flow))
     # https://docs.mitmproxy.org/stable/addons-examples/#shutdown
     if flow.request.pretty_url == MITMDUMP_SHUTDOWN_URL:
         print("Shutting down mitmdump...")
@@ -34,7 +39,7 @@ def request(flow) -> None:
         flow.response = http.Response.make(200, b"Mitmdump is running.\n", {"Content-Type": "text/plain"})
         return
 
-    def strip_www(domain):
+    def strip_www(domain: str) -> str:
         return domain[4:] if domain.startswith("www.") else domain
 
     # if reddit.com is in the addresses_str, it will match both www.reddit.com and reddit.com
@@ -43,15 +48,18 @@ def request(flow) -> None:
     # if old.reddit.com is in the addresses_str, it will match both old.reddit.com only and
     # no other subdomains
 
-    addresses = ctx.options.addresses_str.split(",")
+    addresses: Set[str] = {
+        strip_www(address.strip()) for address in ctx.options.addresses_str.split(",") if address.strip()
+    }
+
     # Normalize addresses by stripping whitespace and leading www.
     addresses = {strip_www(address.strip()) for address in addresses if address.strip()}
 
-    parsed_url = urllib.parse.urlparse(flow.request.pretty_url)
-    url_domain = strip_www(parsed_url.netloc)
+    parsed_url: urllib.parse.ParseResult = urllib.parse.urlparse(flow.request.pretty_url)
+    url_domain: str = strip_www(parsed_url.netloc)
 
     # Use direct string matching for exact domain match
-    has_match = url_domain in addresses
+    has_match: bool = url_domain in addresses
     if (ctx.options.block_type == "allowlist" and not has_match) or (
         ctx.options.block_type == "blocklist" and has_match
     ):
