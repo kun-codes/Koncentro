@@ -2,8 +2,8 @@ import sys
 from typing import Optional
 
 from loguru import logger
-from PySide6.QtCore import QItemSelectionModel, Qt
-from PySide6.QtGui import QColor, QKeyEvent
+from PySide6.QtCore import QItemSelection, QItemSelectionModel, Qt
+from PySide6.QtGui import QColor, QKeyEvent, QShowEvent
 from PySide6.QtWidgets import (
     QApplication,
     QFrame,
@@ -143,7 +143,7 @@ class ManageWorkspaceDialog(MaskDialogBase):
         if event.key() == Qt.Key.Key_Escape:
             event.ignore()
 
-    def showEvent(self, event) -> None:
+    def showEvent(self, event: QShowEvent) -> None:
         self.preselect_current_workspace()
         super().showEvent(event)
 
@@ -188,7 +188,7 @@ class ManageWorkspaceDialog(MaskDialogBase):
                 parent=self.parent(),
             )
 
-    def onWorkspaceSelectionChanged(self, selected, deselected) -> None:
+    def onWorkspaceSelectionChanged(self, selected: QItemSelection, deselected: QItemSelection) -> None:
         selected_index = selected.indexes()
         if selected_index:
             selected_index = selected_index[0]
