@@ -105,7 +105,7 @@ class UninstallMitmproxyCertificateDialog(MessageBoxBase):
         self.worker.finished.connect(lambda: logger.debug("uninstall certificate worker finished"))
         self.worker.start()
 
-    def onUninstallFinished(self, result: UninstallMitmproxyCertificateResult):
+    def onUninstallFinished(self, result: UninstallMitmproxyCertificateResult) -> None:
         # Disconnect the signal immediately to prevent multiple calls
         if self.worker:
             self.worker.finished.disconnect()
