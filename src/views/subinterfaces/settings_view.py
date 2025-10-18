@@ -370,7 +370,7 @@ class SettingsView(QWidget, Ui_SettingsView):
         # Start the update check in a background thread
         self.update_checker.start()
 
-    def onUpdateCheckComplete(self, result) -> None:
+    def onUpdateCheckComplete(self, result: UpdateCheckResult) -> None:
         """Handle the result of the update check from the background thread."""
         if result == UpdateCheckResult.UPDATE_AVAILABLE:
             infoBar = InfoBar.new(

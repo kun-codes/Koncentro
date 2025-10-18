@@ -1,11 +1,12 @@
 import os
 import platform
 import subprocess
+from typing import Optional
 
 from loguru import logger
 from PySide6.QtCore import Qt, QThread, QTimer, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
-from PySide6.QtWidgets import QSizePolicy
+from PySide6.QtWidgets import QSizePolicy, QWidget
 from qfluentwidgets import BodyLabel, FluentIcon, InfoBar, MessageBoxBase, PushButton, SubtitleLabel
 
 from config_values import ConfigValues
@@ -22,11 +23,11 @@ from website_blocker.website_blocker_manager import WebsiteBlockerManager
 class CertificateInstallWindowsWorker(QThread):
     finished = Signal(InstallMitmproxyCertificateResult)
 
-    def __init__(self, powershell_command):
+    def __init__(self, powershell_command: str) -> None:
         super().__init__()
         self.powershell_command = powershell_command
 
-    def run(self):
+    def run(self) -> None:
         try:
             # First check if the certificate already exists
             check_result = subprocess.run(
@@ -70,7 +71,7 @@ class CertificateInstallWindowsWorker(QThread):
 
 
 class SetupAppDialog(MessageBoxBase):
-    def __init__(self, parent=None, is_setup_first_time: bool = True) -> None:
+    def __init__(self, parent: Optional[QWidget] = None, is_setup_first_time: bool = True) -> None:
         super().__init__(parent=parent)
 
         self.is_setup_first_time = is_setup_first_time
@@ -241,7 +242,7 @@ class SetupAppDialog(MessageBoxBase):
             mitmdump_bin_path=get_mitmdump_path(),
         )
 
-    def onCertificateInstallFinished(self, result: InstallMitmproxyCertificateResult):
+    def onCertificateInstallFinished(self, result: InstallMitmproxyCertificateResult) -> None:
         if result == InstallMitmproxyCertificateResult.SUCCESS:
             InfoBar.success(
                 title=result.value,

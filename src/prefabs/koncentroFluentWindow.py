@@ -1,3 +1,5 @@
+from typing import Optional
+
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import FluentWindow, setCustomStyleSheet
 from qfluentwidgets.window.fluent_window import FluentWindowBase
@@ -11,7 +13,7 @@ class VBoxLayoutInitializer(QWidget):
     is called
     """
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
         self.vBoxLayout = QVBoxLayout(self)  # this line causes the error "QLayout: Attempting to add QLayout "" to
         # MainWindow "", which already has a layout", it can be fixed if I change the line in FluentWindowBase from
@@ -24,14 +26,14 @@ class VBoxLayoutInitializer(QWidget):
 class KoncentroFluentWindowBase(FluentWindowBase, VBoxLayoutInitializer):
     """Fluent window base class"""
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
 
 
 class KoncentroFluentWindow(KoncentroFluentWindowBase, FluentWindow):
     """Fluent window"""
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
         self.bottomBar = BottomBar(self)

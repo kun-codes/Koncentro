@@ -1,5 +1,7 @@
+from typing import Optional
+
 from loguru import logger
-from PySide6.QtCore import QEvent, QModelIndex, QPoint, QRect, Qt, Signal
+from PySide6.QtCore import QEvent, QModelIndex, QPoint, QRect, QSize, Qt, Signal
 from PySide6.QtGui import QColor, QFontMetrics, QPainter
 from PySide6.QtWidgets import (
     QApplication,
@@ -40,7 +42,7 @@ class TaskListItemDelegate(TreeItemDelegate):
         # Track which button is currently being hovered
         self._hovered_button_task_id = None
 
-    def _get_pomodoro_interface(self):
+    def _get_pomodoro_interface(self) -> Optional[QWidget]:
         # find the parent widget with the name "pomodoro_interface"
         if self._pomodoro_interface:
             return self._pomodoro_interface
@@ -54,7 +56,7 @@ class TaskListItemDelegate(TreeItemDelegate):
         # find child of parent with name pomodoro_interface
         return parent.findChild(QWidget, "pomodoro_interface", options=Qt.FindChildOption.FindChildrenRecursively)
 
-    def setCheckedStateOfButton(self, task_id, checked) -> None:
+    def setCheckedStateOfButton(self, task_id: int, checked: bool) -> None:
         """Update the checked state of a button"""
         self._button_states[task_id] = checked
         # Trigger a repaint to update the visual state
@@ -201,7 +203,9 @@ class TaskListItemDelegate(TreeItemDelegate):
         drawIcon(icon, painter, icon_rect)
         painter.restore()
 
-    def editorEvent(self, event: QEvent, model, option: QStyleOptionViewItem, index: QModelIndex) -> bool:
+    def editorEvent(
+        self, event: QEvent, model: TaskListModel, option: QStyleOptionViewItem, index: QModelIndex
+    ) -> bool:
         """Handle mouse events for button clicks and hover"""
 
         # make buttons of completed tasks list non interactive
@@ -316,7 +320,7 @@ class TaskListItemDelegate(TreeItemDelegate):
             model.setCurrentTaskID(task_id)
             self.parent().viewport().update()
 
-    def paint(self, painter, option, index) -> None:
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         ## pasted from TreeItemDelegate.paint()
         painter.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.TextAntialiasing)
 
@@ -355,7 +359,7 @@ class TaskListItemDelegate(TreeItemDelegate):
 
         QStyledItemDelegate.paint(self, painter, adjusted_option, index)
 
-    def _paintBackground(self, painter, option, index):
+    def _paintBackground(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         isDark = isDarkTheme()
         c = 255 if isDark else 0
         alpha = 0
@@ -374,7 +378,7 @@ class TaskListItemDelegate(TreeItemDelegate):
         painter.setPen(Qt.PenStyle.NoPen)
         painter.drawRoundedRect(option.rect, 5, 5)
 
-    def _paintTimeText(self, painter, option, index) -> int:
+    def _paintTimeText(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> int:
         """
         will draw time text and return the width of the text
         """
@@ -408,7 +412,7 @@ class TaskListItemDelegate(TreeItemDelegate):
 
         editor.setGeometry(x, y, w, rect.height())
 
-    def sizeHint(self, option, index):
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         """Ensure the item is tall enough for the button"""
         size = super().sizeHint(option, index)
         # I derived this value of 1.3 constant from the previous implementation of TaskListItemDelegate when it
@@ -431,7 +435,7 @@ class TaskListItemDelegate(TreeItemDelegate):
         lineEdit.setStyle(QApplication.style())
         return lineEdit
 
-    def setEditorData(self, editor, index) -> None:
+    def setEditorData(self, editor: QWidget, index: QModelIndex) -> None:
         """
         Is also called every time the elapsed time of a task is updated which resets the task name in the editor
         when editing is in progress. Hence the below check is necessary to avoid interrupting user input.
@@ -442,7 +446,7 @@ class TaskListItemDelegate(TreeItemDelegate):
         text = self.parent().model().data(index, Qt.ItemDataRole.DisplayRole)
         editor.setText(text)
 
-    def setModelData(self, editor, model, index: QModelIndex) -> None:
+    def setModelData(self, editor: QWidget, model: TaskListModel, index: QModelIndex) -> None:
         text = editor.text()
         if text:
             model.setData(index, text, Qt.ItemDataRole.DisplayRole)

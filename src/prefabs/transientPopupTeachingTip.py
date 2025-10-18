@@ -1,31 +1,45 @@
+from typing import TYPE_CHECKING, Optional, Union
+
 from loguru import logger
 from PySide6.QtCore import QPropertyAnimation
-from qfluentwidgets import FluentWindow, PopupTeachingTip, TeachingTipTailPosition, TeachingTipView
+from PySide6.QtGui import QIcon, QImage, QPixmap
+from PySide6.QtWidgets import QWidget
+from qfluentwidgets import (
+    FluentIconBase,
+    FluentWindow,
+    FlyoutViewBase,
+    PopupTeachingTip,
+    TeachingTipTailPosition,
+    TeachingTipView,
+)
 
 from constants import InterfaceType
+
+if TYPE_CHECKING:
+    from main_window import MainWindow
 
 
 class TransientPopupTeachingTip(PopupTeachingTip):
     def __init__(
         self,
-        view,
-        target,
+        view: FlyoutViewBase,
+        target: QWidget,
         duration: int = 1000,
-        tailPosition=TeachingTipTailPosition.BOTTOM,
-        parent=None,
+        tailPosition: TeachingTipTailPosition = TeachingTipTailPosition.BOTTOM,
+        parent: Optional[QWidget] = None,
         isDeleteOnClose: bool = True,
     ) -> None:
         super().__init__(view, target, duration, tailPosition, parent, isDeleteOnClose)
 
-        self.mainWindow: FluentWindow = None
-        self.interface_type: InterfaceType = None
+        self.mainWindow: Optional[FluentWindow] = None
+        self.interface_type: Optional[InterfaceType] = None
 
     def connectSignalsToSlots(self) -> None:
         if self.mainWindow and hasattr(self.mainWindow, "stackedWidget"):
             self.mainWindow.stackedWidget.currentChanged.connect(self.onTabChanged)
             logger.debug(f"Connected stackedWidget.currentChanged in {self.__class__.__name__}")
 
-    def onTabChanged(self, index) -> None:
+    def onTabChanged(self, index: int) -> None:
         logger.debug(f"Tab changed to index: {index}")
 
         if self.interface_type.value == InterfaceType.DIALOG.value:  # no need to hide or show teaching tip
@@ -62,17 +76,17 @@ class TransientPopupTeachingTip(PopupTeachingTip):
     @classmethod
     def create(
         cls,
-        target,
-        title,
-        content,
-        mainWindow,
+        target: QWidget,
+        title: str,
+        content: str,
+        mainWindow: "MainWindow",
         interface_type: InterfaceType,
-        icon=None,
-        image=None,
+        icon: Union[FluentIconBase, QIcon, str] = None,
+        image: Union[str, QPixmap, QImage] = None,
         isClosable: bool = True,
         duration: int = 1000,
-        tailPosition=TeachingTipTailPosition.BOTTOM,
-        parent=None,
+        tailPosition: TeachingTipTailPosition = TeachingTipTailPosition.BOTTOM,
+        parent: Optional[QWidget] = None,
         isDeleteOnClose: bool = True,
     ) -> "TransientPopupTeachingTip":
         """Create a temporary popup teaching tip."""

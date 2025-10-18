@@ -1,6 +1,8 @@
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor, QPainter, QPen
-from PySide6.QtWidgets import QAbstractItemView, QProxyStyle
+from typing import Optional
+
+from PySide6.QtCore import QModelIndex, Qt
+from PySide6.QtGui import QColor, QDragEnterEvent, QDropEvent, QPainter, QPaintEvent, QPen, QResizeEvent
+from PySide6.QtWidgets import QAbstractItemView, QProxyStyle, QStyle, QStyleOption, QWidget
 from qfluentwidgets import ListItemDelegate, TreeView, isDarkTheme
 
 from models.task_list_model import TaskListModel
@@ -10,7 +12,13 @@ from ui_py.ui_tasks_list_view import Ui_TaskView
 
 # from: https://www.qtcentre.org/threads/35443-Customize-drop-indicator-in-QTreeView?p=167572#post167572
 class TaskListStyle(QProxyStyle):
-    def drawPrimitive(self, element, option, painter, widget=None):
+    def drawPrimitive(
+        self,
+        element: QStyle.PrimitiveElement,
+        option: QStyleOption,
+        painter: QPainter,
+        widget: Optional[QWidget] = None,
+    ) -> None:
         if element == QProxyStyle.PE_IndicatorItemViewItemDrop:
             painter.save()
             painter.setRenderHint(QPainter.Antialiasing, True)
@@ -29,7 +37,7 @@ class TaskListStyle(QProxyStyle):
 
 
 class TaskList(TreeView):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self.setDragEnabled(True)
         self.setAcceptDrops(True)
@@ -58,11 +66,11 @@ class TaskList(TreeView):
         self.expanded.connect(self._onItemExpanded)
         self.collapsed.connect(self._onItemCollapsed)
 
-    def paintEvent(self, event) -> None:
+    def paintEvent(self, event: QPaintEvent) -> None:
         # Only call parent paintEvent - no button management needed
         super().paintEvent(event)
 
-    def startDrag(self, supportedActions) -> None:
+    def startDrag(self, supportedActions: Qt.DropAction) -> None:
         """
         Override startDrag to track drag operations and handle failed drops properly
         """
@@ -91,7 +99,7 @@ class TaskList(TreeView):
         if self.model() and hasattr(self.model(), "finishDrag"):
             self.model().finishDrag()
 
-    def dragEnterEvent(self, event) -> None:
+    def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         """
         Override dragEnterEvent to handle drag operations properly
         """
@@ -102,7 +110,7 @@ class TaskList(TreeView):
         else:
             event.ignore()
 
-    def resizeEvent(self, event) -> None:
+    def resizeEvent(self, event: QResizeEvent) -> None:
         """
         Instead of just resizing editor using itemDelegate's updateEditorGeometry method, I am resizing the editor here
         because this seems faster, although I am not able to disable the resizing behaviour of updateEditorGeometry
@@ -112,7 +120,7 @@ class TaskList(TreeView):
         if self.current_editor:
             self.current_editor.setFixedWidth(self.viewport().width() - self.editor_width_reduction)
 
-    def dropEvent(self, e) -> None:
+    def dropEvent(self, e: QDropEvent) -> None:
         """
         This method is called when an item is dropped onto a TaskList. This will go through a while loop till it finds
         TaskView class's object and then set the pressed row of both todoTasksList and completedTasksList to -1. This
@@ -150,7 +158,7 @@ class TaskList(TreeView):
             delegate.setHoverRow(row)
             self.viewport().update()
 
-    def setModel(self, model: TaskListModel):
+    def setModel(self, model: TaskListModel) -> None:
         super().setModel(model)
 
         self._restoreExpansionStateOfAllTasks()
@@ -158,7 +166,7 @@ class TaskList(TreeView):
         model.taskMovedSignal.connect(self._restoreExpansionStateOfATask)
         model.taskAddedSignal.connect(self._restoreExpansionStateOfATask)
 
-    def _restoreExpansionStateOfAllTasks(self):
+    def _restoreExpansionStateOfAllTasks(self) -> None:
         model: TaskListModel = self.model()
         if not model:
             return
@@ -171,7 +179,7 @@ class TaskList(TreeView):
             else:
                 self.collapse(index)
 
-    def _restoreExpansionStateOfATask(self, task_id: int):
+    def _restoreExpansionStateOfATask(self, task_id: int) -> None:
         model: TaskListModel = self.model()
 
         index = model.getIndexByTaskId(task_id)
@@ -181,7 +189,7 @@ class TaskList(TreeView):
         else:
             self.collapse(index)
 
-    def _onItemExpanded(self, index):
+    def _onItemExpanded(self, index: QModelIndex) -> None:
         # Trigger a repaint to update button visibility after expansion
         self.viewport().update()
 
@@ -189,7 +197,7 @@ class TaskList(TreeView):
         if model:
             model.setData(index, True, model.IsExpandedRole)
 
-    def _onItemCollapsed(self, index):
+    def _onItemCollapsed(self, index: QModelIndex) -> None:
         # Trigger a repaint to update button visibility after collapse
         self.viewport().update()
 

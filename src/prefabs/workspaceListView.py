@@ -1,14 +1,16 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QAbstractItemView
+from typing import Optional
+
+from PySide6.QtCore import QEvent, QModelIndex, Qt
+from PySide6.QtWidgets import QAbstractItemView, QWidget
 from qfluentwidgets import LineEdit, ListView
 
 
 class WorkspaceListView(ListView):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self.current_editor = None
 
-    def edit(self, index, trigger, event):
+    def edit(self, index: QModelIndex, trigger: QAbstractItemView.EditTrigger, event: QEvent) -> bool:
         """Handle inline editing of workspace name"""
         if trigger == QAbstractItemView.DoubleClicked:
             workspace_name = self.model().data(index, Qt.DisplayRole)
@@ -27,7 +29,7 @@ class WorkspaceListView(ListView):
             return True
         return super().edit(index, trigger, event)
 
-    def commitData(self, editor) -> None:
+    def commitData(self, editor: QWidget) -> None:
         """Save edited workspace name"""
         index = self.currentIndex()
         self.model().setData(index, editor.text(), Qt.EditRole)

@@ -1,10 +1,12 @@
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
+from sqlite3 import Connection as SQLiteConnection
 
 from sqlalchemy import URL, Boolean, Column, DateTime, Engine, ForeignKey, Integer, String, create_engine, event
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.pool.base import _ConnectionRecord
 
 from config_paths import db_path, settings_dir
 from constants import (
@@ -36,7 +38,7 @@ Base = declarative_base()
 # from: https://docs.sqlalchemy.org/en/20/dialects/sqlite.html#foreign-key-support
 # for supporting foreign keys in sqlite as they are disabled by default as per: https://www.sqlite.org/foreignkeys.html
 @event.listens_for(Engine, "connect")
-def set_sqlite_pragma(dbapi_connection, connection_record) -> None:
+def set_sqlite_pragma(dbapi_connection: SQLiteConnection, connection_record: _ConnectionRecord) -> None:
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()

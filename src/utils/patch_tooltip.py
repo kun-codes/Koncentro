@@ -1,8 +1,10 @@
 # Monkey patch for qfluentwidgets.components.widgets.tool_tip.ToolTip because of bug in qfluentwidgets
 # This patch sets window flags correctly to Qt.ToolTip
 # Needed for wayland linux sessions only. Shows a box around the tooltip in macOS and Windows
+from typing import Optional
 
 from loguru import logger
+from PySide6.QtWidgets import QWidget
 
 from utils.check_flatpak_sandbox import is_flatpak_sandbox
 
@@ -15,7 +17,7 @@ def apply_patches() -> bool:
 
         original_init = ToolTip.__init__
 
-        def patched_init(self, text: str = "", parent=None) -> None:
+        def patched_init(self: ToolTip, text: str = "", parent: Optional[QWidget] = None) -> None:
             original_init(self, text, parent)
             if is_flatpak_sandbox():
                 self.setWindowFlags(Qt.FramelessWindowHint)

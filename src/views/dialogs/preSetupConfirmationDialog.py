@@ -1,4 +1,7 @@
+from typing import Optional
+
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget
 from qfluentwidgets import BodyLabel, MessageBoxBase, SubtitleLabel
 
 from constants import APPLICATION_NAME
@@ -10,7 +13,7 @@ class PreSetupConfirmationDialog(MessageBoxBase):
     Only called when the app is run for the first time.
     """
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
         self.titleLabel = SubtitleLabel(f"Do you want to setup {APPLICATION_NAME} now?", parent=self)
         self.bodyLabel = BodyLabel(

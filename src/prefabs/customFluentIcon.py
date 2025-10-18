@@ -30,6 +30,6 @@ class CustomFluentIcon(FluentIconBase, Enum):
     MINIMIZE_TO_SYSTEM_TRAY_MAC = "minimize_to_system_tray_mac"
     ADD_SUBTASK = "add_subtask"
 
-    def path(self, theme=Theme.AUTO) -> str:
+    def path(self, theme: Theme = Theme.AUTO) -> str:
         # getIconColor() return "white" or "black" according to current theme
         return f":/iconsPrefix/icons/{self.value}_{getIconColor(theme)}.svg"

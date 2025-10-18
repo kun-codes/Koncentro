@@ -3,17 +3,17 @@ import platform
 import darkdetect
 from loguru import logger
 from PySide6.QtDBus import QDBusInterface, QDBusMessage, QDBusVariant
-from qfluentwidgets import Theme, qconfig
+from qfluentwidgets import QConfig, Theme, qconfig
 
 
 @property
-def theme_override(self):
+def theme_override(self: QConfig) -> Theme:
     """Get theme mode"""
     return self._theme
 
 
 @theme_override.setter
-def theme_override(self, t):
+def theme_override(self: QConfig, t: Theme) -> None:
     """Change the theme without modifying the config file"""
     if t == Theme.AUTO:
         # Try dbus first

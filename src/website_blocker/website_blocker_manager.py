@@ -5,6 +5,7 @@ import subprocess
 import sys
 import urllib.request
 from pathlib import Path
+from typing import Any, Callable, List
 
 import certifi
 from loguru import logger
@@ -21,8 +22,8 @@ CREATE_NO_WINDOW = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
 
 
 class FlatpakContainerError(Exception):
-    def __init__(self, message) -> None:
-        self.message = message
+    def __init__(self, message: str) -> None:
+        self.message: str = message
         super().__init__(self.message)
 
 
@@ -31,7 +32,7 @@ class WebsiteBlockerWorker(QThread):
 
     operationCompleted = Signal(bool, str)  # Success flag, message
 
-    def __init__(self, operation, *args, **kwargs) -> None:
+    def __init__(self, operation: Callable[[], bool], *args: Any, **kwargs: Any) -> None:
         super().__init__()
         self.operation = operation
         self.args = args
@@ -49,7 +50,7 @@ class WebsiteBlockerWorker(QThread):
 class ProxyWorker(QThread):
     """Worker thread for proxy operations"""
 
-    def __init__(self, operation, *args, **kwargs) -> None:
+    def __init__(self, operation: Callable[[], bool], *args: Any, **kwargs: Any) -> None:
         super().__init__()
         self.operation = operation
         self.args = args
@@ -65,8 +66,8 @@ class ProxyWorker(QThread):
 class WebsiteBlockerManager(QObject):
     def __init__(self) -> None:
         super().__init__()
-        self.proxy = Uniproxy("127.0.0.1", ConfigValues.PROXY_PORT)
-        self.workers = []  # Keep references to prevent garbage collection
+        self.proxy: Uniproxy = Uniproxy("127.0.0.1", ConfigValues.PROXY_PORT)
+        self.workers: List[QThread] = []  # Keep references to prevent garbage collection
 
     def start_blocking(
         self,
@@ -78,7 +79,7 @@ class WebsiteBlockerManager(QObject):
         """Function which starts blocking in a separate thread."""
         logger.debug("Inside WebsiteBlockerManager.start_blocking().")
 
-        def startMitmdumpAfterStop():
+        def startMitmdumpAfterStop() -> None:
             self._shutdown_mitmdump()
             self._start_mitmdump(listening_port, joined_addresses, block_type, mitmdump_bin_path)
 
@@ -92,10 +93,16 @@ class WebsiteBlockerManager(QObject):
         self.workers.append(proxy_worker)
         proxy_worker.start()
 
-    def _start_mitmdump(self, listening_port, joined_addresses, block_type, mitmdump_bin_path) -> bool:
+    def _start_mitmdump(
+        self,
+        listening_port: int,
+        joined_addresses: str,
+        block_type: str,
+        mitmdump_bin_path: str,
+    ) -> bool:
         """Helper method to start mitmdump in a worker thread"""
         if os.name == "nt":
-            args = [
+            args: List[str] = [
                 mitmdump_bin_path,
                 "--set",
                 "allow_remote=true",
@@ -116,7 +123,7 @@ class WebsiteBlockerManager(QObject):
 
             subprocess.Popen(args, creationflags=CREATE_NO_WINDOW)
         else:
-            block_py_path = Path(getattr(sys, "_MEIPASS", Path(__file__).parent)) / "block.py"
+            block_py_path: Path = Path(getattr(sys, "_MEIPASS", Path(__file__).parent)) / "block.py"
             if is_flatpak_sandbox():
                 # this has to be done as flatpak build resets the last modified time of all source files to
                 # epoch time 0, and mitmdump doesn't run block.py as a script if the last modified time is 0
@@ -125,12 +132,12 @@ class WebsiteBlockerManager(QObject):
                 logger.debug("Running in Flatpak sandbox, copying block.py's parent directory to xdg_data_home")
 
                 data_home_path: Path = Path(os.environ.get("XDG_DATA_HOME", ""))
-                block_py_parent = block_py_path.parent
+                block_py_parent: Path = block_py_path.parent
 
-                dest_dir = data_home_path / block_py_parent.name
+                dest_dir: Path = data_home_path / block_py_parent.name
 
                 shutil.copytree(block_py_parent, dest_dir, copy_function=shutil.copy, dirs_exist_ok=True)
-                block_script_path = str(dest_dir / "block.py")
+                block_script_path: str = str(dest_dir / "block.py")
 
                 logger.debug(f"Copied block.py's parent directory to: {dest_dir}")
             else:
@@ -165,11 +172,11 @@ class WebsiteBlockerManager(QObject):
         logger.debug("Inside WebsiteBlockerManager.stop_blocking().")
 
         if delete_proxy:
-            proxy_worker = ProxyWorker(self.proxy.delete_proxy)
+            proxy_worker: ProxyWorker = ProxyWorker(self.proxy.delete_proxy)
             self.workers.append(proxy_worker)
             proxy_worker.start()
 
-        worker = WebsiteBlockerWorker(self._shutdown_mitmdump)
+        worker: WebsiteBlockerWorker = WebsiteBlockerWorker(self._shutdown_mitmdump)
         self.workers.append(worker)
         worker.start()
 
@@ -182,7 +189,7 @@ class WebsiteBlockerManager(QObject):
                     "SIGINT or SIGKILL instead."
                 )
 
-            proxy_url = f"http://127.0.0.1:{ConfigValues.PROXY_PORT}"
+            proxy_url: str = f"http://127.0.0.1:{ConfigValues.PROXY_PORT}"
             proxy_handler = urllib.request.ProxyHandler({"http": proxy_url, "https": proxy_url})
             context = ssl.create_default_context(cafile=certifi.where())
             https_handler = urllib.request.HTTPSHandler(context=context)
@@ -217,7 +224,7 @@ class WebsiteBlockerManager(QObject):
 
     def _force_kill_process(self) -> bool:
         """Run kill_process in a thread to prevent GUI blocking"""
-        kill_worker = ProxyWorker(kill_process)
+        kill_worker: ProxyWorker = ProxyWorker(kill_process)
         self.workers.append(kill_worker)
         kill_worker.start()
         return True

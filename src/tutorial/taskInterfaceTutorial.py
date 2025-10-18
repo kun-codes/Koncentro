@@ -2,6 +2,7 @@ from typing import Optional
 
 from loguru import logger
 from PySide6.QtCore import QItemSelection, QModelIndex, QRect, Qt, QTimer
+from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QStyleOptionViewItem, QWidget
 from qfluentwidgets import FluentIcon, FluentWindow, TeachingTipTailPosition
 
@@ -160,7 +161,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         edit_task_time_dialog.cancelButton.setDisabled(True)
         edit_task_time_dialog.yesButton.setDisabled(True)
 
-        def on_key_press(event) -> None:
+        def on_key_press(event: QKeyEvent) -> None:
             if event.key() in [Qt.Key_Escape, Qt.Key_Return, Qt.Key_Enter]:
                 event.ignore()
             else:
@@ -278,7 +279,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         add_task_dialog.cancelButton.setDisabled(True)
         add_task_dialog.yesButton.setDisabled(True)
 
-        def on_key_press(event) -> None:
+        def on_key_press(event: QKeyEvent) -> None:
             if event.key() in [Qt.Key_Escape, Qt.Key_Return, Qt.Key_Enter]:
                 event.ignore()
             else:
@@ -404,7 +405,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         addSubTaskDialog.cancelButton.setDisabled(True)
         addSubTaskDialog.yesButton.setDisabled(True)
 
-        def on_key_press(event) -> None:
+        def on_key_press(event: QKeyEvent) -> None:
             if event.key() in [Qt.Key_Escape, Qt.Key_Return, Qt.Key_Enter]:
                 event.ignore()
             else:

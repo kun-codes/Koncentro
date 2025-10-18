@@ -1,9 +1,11 @@
-from typing import Union
+from typing import Optional, Union
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIconBase, SettingCard, SpinBox
 
+from prefabs.config.config_item_sql import RangeConfigItemSQL
 from prefabs.config.qconfig_sql import qconfig_custom
 
 
@@ -12,7 +14,14 @@ class SpinBoxSettingCardSQL(SettingCard):
 
     valueChanged = Signal(int)
 
-    def __init__(self, configItem, icon: Union[str, QIcon, FluentIconBase], title, content=None, parent=None) -> None:
+    def __init__(
+        self,
+        configItem: RangeConfigItemSQL,
+        icon: Union[str, QIcon, FluentIconBase],
+        title: str,
+        content: Optional[str] = None,
+        parent: Optional[QWidget] = None,
+    ) -> None:
         """
         Parameters
         ----------
@@ -52,6 +61,6 @@ class SpinBoxSettingCardSQL(SettingCard):
         self.setValue(value)
         self.valueChanged.emit(value)
 
-    def setValue(self, value) -> None:
+    def setValue(self, value: int) -> None:
         qconfig_custom.set(self.configItem, value)
         self.spinBox.setValue(value)

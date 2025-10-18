@@ -25,7 +25,7 @@ class isMitmdumpRunningWorker(QThread):
             logger.error(f"Error checking if mitmdump is running: {e}")
             self.checkCompleted.emit(False)
 
-    def isMitmdumpRunning(self):
+    def isMitmdumpRunning(self) -> bool:
         proxy_url = f"http://127.0.0.1:{ConfigValues.PROXY_PORT}"
         proxy_handler = urllib.request.ProxyHandler({"http": proxy_url, "https": proxy_url})
         context = ssl.create_default_context(cafile=certifi.where())

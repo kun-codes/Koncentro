@@ -1,5 +1,8 @@
+from typing import Optional
+
 from loguru import logger
 from PySide6.QtCore import QSize, QUrl
+from PySide6.QtGui import QResizeEvent
 from PySide6.QtWidgets import QHBoxLayout, QSizePolicy, QStackedWidget, QVBoxLayout, QWidget
 from qfluentwidgets import (
     BodyLabel,
@@ -17,7 +20,7 @@ from prefabs.autoLoopVideoWidget import AutoLoopVideoWidget
 
 
 class TutorialDialog(MessageBoxBase):
-    def __init__(self, parent, title: str) -> None:
+    def __init__(self, parent: Optional[QWidget], title: str) -> None:
         super().__init__(parent=parent)
 
         self.title = SubtitleLabel(title, parent=self)
@@ -71,7 +74,7 @@ class TutorialDialog(MessageBoxBase):
         self.__connectSignalsToSlots()
         self.updateNavigationButtons()
 
-    def resizeEvent(self, event) -> None:
+    def resizeEvent(self, event: QResizeEvent) -> None:
         super().resizeEvent(event)
         self.updateSizes()
 
@@ -154,7 +157,7 @@ class TutorialDialog(MessageBoxBase):
             self.stackedWidget.setCurrentIndex(currentIndex + 1)
             self.updateNavigationButtons()
 
-    def hideVideoWidget(self, index) -> None:
+    def hideVideoWidget(self, index: int) -> None:
         currentVideoWidget = self.stackedWidget.widget(index).findChild(VideoWidget)
         if currentVideoWidget:
             currentVideoWidget.hide()

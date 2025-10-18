@@ -1,3 +1,5 @@
+from typing import Optional
+
 from loguru import logger
 from PySide6.QtCore import QModelIndex, Qt
 from PySide6.QtWidgets import QWidget
@@ -10,9 +12,9 @@ from views.subinterfaces.tasks_view import TaskListView
 
 
 class BottomBar(Ui_BottomBarWidget, QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=None)
-        self.parent = parent
+        self.parent: Optional[QWidget] = parent
         self.setupUi(self)
 
         self.initWidget()
@@ -65,7 +67,9 @@ class BottomBar(Ui_BottomBarWidget, QWidget):
         else:
             self.pauseResumeButton.setIcon(FluentIcon.PAUSE)
 
-    def updateBottomBarTaskLabel(self, topLeft: QModelIndex, bottomRight: QModelIndex, roles) -> None:
+    def updateBottomBarTaskLabel(
+        self, topLeft: QModelIndex, bottomRight: QModelIndex, roles: list[Qt.ItemDataRole]
+    ) -> None:
         # if task name has been updated and only one index is updated (topLeft == bottomRight)
         if Qt.ItemDataRole.DisplayRole in roles and topLeft == bottomRight:
             triggeredTaskID = self.task_interface.todoTasksList.model().data(topLeft, TaskListModel.IDRole)

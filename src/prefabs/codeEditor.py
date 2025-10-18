@@ -1,5 +1,17 @@
+from typing import Union
+
 from PySide6.QtCore import QRect, QSize, Qt, Slot
-from PySide6.QtGui import QColor, QFont, QPainter, QTextCharFormat, QTextCursor, QTextFormat
+from PySide6.QtGui import (
+    QColor,
+    QFocusEvent,
+    QFont,
+    QPainter,
+    QPaintEvent,
+    QResizeEvent,
+    QTextCharFormat,
+    QTextCursor,
+    QTextFormat,
+)
 from PySide6.QtWidgets import QTextEdit, QWidget
 from qfluentwidgets import PlainTextEdit, isDarkTheme, qconfig, setCustomStyleSheet
 
@@ -9,19 +21,19 @@ from models.config import AppSettings
 
 
 class LineNumberArea(QWidget):
-    def __init__(self, editor) -> None:
+    def __init__(self, editor: "CodeEditor") -> None:
         QWidget.__init__(self, editor)
         self._code_editor = editor
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(self._code_editor.line_number_area_width(), 0)
 
-    def paintEvent(self, event) -> None:
+    def paintEvent(self, event: QPaintEvent) -> None:
         self._code_editor.lineNumberAreaPaintEvent(event)
 
 
 class CodeEditor(PlainTextEdit):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: Union[QWidget, None] = None) -> None:
         super().__init__(parent=parent)
         self.line_number_area = LineNumberArea(self)
 
@@ -59,14 +71,14 @@ class CodeEditor(PlainTextEdit):
         space = base_space + self.fontMetrics().horizontalAdvance("9") * digits
         return space
 
-    def resizeEvent(self, e) -> None:
+    def resizeEvent(self, e: QResizeEvent) -> None:
         super().resizeEvent(e)
         cr = self.contentsRect()
         width = self.line_number_area_width()
         rect = QRect(cr.left(), cr.top(), width, cr.height())
         self.line_number_area.setGeometry(rect)
 
-    def lineNumberAreaPaintEvent(self, event) -> None:
+    def lineNumberAreaPaintEvent(self, event: QPaintEvent) -> None:
         painter = QPainter(self.line_number_area)
         painter.fillRect(
             event.rect(),
@@ -133,11 +145,11 @@ class CodeEditor(PlainTextEdit):
         painter.end()
 
     @Slot()
-    def update_line_number_area_width(self, newBlockCount) -> None:
+    def update_line_number_area_width(self, newBlockCount: int) -> None:
         self.setViewportMargins(self.line_number_area_width(), 0, 0, 0)
 
     @Slot()
-    def update_line_number_area(self, rect, dy) -> None:
+    def update_line_number_area(self, rect: QRect, dy: int) -> None:
         if dy:
             self.line_number_area.scroll(0, dy)
         else:
@@ -164,7 +176,7 @@ class CodeEditor(PlainTextEdit):
 
         self.setExtraSelections(extra_selections)
 
-    def focusOutEvent(self, e) -> None:
+    def focusOutEvent(self, e: QFocusEvent) -> None:
         super().focusOutEvent(e)
         self.setExtraSelections(self._underline_selections)
 
