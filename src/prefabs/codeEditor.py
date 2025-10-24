@@ -145,7 +145,7 @@ class CodeEditor(PlainTextEdit):
         painter.end()
 
     @Slot()
-    def update_line_number_area_width(self, newBlockCount: int) -> None:
+    def update_line_number_area_width(self, _newBlockCount: int) -> None:
         self.setViewportMargins(self.line_number_area_width(), 0, 0, 0)
 
     @Slot()
