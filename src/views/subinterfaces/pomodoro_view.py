@@ -86,12 +86,6 @@ class PomodoroView(QWidget, Ui_PomodoroView):
             self.pauseResumeButton.setIcon(FluentIcon.PLAY)
             self.pomodoro_timer_obj.pauseDuration()
 
-    def correctPauseResumeButtonIcon(self, timer_state: TimerState) -> None:
-        if timer_state == TimerState.NOTHING:
-            self.pauseResumeButton.setIcon(FluentIcon.PLAY)
-        else:
-            self.pauseResumeButton.setIcon(FluentIcon.PAUSE)
-
     def initProgressRing(self, currentTimerState: TimerState, _: bool) -> None:
         self.ProgressRing.setMinimum(0)
 
