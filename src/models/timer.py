@@ -161,7 +161,6 @@ class PomodoroTimer(QObject):  # Inherit from QObject to support signals
         if self.remaining_time == 0 and not self.pomodoro_timer.isActive():
             # TODO: Implement skipping duration when timer is not doing anything
             raise NotImplementedError("Skipping duration when timer is not doing anything isn't implemented currently")
-            logger.info("Skipping duration when timer is doing nothing")
         else:
             logger.info("Skipping duration when timer is doing something")
             self.remaining_time = 0
