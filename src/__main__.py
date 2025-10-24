@@ -2,6 +2,7 @@ import os.path
 import platform
 import signal
 import sys
+import types
 from pathlib import Path
 
 from alembic import command
@@ -22,7 +23,7 @@ from utils.patch_tooltip import apply_patches
 from utils.update_app_version_in_db import updateAppVersionInDB
 
 
-def handle_signal(signal, frame) -> None:
+def handle_signal(_signal: signal.Signals, _frame: types.FrameType | None) -> None:
     if mainWindow:
         mainWindow.close()
 
