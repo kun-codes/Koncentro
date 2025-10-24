@@ -1,4 +1,7 @@
+from typing import Optional
+
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget
 from qfluentwidgets import (
     BodyLabel,
     MessageBoxBase,
@@ -9,7 +12,7 @@ from constants import APPLICATION_NAME
 
 
 class PostSetupVerificationDialog(MessageBoxBase):
-    def __init__(self, parent=None, is_setup_first_time: bool = True) -> None:
+    def __init__(self, parent: Optional[QWidget] = None, is_setup_first_time: bool = True) -> None:
         super().__init__(parent=parent)
         self.titleLabel = SubtitleLabel("Are you sure you have set up website blocking correctly?", parent=self)
         self.bodyLabel = BodyLabel(

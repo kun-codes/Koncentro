@@ -3,13 +3,14 @@ import platform
 import shutil
 import sys
 from pathlib import Path
+from typing import Optional
 
 from loguru import logger
 
 from utils.is_nuitka import is_nuitka
 
 
-def get_mitmdump_path():
+def get_mitmdump_path() -> Optional[str]:
     if is_nuitka():
         # from: https://nuitka.net/user-documentation/common-issue-solutions.html#onefile-finding-files
         mitmdump_path = os.path.join(os.path.dirname(sys.argv[0]), "mitmdump")

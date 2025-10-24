@@ -1,15 +1,34 @@
+from typing import TYPE_CHECKING, Any, Optional, Union
+
 from loguru import logger
-from PySide6.QtCore import QEvent, QPropertyAnimation, Qt, Signal
-from qfluentwidgets import FluentWindow, TeachingTip, TeachingTipTailPosition, TeachingTipView
+from PySide6.QtCore import QEvent, QObject, QPropertyAnimation, Qt, Signal
+from PySide6.QtGui import QIcon, QImage, QPixmap
+from PySide6.QtWidgets import QWidget
+from qfluentwidgets import (
+    FluentIconBase,
+    FluentWindow,
+    FlyoutViewBase,
+    TeachingTip,
+    TeachingTipTailPosition,
+    TeachingTipView,
+)
 
 from constants import InterfaceType
+
+if TYPE_CHECKING:
+    from main_window import MainWindow
 
 
 class TargetClickTeachingTip(TeachingTip):
     """Teaching tip that only closes when the target widget is clicked."""
 
     def __init__(
-        self, view, target, tailPosition=TeachingTipTailPosition.BOTTOM, parent=None, isDeleteOnClose: bool = True
+        self,
+        view: FlyoutViewBase,
+        target: QWidget,
+        tailPosition: TeachingTipTailPosition = TeachingTipTailPosition.BOTTOM,
+        parent: Optional[QWidget] = None,
+        isDeleteOnClose: bool = True,
     ) -> None:
         super().__init__(
             view, target, duration=-1, tailPosition=tailPosition, parent=parent, isDeleteOnClose=isDeleteOnClose
@@ -26,10 +45,10 @@ class TargetClickTeachingTip(TeachingTip):
         # installing event filter on target to detect clicks
         self.target.installEventFilter(self)
 
-        self.mainWindow: FluentWindow = None
-        self.interface_type: InterfaceType = None
-        self.customSignalToDestroy: Signal = None
-        self.expectedSignalParams: tuple = None
+        self.mainWindow: Optional[FluentWindow] = None
+        self.interface_type: Optional[InterfaceType] = None
+        self.customSignalToDestroy: Optional[Signal] = None
+        self.expectedSignalParams: Optional[tuple] = None
 
     def connectSignalsToSlots(self) -> None:
         logger.debug(f"Inside connectSignalsToSlots of {self.__class__.__name__}")
@@ -41,7 +60,7 @@ class TargetClickTeachingTip(TeachingTip):
             else:
                 self.customSignalToDestroy.connect(self._fadeOut)
 
-    def _handleCustomSignal(self, *args):
+    def _handleCustomSignal(self, *args: Any) -> None:
         """Handle custom signal and compare parameters before calling _fadeOut"""
         logger.debug(f"Custom signal received with args: {args}")
         logger.debug(f"Expected params: {self.expectedSignalParams}")
@@ -68,7 +87,7 @@ class TargetClickTeachingTip(TeachingTip):
             logger.debug("No expected parameters, calling _fadeOut")
             self._fadeOut()
 
-    def onTabChanged(self, index) -> None:
+    def onTabChanged(self, index: int) -> None:
         logger.debug(f"Tab changed to index: {index}")
 
         if self.interface_type.value == InterfaceType.DIALOG.value:  # no need to hide or show teaching tip
@@ -80,7 +99,7 @@ class TargetClickTeachingTip(TeachingTip):
         else:
             self.temporaryHide()
 
-    def eventFilter(self, obj, event):
+    def eventFilter(self, obj: QObject, event: QEvent) -> bool:
         # Check if the target was clicked
         if self.customSignalToDestroy is None:  # delete when clicked on target
             if obj is self.target and event.type() == QEvent.MouseButtonPress:
@@ -98,17 +117,17 @@ class TargetClickTeachingTip(TeachingTip):
     @classmethod
     def create(
         cls,
-        target,
-        title,
-        content,
-        mainWindow,
+        target: QWidget,
+        title: str,
+        content: str,
+        mainWindow: "MainWindow",
         interface_type: InterfaceType,
-        icon=None,
-        image=None,
-        tailPosition=TeachingTipTailPosition.BOTTOM,
-        parent=None,
+        icon: Union[FluentIconBase, QIcon, str] = None,
+        image: Union[str, QPixmap, QImage] = None,
+        tailPosition: TeachingTipTailPosition = TeachingTipTailPosition.BOTTOM,
+        parent: Optional[QWidget] = None,
         customSignalToDestroy: Signal = None,
-        *expectedSignalParams,
+        *expectedSignalParams: Any,
     ) -> "TargetClickTeachingTip":
         """Create a teaching tip that only closes when the target is clicked.
 

@@ -92,7 +92,7 @@ class PomodoroView(QWidget, Ui_PomodoroView):
         else:
             self.pauseResumeButton.setIcon(FluentIcon.PAUSE)
 
-    def initProgressRing(self, currentTimerState: TimerState, _) -> None:
+    def initProgressRing(self, currentTimerState: TimerState, _: bool) -> None:
         self.ProgressRing.setMinimum(0)
 
         if currentTimerState == TimerState.WORK:
@@ -135,14 +135,14 @@ class PomodoroView(QWidget, Ui_PomodoroView):
         self.pauseResumeButton.setIcon(FluentIcon.PAUSE)
         self.pauseResumeButton.setChecked(True)
 
-    def isInitialWorkSession(self):
+    def isInitialWorkSession(self) -> bool:
         return (
             self.pomodoro_timer_obj.previous_timer_state == TimerState.NOTHING
             and self.pomodoro_timer_obj.getTimerState() == TimerState.WORK  # and
             # self.pomodoro_timer_obj.getSessionProgress() == 0  # not adding this condition as it is redundant
         )
 
-    def convert_milliseconds(self, milliseconds) -> Tuple[int, int, int]:
+    def convert_milliseconds(self, milliseconds: int) -> Tuple[int, int, int]:
         seconds, milliseconds = divmod(milliseconds, 1000)
         minutes, seconds = divmod(seconds, 60)
         hours, minutes = divmod(minutes, 60)

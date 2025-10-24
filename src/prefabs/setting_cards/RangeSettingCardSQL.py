@@ -1,14 +1,22 @@
-from typing import Union
+from typing import Optional, Union
 
 from PySide6.QtCore import QTimer
 from PySide6.QtGui import QIcon
 from qfluentwidgets import FluentIconBase, RangeSettingCard
 
+from prefabs.config.config_item_sql import RangeConfigItemSQL
 from prefabs.config.qconfig_sql import qconfig_custom
 
 
 class RangeSettingCardSQL(RangeSettingCard):
-    def __init__(self, configItem, icon: Union[str, QIcon, FluentIconBase], title, content=None, parent=None) -> None:
+    def __init__(
+        self,
+        configItem: RangeConfigItemSQL,
+        icon: Union[str, QIcon, FluentIconBase],
+        title: str,
+        content: Optional[str] = None,
+        parent: Optional[str] = None,
+    ) -> None:
         super().__init__(configItem, icon, title, content, parent)
 
         # Timer to buffer database writes
@@ -41,7 +49,7 @@ class RangeSettingCardSQL(RangeSettingCard):
         current_value = self.slider.value()
         self._RangeSettingCard__onValueChanged(current_value)
 
-    def setValue(self, value) -> None:
+    def setValue(self, value: int) -> None:
         qconfig_custom.set(self.configItem, value)
         self.valueLabel.setNum(value)
         self.slider.setValue(value)

@@ -7,19 +7,20 @@ import os
 import shlex
 import signal
 import subprocess
+from typing import List
 
 import psutil
 from loguru import logger
 
 
-def exec_command(command) -> None:
+def exec_command(command: str) -> None:
     p = subprocess.Popen(shlex.split(command))
     p.wait()
 
 
-def find_processes_by_name(name: str):
+def find_processes_by_name(name: str) -> List[psutil.Process]:
     "Return a list of processes matching 'name'."
-    ls = []
+    ls: List[psutil.Process] = []
     for p in psutil.process_iter(attrs=["name", "exe", "cmdline"]):
         if (
             name == p.info["name"]
@@ -35,12 +36,14 @@ def find_processes_by_name(name: str):
 def kill_process() -> None:
     logger.debug("Inside kill_process().")
     if os.name == "nt":
-        processes = find_processes_by_name("mitmdump.exe") + find_processes_by_name("mitmproxy.exe")
+        processes: List[psutil.Process] = find_processes_by_name("mitmdump.exe") + find_processes_by_name(
+            "mitmproxy.exe"
+        )
         for p in processes:
             logger.debug(f"Trying to kill process with pid {p.pid} on Windows.")
             p.kill()  # I couldn't find any way of stopping mitmdump gracefully on Windows
     else:
-        processes = find_processes_by_name("mitmdump") + find_processes_by_name("mitmproxy")
+        processes: List[psutil.Process] = find_processes_by_name("mitmdump") + find_processes_by_name("mitmproxy")
         # list all processes with id and name
         for p in processes:
             logger.debug(f"Found process with pid {p.pid} and name {p.info['name']}.")

@@ -1,13 +1,16 @@
+from typing import Optional
+
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFontMetrics, QPainter
+from PySide6.QtGui import QFontMetrics, QPainter, QPaintEvent
+from PySide6.QtWidgets import QWidget
 from qfluentwidgets import StrongBodyLabel
 
 
 class ElidedStrongBodyLabel(StrongBodyLabel):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
-    def paintEvent(self, event) -> None:
+    def paintEvent(self, event: QPaintEvent) -> None:
         if not self.text():
             return
 

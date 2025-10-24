@@ -2,10 +2,11 @@ import platform
 import socket
 import threading
 from pathlib import Path
+from typing import Optional
 
 from loguru import logger
 from PySide6.QtCore import QModelIndex, QSize, Qt
-from PySide6.QtGui import QFont, QIcon, QKeySequence, QShortcut
+from PySide6.QtGui import QCloseEvent, QFont, QIcon, QKeySequence, QMouseEvent, QShortcut, QShowEvent
 from PySide6.QtWidgets import QApplication
 from qfluentwidgets import (
     FluentIcon,
@@ -36,6 +37,7 @@ from models.workspace_list_model import WorkspaceListModel
 from prefabs.customFluentIcon import CustomFluentIcon
 from prefabs.koncentroFluentWindow import KoncentroFluentWindow
 from prefabs.systemTray import SystemTray
+from prefabs.taskListItemDelegate import TaskListItemDelegate
 from resources import logos_rc
 from tutorial.pomodoroInterfaceTutorial import PomodoroInterfaceTutorial
 from tutorial.taskInterfaceTutorial import TaskInterfaceTutorial
@@ -175,7 +177,7 @@ class MainWindow(KoncentroFluentWindow):
         self.manage_workspace_dialog.show()
         self.showWorkspaceManagerTutorial()
 
-    def toggleUIElementsBasedOnTimerState(self, timerState, _) -> None:
+    def toggleUIElementsBasedOnTimerState(self, timerState: TimerState, _: bool) -> None:
         # TODO: show a tip to stop the timer before changing settings when timer is running
         workspace_selector_button = self.navigationInterface.panel.widget("WorkspaceSelector")
         if timerState in [TimerState.WORK, TimerState.BREAK, TimerState.LONG_BREAK]:
@@ -225,7 +227,7 @@ class MainWindow(KoncentroFluentWindow):
             logger.debug("Break session resumed and autostart break is off, stopping website blocking")
             self.stop_website_blocking()
 
-    def on_timer_state_changed(self, timerState: TimerState, _):
+    def on_timer_state_changed(self, timerState: TimerState, _: bool) -> None:
         """For cases when autostart work/break is enabled"""
         if timerState == TimerState.WORK and ConfigValues.AUTOSTART_WORK:
             logger.debug("Work session started and autostart work is on, starting website blocking")
@@ -289,7 +291,7 @@ class MainWindow(KoncentroFluentWindow):
             logger.debug("Website blocker settings changed, stopping blocking")
             self.stop_website_blocking()
 
-    def is_task_beginning(self):
+    def is_task_beginning(self) -> bool:
         current_state = self.pomodoro_interface.pomodoro_timer_obj.getTimerState()
         previous_state = self.pomodoro_interface.pomodoro_timer_obj.previous_timer_state
 
@@ -298,19 +300,19 @@ class MainWindow(KoncentroFluentWindow):
             and current_state == TimerState.WORK
         )
 
-    def get_current_task_id(self):
+    def get_current_task_id(self) -> Optional[int]:
         """
         Convenience method to get the current task id from the todoTasksList model
         """
         return self.task_interface.todoTasksList.model().currentTaskID()
 
-    def get_current_task_index(self):
+    def get_current_task_index(self) -> Optional[QModelIndex]:
         """
         Convenience method to get the current task index from the todoTasksList model
         """
         return self.task_interface.todoTasksList.model().currentTaskIndex()
 
-    def get_todo_task_list_item_delegate(self):
+    def get_todo_task_list_item_delegate(self) -> TaskListItemDelegate:
         """
         Convenience method to get the item delegate of the todo list
         """
@@ -336,7 +338,7 @@ class MainWindow(KoncentroFluentWindow):
                 parent=self,
             )
 
-    def check_current_task_deleted(self, task_id) -> None:
+    def check_current_task_deleted(self, task_id: int) -> None:
         if self.get_current_task_id() is not None and self.get_current_task_id() == task_id:
             self.task_interface.todoTasksList.model().setCurrentTaskID(None)
             if self.pomodoro_interface.pomodoro_timer_obj.getTimerState() in [
@@ -361,7 +363,7 @@ class MainWindow(KoncentroFluentWindow):
                 )
                 logger.debug("Current Task has been deleted")
 
-    def check_current_task_moved(self, task_id, task_type: TaskType) -> None:
+    def check_current_task_moved(self, task_id: int, task_type: TaskType) -> None:
         if self.get_current_task_id() is not None:
             current_task_id = self.get_current_task_id()
         else:
@@ -674,7 +676,7 @@ class MainWindow(KoncentroFluentWindow):
 
         self.website_blocker_interface.setEnabled(enable_website_block_setting_value)
 
-    def onStackedWidgetClicked(self, event) -> None:
+    def onStackedWidgetClicked(self, _event: QMouseEvent) -> None:
         if self.stackedWidget.currentIndex() == 2 and not self.website_blocker_interface.isEnabled():
             # show an infobar to inform the user that website blocker is disabled and how it can be enabled
             InfoBar.warning(
@@ -785,7 +787,7 @@ class MainWindow(KoncentroFluentWindow):
         # Start the update check in a background thread
         self.update_checker.start()
 
-    def onUpdateCheckComplete(self, result) -> None:
+    def onUpdateCheckComplete(self, result: UpdateCheckResult) -> None:
         """Handle the result of the update check from the background thread."""
         # The result is now already an UpdateCheckResult enum instance, no conversion needed
 
@@ -818,7 +820,7 @@ class MainWindow(KoncentroFluentWindow):
         elif result == UpdateCheckResult.UPDATE_URL_DOES_NOT_EXIST or UpdateCheckResult.RATE_LIMITED:
             self.showTutorial(InterfaceType.TASK_INTERFACE.value)
 
-    def showEvent(self, event) -> None:
+    def showEvent(self, event: QShowEvent) -> None:
         logger.debug("MainWindow showEvent")
         super().showEvent(event)
 
@@ -831,7 +833,7 @@ class MainWindow(KoncentroFluentWindow):
         elif self.updateDialog is not None:
             self.updateDialog.show()
 
-    def closeEvent(self, event) -> None:
+    def closeEvent(self, event: QCloseEvent) -> None:
         # Check if minimize to system tray is enabled
         if ConfigValues.SHOULD_MINIMIZE_TO_TRAY:
             event.ignore()

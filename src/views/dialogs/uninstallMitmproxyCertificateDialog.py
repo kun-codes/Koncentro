@@ -1,4 +1,5 @@
 import subprocess
+from typing import TYPE_CHECKING
 
 from loguru import logger
 from PySide6.QtCore import Qt, QThread, Signal
@@ -10,11 +11,14 @@ from constants import (
     UninstallMitmproxyCertificateResult,
 )
 
+if TYPE_CHECKING:
+    from views.subinterfaces.settings_view import SettingsView
+
 
 class CertificateUninstallWindowsWorker(QThread):
     finished = Signal(UninstallMitmproxyCertificateResult)
 
-    def run(self):
+    def run(self) -> None:
         try:
             # First check if the certificate exists
             check_result = subprocess.run(
@@ -54,7 +58,7 @@ class CertificateUninstallWindowsWorker(QThread):
 
 
 class UninstallMitmproxyCertificateDialog(MessageBoxBase):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: "SettingsView" = None) -> None:
         super().__init__(parent=parent)
         self.titleLabel = SubtitleLabel("Uninstall Mitmproxy Certificate", parent=self)
         self.bodyLabel = BodyLabel(parent=self)
@@ -101,7 +105,7 @@ class UninstallMitmproxyCertificateDialog(MessageBoxBase):
         self.worker.finished.connect(lambda: logger.debug("uninstall certificate worker finished"))
         self.worker.start()
 
-    def onUninstallFinished(self, result: UninstallMitmproxyCertificateResult):
+    def onUninstallFinished(self, result: UninstallMitmproxyCertificateResult) -> None:
         # Disconnect the signal immediately to prevent multiple calls
         if self.worker:
             self.worker.finished.disconnect()

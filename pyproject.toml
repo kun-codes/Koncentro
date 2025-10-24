@@ -43,13 +43,15 @@ extend-exclude = [
 ]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I"]
+select = ["E", "F", "W", "I", "ANN"]
 fixable = ["ALL"]
 
 [tool.ruff.lint.pyflakes]
 allowed-unused-imports = ["resources.logos_rc", "resources.resources_rc", "resources.fonts_rc"]
 
+[tool.ruff.lint.flake8-annotations]
+allow-star-arg-any = true
+
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
-

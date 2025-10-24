@@ -56,7 +56,7 @@ class RoundedListItemDelegateDisplayTime(RoundedListItemDelegate):
         target_time = index.data(TaskListModel.TargetTimeRole)
 
         # Convert milliseconds to HH:MM format
-        def ms_to_hhmm(ms) -> str:
+        def ms_to_hhmm(ms: int) -> str:
             seconds = ms // 1000
             minutes = seconds // 60
             hours = minutes // 60
