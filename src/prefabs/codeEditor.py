@@ -197,17 +197,3 @@ class CodeEditor(PlainTextEdit):
             self._underline_selections.append(selection)
 
         self.highlight_current_line()
-
-
-if __name__ == "__main__":
-    from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
-
-    app = QApplication([])
-
-    widget = QWidget()
-    layout = QVBoxLayout(widget)
-    codeEdit = CodeEditor()
-    layout.addWidget(codeEdit)
-    widget.show()
-
-    app.exec()
