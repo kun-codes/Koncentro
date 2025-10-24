@@ -1,5 +1,4 @@
 import platform
-import socket
 import threading
 from pathlib import Path
 from typing import Optional
@@ -707,16 +706,6 @@ class MainWindow(KoncentroFluentWindow):
             # self.setupMitmproxy()
 
         return False
-
-    def hasInternet(self) -> bool:
-        try:
-            socket.setdefaulttimeout(2)
-            socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(("194.242.2.2", 53))  # using mullvad dns service
-            # to maintain privacy
-            # https://mullvad.net/en/help/dns-over-https-and-dns-over-tls#specifications
-            return True
-        except OSError:
-            return False
 
     def preSetupMitmproxy(self, setup_first_time: bool = True) -> None:
         self.checkInternetWorker = CheckInternetWorker()

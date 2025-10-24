@@ -1,15 +1,10 @@
-import sys
 from typing import Optional
 
 from loguru import logger
 from PySide6.QtCore import QItemSelection, QItemSelectionModel, Qt
 from PySide6.QtGui import QColor, QKeyEvent, QShowEvent
 from PySide6.QtWidgets import (
-    QApplication,
     QFrame,
-    QHBoxLayout,
-    QMainWindow,
-    QPushButton,
     QVBoxLayout,
     QWidget,
 )
@@ -188,7 +183,7 @@ class ManageWorkspaceDialog(MaskDialogBase):
                 parent=self.parent(),
             )
 
-    def onWorkspaceSelectionChanged(self, selected: QItemSelection, deselected: QItemSelection) -> None:
+    def onWorkspaceSelectionChanged(self, selected: QItemSelection, _deselected: QItemSelection) -> None:
         selected_index = selected.indexes()
         if selected_index:
             selected_index = selected_index[0]
@@ -222,22 +217,3 @@ class ManageWorkspaceDialog(MaskDialogBase):
 
     def onCurrentWorkspaceDeleted(self) -> None:
         logger.debug("Current workspace deleted")
-
-
-if __name__ == "__main__":
-    # create a mainwindow
-
-    app = QApplication(sys.argv)
-
-    window = QMainWindow()
-
-    central_widget = QWidget()
-    layout = QHBoxLayout(central_widget)
-    btn = QPushButton("Open dialog")
-    layout.addWidget(btn)
-    window.setCentralWidget(central_widget)
-    window.show()
-
-    btn.clicked.connect(lambda: ManageWorkspaceDialog(window).show())
-
-    sys.exit(app.exec())

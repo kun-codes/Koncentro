@@ -153,9 +153,6 @@ class TargetClickTeachingTip(TeachingTip):
         tip.show()
         return tip
 
-    def fadeOut(self) -> None:
-        self._fadeOut()
-
     def temporaryHide(self) -> None:
         """Hide the teaching tip with fade animation without closing it"""
         logger.debug(f"Temporary hide {self.__class__.__name__}")

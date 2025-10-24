@@ -4,18 +4,11 @@
 """Utility functions to assist setting up port forwarding."""
 
 import os
-import shlex
 import signal
-import subprocess
 from typing import List
 
 import psutil
 from loguru import logger
-
-
-def exec_command(command: str) -> None:
-    p = subprocess.Popen(shlex.split(command))
-    p.wait()
 
 
 def find_processes_by_name(name: str) -> List[psutil.Process]:

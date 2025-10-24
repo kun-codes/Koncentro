@@ -40,7 +40,6 @@ class isMitmdumpRunningWorker(QThread):
                 else:
                     logger.debug(f"mitmdump check URL response status: {response.status}")
                     return False
-                logger.debug(f"mitmdump shutdown URL response status: {getattr(response, 'status', 'unknown')}")
         except urllib.error.URLError as e:
             logger.debug(f"urllib URLError: {e}")
             # Most likely mitmproxy/mitmdump isn't running if connection refused

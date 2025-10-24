@@ -2,18 +2,13 @@ from typing import Tuple
 
 from loguru import logger
 from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QSizePolicy, QSpacerItem, QWidget
+from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, ToolTipFilter, ToolTipPosition
 
 from config_values import ConfigValues
 from constants import TimerState
 from models.timer import PomodoroTimer
 from ui_py.ui_pomodoro_view import Ui_PomodoroView
-
-
-class HorizontalSpacer(QSpacerItem):
-    def __init__(self) -> None:
-        super().__init__(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
 
 class PomodoroView(QWidget, Ui_PomodoroView):
@@ -86,12 +81,6 @@ class PomodoroView(QWidget, Ui_PomodoroView):
             self.pauseResumeButton.setIcon(FluentIcon.PLAY)
             self.pomodoro_timer_obj.pauseDuration()
 
-    def correctPauseResumeButtonIcon(self, timer_state: TimerState) -> None:
-        if timer_state == TimerState.NOTHING:
-            self.pauseResumeButton.setIcon(FluentIcon.PLAY)
-        else:
-            self.pauseResumeButton.setIcon(FluentIcon.PAUSE)
-
     def initProgressRing(self, currentTimerState: TimerState, _: bool) -> None:
         self.ProgressRing.setMinimum(0)
 
@@ -147,14 +136,3 @@ class PomodoroView(QWidget, Ui_PomodoroView):
         minutes, seconds = divmod(seconds, 60)
         hours, minutes = divmod(minutes, 60)
         return int(hours), int(minutes), int(seconds)
-
-
-if __name__ == "__main__":
-    import sys
-
-    from PySide6.QtWidgets import QApplication
-
-    app = QApplication(sys.argv)
-    window = PomodoroView()
-    window.show()
-    sys.exit(app.exec())

@@ -24,8 +24,3 @@ class WorkspaceLookup:
         with get_session(is_read_only=True) as session:
             workspace = session.get(Workspace, current_workspace_id)
         return workspace
-
-
-if __name__ == "__main__":
-    print(WorkspaceLookup.get_current_workspace_id())
-    print(WorkspaceLookup.get_current_workspace_name())
