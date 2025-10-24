@@ -2,18 +2,13 @@ from typing import Tuple
 
 from loguru import logger
 from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QSizePolicy, QSpacerItem, QWidget
+from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, ToolTipFilter, ToolTipPosition
 
 from config_values import ConfigValues
 from constants import TimerState
 from models.timer import PomodoroTimer
 from ui_py.ui_pomodoro_view import Ui_PomodoroView
-
-
-class HorizontalSpacer(QSpacerItem):
-    def __init__(self) -> None:
-        super().__init__(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
 
 class PomodoroView(QWidget, Ui_PomodoroView):
