@@ -1,8 +1,5 @@
-import sys
-
 from loguru import logger
 from PySide6.QtCore import QObject, QTimer, Signal
-from PySide6.QtWidgets import QApplication
 
 from config_values import ConfigValues
 from constants import TimerState
@@ -182,8 +179,6 @@ class PomodoroTimer(QObject):  # Inherit from QObject to support signals
         """
         For decreasing the remaining time by timer_resolution
         """
-        if __name__ == "__main__":
-            logger.debug(f"Remaining time (in seconds): {self.getRemainingTime() / 1000}")
 
         self.remaining_time -= self.timer_resolution
 
@@ -227,17 +222,3 @@ class PomodoroTimer(QObject):  # Inherit from QObject to support signals
     #     self.timer_duration = 0
     #     self.session_progress += 0.5
     #     self.durationEnded()
-
-
-if __name__ == "__main__":
-
-    class TestPomodoro:
-        def __init__(self) -> None:
-            self.pomodoro_timer: PomodoroTimer = PomodoroTimer()
-            self.pomodoro_timer.updateSessionProgress()
-            self.pomodoro_timer.setDuration()
-            self.pomodoro_timer.startDuration()
-
-    app = QApplication(sys.argv)
-    pomodoro_test = TestPomodoro()
-    app.exec()
