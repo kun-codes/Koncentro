@@ -1,7 +1,7 @@
 from typing import Optional
 
 from PySide6.QtCore import QModelIndex, Qt, Signal
-from PySide6.QtWidgets import QApplication, QSizePolicy, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QSizePolicy, QVBoxLayout, QWidget
 from qfluentwidgets import (
     Action,
     FluentIcon,
@@ -401,10 +401,3 @@ class TaskListView(Ui_TaskView, QWidget):
             self.todoTasksList.model().setCurrentTaskID(None)
 
         self.todoTasksList.viewport().update()
-
-
-if __name__ == "__main__":
-    app = QApplication()
-    w = TaskListView()
-    w.show()
-    app.exec()
