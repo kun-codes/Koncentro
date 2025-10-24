@@ -183,7 +183,7 @@ class ManageWorkspaceDialog(MaskDialogBase):
                 parent=self.parent(),
             )
 
-    def onWorkspaceSelectionChanged(self, selected: QItemSelection, deselected: QItemSelection) -> None:
+    def onWorkspaceSelectionChanged(self, selected: QItemSelection, _deselected: QItemSelection) -> None:
         selected_index = selected.indexes()
         if selected_index:
             selected_index = selected_index[0]
