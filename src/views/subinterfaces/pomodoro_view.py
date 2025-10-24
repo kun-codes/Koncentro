@@ -147,14 +147,3 @@ class PomodoroView(QWidget, Ui_PomodoroView):
         minutes, seconds = divmod(seconds, 60)
         hours, minutes = divmod(minutes, 60)
         return int(hours), int(minutes), int(seconds)
-
-
-if __name__ == "__main__":
-    import sys
-
-    from PySide6.QtWidgets import QApplication
-
-    app = QApplication(sys.argv)
-    window = PomodoroView()
-    window.show()
-    sys.exit(app.exec())
