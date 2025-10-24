@@ -216,9 +216,3 @@ class PomodoroTimer(QObject):  # Inherit from QObject to support signals
 
     def getSessionsCompleted(self) -> int:
         return self.sessions_completed
-
-    # def skipDuration(self):
-    #     logger.info("Skipping duration")
-    #     self.timer_duration = 0
-    #     self.session_progress += 0.5
-    #     self.durationEnded()
