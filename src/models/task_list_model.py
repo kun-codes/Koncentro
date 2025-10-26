@@ -835,12 +835,6 @@ class TaskListModel(QAbstractItemModel):
         self.layoutChanged.emit()
         return True
 
-    def setIconForTask(self, row: int, icon: FluentIcon) -> None:
-        if row < len(self.root_nodes):
-            self.root_nodes[row].icon = icon
-            index = self.index(row, 0)
-            self.dataChanged.emit(index, index, [self.IconRole])
-
     def getTaskNameById(self, task_id: int) -> Optional[str]:
         node = self.getTaskNodeById(task_id)
         return node.task_name if node else None
