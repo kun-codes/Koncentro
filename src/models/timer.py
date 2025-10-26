@@ -193,10 +193,6 @@ class PomodoroTimer(QObject):  # Inherit from QObject to support signals
         """
         return self.remaining_time
 
-    def pomodoroSessionEnded(self) -> None:
-        logger.info("Pomodoro Session Ended")
-        self.stopSession()
-
     def stopSession(self) -> None:
         logger.info("Stopping Pomodoro Session")
         self.previous_timer_state = self.timer_state
