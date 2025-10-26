@@ -3,7 +3,7 @@ from typing import Optional
 from PySide6.QtCore import QModelIndex, Qt
 from PySide6.QtGui import QColor, QDragEnterEvent, QDropEvent, QPainter, QPaintEvent, QPen, QResizeEvent
 from PySide6.QtWidgets import QAbstractItemView, QProxyStyle, QStyle, QStyleOption, QWidget
-from qfluentwidgets import ListItemDelegate, TreeView, isDarkTheme
+from qfluentwidgets import TreeView, isDarkTheme
 
 from models.task_list_model import TaskListModel
 from prefabs.taskListItemDelegate import TaskListItemDelegate
@@ -151,12 +151,6 @@ class TaskList(TreeView):
                 break
             parent_view = parent_view.parentWidget()
         super().dropEvent(e)
-
-    def _setHoverRow(self, row: int) -> None:
-        delegate = self.itemDelegate()
-        if isinstance(delegate, ListItemDelegate):
-            delegate.setHoverRow(row)
-            self.viewport().update()
 
     def setModel(self, model: TaskListModel) -> None:
         super().setModel(model)
