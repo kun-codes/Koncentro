@@ -1,8 +1,5 @@
-import sys
-
 from loguru import logger
 from PySide6.QtCore import QObject, QTimer, Signal
-from PySide6.QtWidgets import QApplication
 
 from config_values import ConfigValues
 from constants import TimerState
@@ -164,7 +161,6 @@ class PomodoroTimer(QObject):  # Inherit from QObject to support signals
         if self.remaining_time == 0 and not self.pomodoro_timer.isActive():
             # TODO: Implement skipping duration when timer is not doing anything
             raise NotImplementedError("Skipping duration when timer is not doing anything isn't implemented currently")
-            logger.info("Skipping duration when timer is doing nothing")
         else:
             logger.info("Skipping duration when timer is doing something")
             self.remaining_time = 0
@@ -182,8 +178,6 @@ class PomodoroTimer(QObject):  # Inherit from QObject to support signals
         """
         For decreasing the remaining time by timer_resolution
         """
-        if __name__ == "__main__":
-            logger.debug(f"Remaining time (in seconds): {self.getRemainingTime() / 1000}")
 
         self.remaining_time -= self.timer_resolution
 
@@ -198,10 +192,6 @@ class PomodoroTimer(QObject):  # Inherit from QObject to support signals
         Returns the remaining time in milliseconds for the duration
         """
         return self.remaining_time
-
-    def pomodoroSessionEnded(self) -> None:
-        logger.info("Pomodoro Session Ended")
-        self.stopSession()
 
     def stopSession(self) -> None:
         logger.info("Stopping Pomodoro Session")
@@ -221,23 +211,3 @@ class PomodoroTimer(QObject):  # Inherit from QObject to support signals
 
     def getSessionsCompleted(self) -> int:
         return self.sessions_completed
-
-    # def skipDuration(self):
-    #     logger.info("Skipping duration")
-    #     self.timer_duration = 0
-    #     self.session_progress += 0.5
-    #     self.durationEnded()
-
-
-if __name__ == "__main__":
-
-    class TestPomodoro:
-        def __init__(self) -> None:
-            self.pomodoro_timer: PomodoroTimer = PomodoroTimer()
-            self.pomodoro_timer.updateSessionProgress()
-            self.pomodoro_timer.setDuration()
-            self.pomodoro_timer.startDuration()
-
-    app = QApplication(sys.argv)
-    pomodoro_test = TestPomodoro()
-    app.exec()

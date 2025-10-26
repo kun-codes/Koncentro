@@ -33,7 +33,3 @@ def apply_patches() -> bool:
     except Exception as e:
         logger.debug(f"Error applying tooltip patch: {e}")
         return False
-
-
-if __name__ == "__main__":
-    apply_patches()

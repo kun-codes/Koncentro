@@ -29,8 +29,6 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
         self.blockListText = ""
         self.allowListText = ""
 
-        self.is_editing = False
-
         self.model = WebsiteListManager()
         self.workspace_list_model = workspace_list_model
 
@@ -75,8 +73,6 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
         self.allowListTextEdit.textChanged.connect(self.checkURLs)
 
     def onTextChanged(self) -> None:
-        self.is_editing = True
-
         self.saveButton.setDisabled(False)
         self.blockTypeComboBox.setDisabled(True)
         # todo: show the user a tip that they can enable the combo box again by clicking on save or cancel buttons
@@ -152,8 +148,6 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
             self.model.update_target_list_urls(URLListType.ALLOWLIST, urls)
             self.initTextEdits(WebsiteBlockType.ALLOWLIST)
 
-        self.is_editing = False
-
         self.saveButton.setDisabled(True)
         self.blockTypeComboBox.setDisabled(False)
 
@@ -185,8 +179,6 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
     def onCancelButtonClicked(self) -> None:
         self.blockListTextEdit.setPlainText(self.blockListText)
         self.allowListTextEdit.setPlainText(self.allowListText)
-
-        self.is_editing = False
 
         self.saveButton.setDisabled(True)
         self.blockTypeComboBox.setDisabled(False)
@@ -248,8 +240,6 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
         self.blockTypeComboBox.setCurrentIndex(current_workspace.website_block_type.value)
 
         self.initTextEdits()
-
-        self.is_editing = False
 
         self.saveButton.setDisabled(True)
         self.blockTypeComboBox.setDisabled(False)

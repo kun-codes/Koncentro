@@ -4,7 +4,7 @@ import platform
 from loguru import logger
 from PySide6.QtCore import Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
-from PySide6.QtWidgets import QApplication, QWidget
+from PySide6.QtWidgets import QWidget
 from qfluentwidgets import (
     CustomColorSettingCard,
     FluentIcon,
@@ -423,10 +423,3 @@ class SettingsView(QWidget, Ui_SettingsView):
     def uninstallMitmproxyCertificate(self) -> None:
         dialog = UninstallMitmproxyCertificateDialog(self)
         dialog.exec()
-
-
-if __name__ == "__main__":
-    app = QApplication()
-    w = SettingsView()
-    w.show()
-    app.exec()

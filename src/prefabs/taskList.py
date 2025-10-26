@@ -3,7 +3,7 @@ from typing import Optional
 from PySide6.QtCore import QModelIndex, Qt
 from PySide6.QtGui import QColor, QDragEnterEvent, QDropEvent, QPainter, QPaintEvent, QPen, QResizeEvent
 from PySide6.QtWidgets import QAbstractItemView, QProxyStyle, QStyle, QStyleOption, QWidget
-from qfluentwidgets import ListItemDelegate, TreeView, isDarkTheme
+from qfluentwidgets import TreeView, isDarkTheme
 
 from models.task_list_model import TaskListModel
 from prefabs.taskListItemDelegate import TaskListItemDelegate
@@ -53,15 +53,12 @@ class TaskList(TreeView):
 
         self.current_editor = None
 
-        self._mousePressedOnItem = False
-
         self.setItemDelegate(TaskListItemDelegate(self))
 
         self.editor_width_reduction = 5  # the same number in TaskListItemDelegate's updateEditorGeometry method
 
         # Track drag operations to handle failed drops
         self._dragInProgress = False
-        self._draggedIndexes = []
 
         self.expanded.connect(self._onItemExpanded)
         self.collapsed.connect(self._onItemCollapsed)
@@ -74,8 +71,6 @@ class TaskList(TreeView):
         """
         Override startDrag to track drag operations and handle failed drops properly
         """
-        # Store the indexes being dragged
-        self._draggedIndexes = self.selectedIndexes()
         self._dragInProgress = True
 
         # Call the parent implementation to start the drag
@@ -88,7 +83,6 @@ class TaskList(TreeView):
 
         # Reset drag state
         self._dragInProgress = False
-        self._draggedIndexes = []
 
     def _handleFailedDrag(self) -> None:
         """
@@ -151,12 +145,6 @@ class TaskList(TreeView):
                 break
             parent_view = parent_view.parentWidget()
         super().dropEvent(e)
-
-    def _setHoverRow(self, row: int) -> None:
-        delegate = self.itemDelegate()
-        if isinstance(delegate, ListItemDelegate):
-            delegate.setHoverRow(row)
-            self.viewport().update()
 
     def setModel(self, model: TaskListModel) -> None:
         super().setModel(model)

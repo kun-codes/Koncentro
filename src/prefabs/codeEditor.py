@@ -145,7 +145,7 @@ class CodeEditor(PlainTextEdit):
         painter.end()
 
     @Slot()
-    def update_line_number_area_width(self, newBlockCount: int) -> None:
+    def update_line_number_area_width(self, _newBlockCount: int) -> None:
         self.setViewportMargins(self.line_number_area_width(), 0, 0, 0)
 
     @Slot()
@@ -197,17 +197,3 @@ class CodeEditor(PlainTextEdit):
             self._underline_selections.append(selection)
 
         self.highlight_current_line()
-
-
-if __name__ == "__main__":
-    from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
-
-    app = QApplication([])
-
-    widget = QWidget()
-    layout = QVBoxLayout(widget)
-    codeEdit = CodeEditor()
-    layout.addWidget(codeEdit)
-    widget.show()
-
-    app.exec()

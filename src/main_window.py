@@ -1,5 +1,4 @@
 import platform
-import socket
 import threading
 from pathlib import Path
 from typing import Optional
@@ -290,15 +289,6 @@ class MainWindow(KoncentroFluentWindow):
             # Just stop blocking if we're not in an active work session
             logger.debug("Website blocker settings changed, stopping blocking")
             self.stop_website_blocking()
-
-    def is_task_beginning(self) -> bool:
-        current_state = self.pomodoro_interface.pomodoro_timer_obj.getTimerState()
-        previous_state = self.pomodoro_interface.pomodoro_timer_obj.previous_timer_state
-
-        return (
-            previous_state in [TimerState.NOTHING, TimerState.BREAK, TimerState.LONG_BREAK]
-            and current_state == TimerState.WORK
-        )
 
     def get_current_task_id(self) -> Optional[int]:
         """
@@ -707,16 +697,6 @@ class MainWindow(KoncentroFluentWindow):
             # self.setupMitmproxy()
 
         return False
-
-    def hasInternet(self) -> bool:
-        try:
-            socket.setdefaulttimeout(2)
-            socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(("194.242.2.2", 53))  # using mullvad dns service
-            # to maintain privacy
-            # https://mullvad.net/en/help/dns-over-https-and-dns-over-tls#specifications
-            return True
-        except OSError:
-            return False
 
     def preSetupMitmproxy(self, setup_first_time: bool = True) -> None:
         self.checkInternetWorker = CheckInternetWorker()
