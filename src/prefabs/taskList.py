@@ -61,7 +61,6 @@ class TaskList(TreeView):
 
         # Track drag operations to handle failed drops
         self._dragInProgress = False
-        self._draggedIndexes = []
 
         self.expanded.connect(self._onItemExpanded)
         self.collapsed.connect(self._onItemCollapsed)
@@ -74,8 +73,6 @@ class TaskList(TreeView):
         """
         Override startDrag to track drag operations and handle failed drops properly
         """
-        # Store the indexes being dragged
-        self._draggedIndexes = self.selectedIndexes()
         self._dragInProgress = True
 
         # Call the parent implementation to start the drag
@@ -88,7 +85,6 @@ class TaskList(TreeView):
 
         # Reset drag state
         self._dragInProgress = False
-        self._draggedIndexes = []
 
     def _handleFailedDrag(self) -> None:
         """
