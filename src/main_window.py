@@ -290,15 +290,6 @@ class MainWindow(KoncentroFluentWindow):
             logger.debug("Website blocker settings changed, stopping blocking")
             self.stop_website_blocking()
 
-    def is_task_beginning(self) -> bool:
-        current_state = self.pomodoro_interface.pomodoro_timer_obj.getTimerState()
-        previous_state = self.pomodoro_interface.pomodoro_timer_obj.previous_timer_state
-
-        return (
-            previous_state in [TimerState.NOTHING, TimerState.BREAK, TimerState.LONG_BREAK]
-            and current_state == TimerState.WORK
-        )
-
     def get_current_task_id(self) -> Optional[int]:
         """
         Convenience method to get the current task id from the todoTasksList model
