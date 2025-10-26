@@ -763,12 +763,6 @@ class TaskListModel(QAbstractItemModel):
             logger.debug(f"Marking drag operation for task type: {self.task_type} as finished")
             self._dragInProgress = False
 
-    def isDragInProgress(self) -> bool:
-        """
-        Check if a drag operation is currently in progress
-        """
-        return self._dragInProgress
-
     def deleteTask(self, row: int, parent: QModelIndex = QModelIndex()) -> bool:
         """
         Delete tasks
