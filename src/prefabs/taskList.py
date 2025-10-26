@@ -53,8 +53,6 @@ class TaskList(TreeView):
 
         self.current_editor = None
 
-        self._mousePressedOnItem = False
-
         self.setItemDelegate(TaskListItemDelegate(self))
 
         self.editor_width_reduction = 5  # the same number in TaskListItemDelegate's updateEditorGeometry method
