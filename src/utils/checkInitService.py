@@ -5,7 +5,7 @@ import psutil
 from loguru import logger
 from PySide6.QtWidgets import QApplication, QMessageBox
 
-from utils.check_flatpak_sandbox import is_flatpak_sandbox
+from utils.checkFlatpakSandbox import is_flatpak_sandbox
 
 
 def check_init_service() -> bool:

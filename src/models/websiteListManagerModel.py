@@ -7,8 +7,8 @@ from PySide6.QtCore import QObject
 from sqlalchemy.orm import Session
 
 from constants import URLListType, WebsiteBlockType
-from models.db_tables import AllowlistExceptionURL, AllowlistURL, BlocklistExceptionURL, BlocklistURL, Workspace
-from models.workspace_lookup import WorkspaceLookup
+from models.dbTables import AllowlistExceptionURL, AllowlistURL, BlocklistExceptionURL, BlocklistURL, Workspace
+from models.workspaceLookup import WorkspaceLookup
 from utils.db_utils import get_session
 
 

@@ -6,7 +6,7 @@ from typing import Optional
 from loguru import logger
 from PySide6.QtWidgets import QWidget
 
-from utils.check_flatpak_sandbox import is_flatpak_sandbox
+from utils.checkFlatpakSandbox import is_flatpak_sandbox
 
 
 def apply_patches() -> bool:

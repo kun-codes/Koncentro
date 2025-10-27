@@ -21,8 +21,8 @@ from qfluentwidgets import (
 from qfluentwidgets.common.color import autoFallbackThemeColor
 
 from models.config import app_settings
-from models.task_list_model import TaskListModel, TaskNode
-from utils.time_conversion import convert_ms_to_hh_mm_ss
+from models.taskListModel import TaskListModel, TaskNode
+from utils.timeConversion import convert_ms_to_hh_mm_ss
 
 
 class TaskListItemDelegate(TreeItemDelegate):

@@ -7,14 +7,14 @@ from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QMenu, QSystemTrayIcon
 from qfluentwidgets import FluentIcon, Theme, qconfig
 
-from config_values import ConfigValues
+from configValues import ConfigValues
 from constants import TimerState
 from prefabs.customFluentIcon import CustomFluentIcon
-from utils.detect_windows_version import isWin10OrEarlier
-from views.subinterfaces.pomodoro_view import PomodoroView
+from utils.detectWindowsVersion import isWin10OrEarlier
+from views.subinterfaces.pomodoroView import PomodoroView
 
 if TYPE_CHECKING:
-    from main_window import MainWindow
+    from mainWindow import MainWindow
 
 
 class SystemTray(QSystemTrayIcon):
@@ -145,7 +145,7 @@ class SystemTray(QSystemTrayIcon):
             self.tray_menu_start_action.setEnabled(True)
 
     def showNotifications(self, timerState: TimerState, isSkipped: bool) -> None:
-        from config_values import ConfigValues
+        from configValues import ConfigValues
 
         title = ""
         message = ""

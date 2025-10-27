@@ -5,10 +5,10 @@ from PySide6.QtCore import QModelIndex, Qt
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, ToolTipFilter, ToolTipPosition
 
-from models.task_list_model import TaskListModel
+from models.taskListModel import TaskListModel
 from ui_py.ui_bottom_bar_widget import Ui_BottomBarWidget
-from views.subinterfaces.pomodoro_view import PomodoroView
-from views.subinterfaces.tasks_view import TaskListView
+from views.subinterfaces.pomodoroView import PomodoroView
+from views.subinterfaces.tasksView import TaskListView
 
 
 class BottomBar(Ui_BottomBarWidget, QWidget):

@@ -18,8 +18,8 @@ from sqlalchemy import update
 
 from constants import InvalidTaskDrop
 from models.config import AppSettings
-from models.db_tables import Task, TaskType
-from models.workspace_lookup import WorkspaceLookup
+from models.dbTables import Task, TaskType
+from models.workspaceLookup import WorkspaceLookup
 from utils.db_utils import get_session
 
 

@@ -1,7 +1,7 @@
 from PySide6.QtCore import QSettings
 from qfluentwidgets import BoolValidator, ConfigItem, QConfig, RangeConfigItem, RangeValidator, Theme, qconfig
 
-from config_paths import settings_file_path
+from configPaths import settings_file_path
 from constants import (
     APPLICATION_NAME,
     DEFAULT_AUTOSTART_BREAK,
@@ -13,11 +13,11 @@ from constants import (
     DEFAULT_WORK_INTERVALS,
     ORGANIZATION_NAME,
 )
-from models.db_tables import Workspace
-from prefabs.config.config_item_sql import ConfigItemSQL, RangeConfigItemSQL
-from prefabs.config.qconfig_sql import QConfigSQL, qconfig_custom
-from utils.detect_windows_version import isWin11
-from utils.patch_qconfig_theme import apply_qconfig_theme_patch
+from models.dbTables import Workspace
+from prefabs.config.configItemSQL import ConfigItemSQL, RangeConfigItemSQL
+from prefabs.config.qconfigSQL import QConfigSQL, qconfig_custom
+from utils.detectWindowsVersion import isWin11
+from utils.qconfigPatchTheme import apply_qconfig_theme_patch
 
 
 class WorkspaceSettings(QConfigSQL):
@@ -85,7 +85,7 @@ def load_app_settings() -> None:
 
 # A hacky way to apply the theme patch
 # Only works if called from here, has something to do with module level functions calls
-# which are called in main_window.py when config.py is imported
+# which are called in mainWindow.py when config.py is imported
 # position of apply_qconfig_theme_patch(), load_app_settings() and load_workspace_settings() is key here
 apply_qconfig_theme_patch()
 

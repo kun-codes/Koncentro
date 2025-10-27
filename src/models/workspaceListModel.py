@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Union
 from loguru import logger
 from PySide6.QtCore import QAbstractListModel, QItemSelectionModel, QModelIndex, Qt, Signal
 
-from models.db_tables import CurrentWorkspace, Workspace
+from models.dbTables import CurrentWorkspace, Workspace
 from utils.db_utils import get_session
 
 

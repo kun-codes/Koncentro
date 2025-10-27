@@ -1,6 +1,6 @@
 from typing import Optional
 
-from models.db_tables import Task
+from models.dbTables import Task
 from utils.db_utils import get_session
 
 

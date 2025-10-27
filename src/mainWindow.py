@@ -17,8 +17,8 @@ from qfluentwidgets import (
     SystemThemeListener,
 )
 
-from config_paths import settings_dir
-from config_values import ConfigValues
+from configPaths import settings_dir
+from configValues import ConfigValues
 from constants import (
     APPLICATION_NAME,
     FIRST_RUN_DOTFILE_NAME,
@@ -30,9 +30,9 @@ from constants import (
     WindowGeometryKeys,
 )
 from models.config import app_settings, load_workspace_settings, settings, workspace_specific_settings
-from models.db_tables import TaskType
-from models.task_list_model import TaskListModel
-from models.workspace_list_model import WorkspaceListModel
+from models.dbTables import TaskType
+from models.taskListModel import TaskListModel
+from models.workspaceListModel import WorkspaceListModel
 from prefabs.customFluentIcon import CustomFluentIcon
 from prefabs.koncentroFluentWindow import KoncentroFluentWindow
 from prefabs.systemTray import SystemTray
@@ -42,20 +42,20 @@ from tutorial.pomodoroInterfaceTutorial import PomodoroInterfaceTutorial
 from tutorial.taskInterfaceTutorial import TaskInterfaceTutorial
 from tutorial.websiteBlockerInterfaceTutorial import WebsiteBlockerInterfaceTutorial
 from tutorial.workspaceManagerDialogTutorial import WorkspaceManagerDialogTutorial
-from utils.check_for_updates import UpdateChecker
-from utils.check_internet_worker import CheckInternetWorker
-from utils.find_mitmdump_executable import get_mitmdump_path
+from utils.checkForUpdates import UpdateChecker
+from utils.checkInternetWorker import CheckInternetWorker
+from utils.findMitmdumpExecutable import get_mitmdump_path
 from utils.isMitmdumpRunning import isMitmdumpRunningWorker
-from utils.time_conversion import convert_ms_to_hh_mm_ss
+from utils.timeConversion import convert_ms_to_hh_mm_ss
 from views.dialogs.preSetupConfirmationDialog import PreSetupConfirmationDialog
 from views.dialogs.setupAppDialog import SetupAppDialog
 from views.dialogs.updateDialog import UpdateDialog
 from views.dialogs.workspaceManagerDialog import ManageWorkspaceDialog
-from views.subinterfaces.pomodoro_view import PomodoroView
-from views.subinterfaces.settings_view import SettingsView
-from views.subinterfaces.tasks_view import TaskListView
-from views.subinterfaces.website_blocker_view import WebsiteBlockerView
-from website_blocker.website_blocker_manager import WebsiteBlockerManager
+from views.subinterfaces.pomodoroView import PomodoroView
+from views.subinterfaces.settingsView import SettingsView
+from views.subinterfaces.tasksView import TaskListView
+from views.subinterfaces.websiteBlockerView import WebsiteBlockerView
+from website_blocker.websiteBlockerManager import WebsiteBlockerManager
 
 
 class MainWindow(KoncentroFluentWindow):

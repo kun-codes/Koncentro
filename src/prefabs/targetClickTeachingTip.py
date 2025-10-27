@@ -16,7 +16,7 @@ from qfluentwidgets import (
 from constants import InterfaceType
 
 if TYPE_CHECKING:
-    from main_window import MainWindow
+    from mainWindow import MainWindow
 
 
 class TargetClickTeachingTip(TeachingTip):

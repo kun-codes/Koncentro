@@ -4,7 +4,7 @@ from PySide6.QtCore import QObject, Signal
 from qfluentwidgets import ConfigSerializer, ConfigValidator
 from sqlalchemy.orm import InstrumentedAttribute  # for type hinting of sqlalchemy columns
 
-from models.db_tables import Base
+from models.dbTables import Base
 
 
 class ConfigItemSQL(QObject):

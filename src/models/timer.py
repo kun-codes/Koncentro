@@ -1,7 +1,7 @@
 from loguru import logger
 from PySide6.QtCore import QObject, QTimer, Signal
 
-from config_values import ConfigValues
+from configValues import ConfigValues
 from constants import TimerState
 
 

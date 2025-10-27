@@ -4,8 +4,8 @@ from PySide6.QtCore import QTimer
 from PySide6.QtGui import QIcon
 from qfluentwidgets import FluentIconBase, RangeSettingCard
 
-from prefabs.config.config_item_sql import RangeConfigItemSQL
-from prefabs.config.qconfig_sql import qconfig_custom
+from prefabs.config.configItemSQL import RangeConfigItemSQL
+from prefabs.config.qconfigSQL import qconfig_custom
 
 
 class RangeSettingCardSQL(RangeSettingCard):

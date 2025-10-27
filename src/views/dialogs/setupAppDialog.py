@@ -9,15 +9,15 @@ from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import QSizePolicy, QWidget
 from qfluentwidgets import BodyLabel, FluentIcon, InfoBar, MessageBoxBase, PushButton, SubtitleLabel
 
-from config_values import ConfigValues
+from configValues import ConfigValues
 from constants import (
     APPLICATION_NAME,
     CHECK_CERTIFICATE_WINDOWS_COMMAND,
     InstallMitmproxyCertificateResult,
 )
-from utils.find_mitmdump_executable import get_mitmdump_path
+from utils.findMitmdumpExecutable import get_mitmdump_path
 from views.dialogs.postSetupVerificationDialog import PostSetupVerificationDialog
-from website_blocker.website_blocker_manager import WebsiteBlockerManager
+from website_blocker.websiteBlockerManager import WebsiteBlockerManager
 
 
 class CertificateInstallWindowsWorker(QThread):
