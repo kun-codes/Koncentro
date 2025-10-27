@@ -1,6 +1,6 @@
-from models.db_tables import CurrentWorkspace, Task, TaskType, Version, Workspace
+from models.dbTables import CurrentWorkspace, Task, TaskType, Version, Workspace
 from utils.db_utils import get_session
-from utils.get_app_version import get_app_version
+from utils.getAppVersion import get_app_version
 
 
 def checkValidDB() -> None:

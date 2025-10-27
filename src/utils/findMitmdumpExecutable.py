@@ -7,7 +7,7 @@ from typing import Optional
 
 from loguru import logger
 
-from utils.is_nuitka import is_nuitka
+from utils.isNuitka import is_nuitka
 
 
 def get_mitmdump_path() -> Optional[str]:

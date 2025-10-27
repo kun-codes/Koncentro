@@ -11,9 +11,9 @@ from qfluentwidgets import (
 )
 
 from constants import URLListType, WebsiteBlockType
-from models.website_list_manager_model import WebsiteListManager
-from models.workspace_list_model import WorkspaceListModel
-from models.workspace_lookup import WorkspaceLookup
+from models.websiteListManagerModel import WebsiteListManager
+from models.workspaceListModel import WorkspaceListModel
+from models.workspaceLookup import WorkspaceLookup
 from ui_py.ui_website_blocker_view import Ui_WebsiteBlockView
 
 

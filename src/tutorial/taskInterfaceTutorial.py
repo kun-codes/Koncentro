@@ -6,10 +6,10 @@ from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QStyleOptionViewItem, QWidget
 from qfluentwidgets import FluentIcon, FluentWindow, TeachingTipTailPosition
 
-from config_values import ConfigValues
+from configValues import ConfigValues
 from constants import InterfaceType, NavPanelButtonPosition
 from models.config import app_settings
-from models.task_list_model import TaskListModel
+from models.taskListModel import TaskListModel
 from prefabs.customFluentIcon import CustomFluentIcon
 from prefabs.targetClickTeachingTip import TargetClickTeachingTip
 from prefabs.taskList import TaskList

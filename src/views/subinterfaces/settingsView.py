@@ -21,7 +21,7 @@ from qfluentwidgets import (
     setThemeColor,
 )
 
-from config_values import ConfigValues
+from configValues import ConfigValues
 from constants import APPLICATION_NAME, NEW_RELEASE_URL, UpdateCheckResult
 from models.config import app_settings, workspace_specific_settings
 from prefabs.customFluentIcon import CustomFluentIcon
@@ -30,9 +30,9 @@ from prefabs.setting_cards.SpinBoxSettingCard import SpinBoxSettingCard
 from prefabs.setting_cards.SpinBoxSettingCardSQL import SpinBoxSettingCardSQL
 from prefabs.setting_cards.SwitchSettingCardSQL import SwitchSettingCardSQL
 from ui_py.ui_settings_view import Ui_SettingsView
-from utils.check_for_updates import UpdateChecker
-from utils.detect_windows_version import isWin11
-from utils.get_app_version import get_app_version
+from utils.checkForUpdates import UpdateChecker
+from utils.detectWindowsVersion import isWin11
+from utils.getAppVersion import get_app_version
 from views.dialogs.uninstallMitmproxyCertificateDialog import UninstallMitmproxyCertificateDialog
 
 
@@ -184,7 +184,7 @@ class SettingsView(QWidget, Ui_SettingsView):
             f"Setup {APPLICATION_NAME} again",
             f"Click to setup {APPLICATION_NAME} again",
             self.setup_group,
-        )  # connected in main_window.py
+        )  # connected in mainWindow.py
         operating_system = platform.system()
         if operating_system == "Darwin":
             operating_system = "macOS"
@@ -202,7 +202,7 @@ class SettingsView(QWidget, Ui_SettingsView):
             "Reset Proxy Settings",
             f"Click to reset proxy settings for {APPLICATION_NAME} and {operating_system}",
             self.setup_group,
-        )  # connected in main_window.py
+        )  # connected in mainWindow.py
 
         # About Group
         self.about_group = SettingCardGroup("About", self.scrollArea)

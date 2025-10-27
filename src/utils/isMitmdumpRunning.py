@@ -5,7 +5,7 @@ import certifi
 from loguru import logger
 from PySide6.QtCore import QThread, Signal
 
-from config_values import ConfigValues
+from configValues import ConfigValues
 from website_blocker.constants import MITMDUMP_CHECK_URL
 
 

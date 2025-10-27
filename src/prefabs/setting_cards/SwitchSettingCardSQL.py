@@ -4,8 +4,8 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIconBase, SwitchSettingCard
 
-from prefabs.config.config_item_sql import ConfigItemSQL
-from prefabs.config.qconfig_sql import qconfig_custom
+from prefabs.config.configItemSQL import ConfigItemSQL
+from prefabs.config.qconfigSQL import qconfig_custom
 
 
 class SwitchSettingCardSQL(SwitchSettingCard):

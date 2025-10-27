@@ -14,8 +14,8 @@ from qfluentwidgets import (
 )
 
 from constants import InvalidTaskDrop
-from models.db_tables import TaskType
-from models.task_list_model import TaskListModel, TaskNode
+from models.dbTables import TaskType
+from models.taskListModel import TaskListModel, TaskNode
 from prefabs.customFluentIcon import CustomFluentIcon
 from prefabs.taskList import TaskList
 from prefabs.taskListItemDelegate import TaskListItemDelegate

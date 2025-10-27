@@ -9,7 +9,7 @@ from PySide6.QtCore import QObject, QThread, Signal
 from semver import Version
 
 from constants import UPDATE_CHECK_URL, UpdateCheckResult
-from utils.get_app_version import get_app_version
+from utils.getAppVersion import get_app_version
 
 
 class UpdateCheckError(Exception):

@@ -4,7 +4,7 @@ from PySide6.QtCore import QTime
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import MessageBoxBase, PickerColumnFormatter, SubtitleLabel, TimePicker
 
-from models.task_lookup import TaskLookup
+from models.taskLookup import TaskLookup
 
 
 class TimeFormatter(PickerColumnFormatter):

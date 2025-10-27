@@ -5,7 +5,7 @@ from PySide6.QtGui import QColor, QDragEnterEvent, QDropEvent, QPainter, QPaintE
 from PySide6.QtWidgets import QAbstractItemView, QProxyStyle, QStyle, QStyleOption, QWidget
 from qfluentwidgets import TreeView, isDarkTheme
 
-from models.task_list_model import TaskListModel
+from models.taskListModel import TaskListModel
 from prefabs.taskListItemDelegate import TaskListItemDelegate
 from ui_py.ui_tasks_list_view import Ui_TaskView
 

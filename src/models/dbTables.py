@@ -8,7 +8,7 @@ from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.pool.base import _ConnectionRecord
 
-from config_paths import db_path, settings_dir
+from configPaths import db_path, settings_dir
 from constants import (
     DEFAULT_AUTOSTART_BREAK,
     DEFAULT_AUTOSTART_WORK,

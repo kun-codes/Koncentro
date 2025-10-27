@@ -12,7 +12,7 @@ from constants import (
 )
 
 if TYPE_CHECKING:
-    from views.subinterfaces.settings_view import SettingsView
+    from views.subinterfaces.settingsView import SettingsView
 
 
 class CertificateUninstallWindowsWorker(QThread):

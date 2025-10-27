@@ -1,6 +1,6 @@
-from models.db_tables import Version
+from models.dbTables import Version
 from utils.db_utils import get_session
-from utils.get_app_version import get_app_version
+from utils.getAppVersion import get_app_version
 
 
 def updateAppVersionInDB() -> None:

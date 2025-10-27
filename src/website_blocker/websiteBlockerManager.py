@@ -12,8 +12,8 @@ from loguru import logger
 from PySide6.QtCore import QObject, QThread, Signal
 from uniproxy import Uniproxy
 
-from config_values import ConfigValues
-from utils.check_flatpak_sandbox import is_flatpak_sandbox
+from configValues import ConfigValues
+from utils.checkFlatpakSandbox import is_flatpak_sandbox
 from website_blocker.constants import MITMDUMP_SHUTDOWN_URL
 from website_blocker.utils import kill_process
 

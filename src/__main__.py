@@ -13,14 +13,14 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 
 import resources.fonts_rc
 from constants import APPLICATION_NAME, APPLICATION_UID, FLATPAK_APP_ID, ORGANIZATION_NAME
-from main_window import MainWindow
+from mainWindow import MainWindow
 from prefabs.qtSingleApplication import QtSingleApplication
-from utils.check_flatpak_sandbox import is_flatpak_sandbox
-from utils.check_init_service import check_init_service
-from utils.check_valid_db import checkValidDB
-from utils.is_nuitka import is_nuitka
-from utils.patch_tooltip import apply_patches
-from utils.update_app_version_in_db import updateAppVersionInDB
+from utils.checkFlatpakSandbox import is_flatpak_sandbox
+from utils.checkInitService import check_init_service
+from utils.checkValidDb import checkValidDB
+from utils.isNuitka import is_nuitka
+from utils.patchTooltip import apply_patches
+from utils.updateAppVersionInDb import updateAppVersionInDB
 
 
 def handle_signal(_signal: signal.Signals, _frame: types.FrameType | None) -> None:

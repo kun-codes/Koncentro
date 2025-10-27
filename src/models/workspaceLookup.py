@@ -1,6 +1,6 @@
 from typing import Optional
 
-from models.db_tables import CurrentWorkspace, Workspace
+from models.dbTables import CurrentWorkspace, Workspace
 from utils.db_utils import get_session
 
 

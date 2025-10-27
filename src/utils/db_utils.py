@@ -3,7 +3,7 @@ from typing import Any, Generator
 
 from sqlalchemy.orm import Session, sessionmaker
 
-from models.db_tables import engine
+from models.dbTables import engine
 
 
 @contextmanager

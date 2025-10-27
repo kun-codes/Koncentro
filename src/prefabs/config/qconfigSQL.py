@@ -9,10 +9,10 @@ from qfluentwidgets import (
     exceptionHandler,
 )
 
-from config_paths import settings_file_path
-from models.db_tables import Workspace
-from models.workspace_lookup import WorkspaceLookup
-from prefabs.config.config_item_sql import ConfigItemSQL
+from configPaths import settings_file_path
+from models.dbTables import Workspace
+from models.workspaceLookup import WorkspaceLookup
+from prefabs.config.configItemSQL import ConfigItemSQL
 from utils.db_utils import get_session
 
 

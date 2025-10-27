@@ -20,9 +20,9 @@ from qfluentwidgets import (
 )
 from qfluentwidgets.components.dialog_box.mask_dialog_base import MaskDialogBase
 
-from models.db_tables import Workspace
-from models.workspace_list_model import WorkspaceListModel
-from models.workspace_lookup import WorkspaceLookup
+from models.dbTables import Workspace
+from models.workspaceListModel import WorkspaceListModel
+from models.workspaceLookup import WorkspaceLookup
 from prefabs.roundedListItemDelegate import RoundedListItemDelegate
 from prefabs.workspaceListView import WorkspaceListView
 
