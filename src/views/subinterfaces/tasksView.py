@@ -1,6 +1,7 @@
 from typing import Optional
 
 from PySide6.QtCore import QModelIndex, Qt, Signal
+from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QSizePolicy, QVBoxLayout, QWidget
 from qfluentwidgets import (
     Action,
@@ -40,6 +41,12 @@ class TaskListView(Ui_TaskView, QWidget):
         self.initLayout()
         self.connectSignalsToSlots()
         self.setupSelectionBehavior()
+        self.setupShortcuts()
+
+    def setupShortcuts(self) -> None:
+        self.delete_shortcut = QShortcut(QKeySequence(Qt.Key.Key_Delete), self)
+        self.delete_shortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self.delete_shortcut.activated.connect(self.deleteTaskButton.click)
 
     def initLayout(self) -> None:
         label_size_policy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
@@ -95,7 +102,7 @@ class TaskListView(Ui_TaskView, QWidget):
         self.addTaskSplitButton.dropButton.installEventFilter(
             ToolTipFilter(self.addTaskSplitButton.dropButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
-        self.deleteTaskButton.setToolTip("Delete Task")
+        self.deleteTaskButton.setToolTip("Delete Task (Del)")
         self.deleteTaskButton.installEventFilter(
             ToolTipFilter(self.deleteTaskButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
