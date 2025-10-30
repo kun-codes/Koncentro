@@ -151,6 +151,7 @@ class TaskList(TreeView):
 
         self._restoreExpansionStateOfAllTasks()
 
+        # connecting here because the below methods need the model to be set first
         model.taskMovedSignal.connect(self._restoreExpansionStateOfATask)
         model.taskAddedSignal.connect(self._restoreExpansionStateOfATask)
 
