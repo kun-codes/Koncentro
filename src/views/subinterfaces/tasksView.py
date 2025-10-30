@@ -44,8 +44,14 @@ class TaskListView(Ui_TaskView, QWidget):
         self.setupShortcuts()
 
     def setupShortcuts(self) -> None:
+        # not setting up shortcuts like the below because the shortcut can get activated when focus is on a dialog
+        # like add task dialog etc
+        # self.deleteTaskButton.setShortcut(QKeySequence(Qt.Key.Key_Delete))
+
         self.delete_shortcut = QShortcut(QKeySequence(Qt.Key.Key_Delete), self)
         self.delete_shortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        # connecting to self.deleteTaskButton.click() as the shortcut will have no effect on activation when the
+        # deleteTaskButton is deactivated (that is during tutorials)
         self.delete_shortcut.activated.connect(self.deleteTaskButton.click)
 
     def initLayout(self) -> None:
