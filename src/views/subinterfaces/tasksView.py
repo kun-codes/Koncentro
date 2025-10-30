@@ -54,6 +54,10 @@ class TaskListView(Ui_TaskView, QWidget):
         # deleteTaskButton is deactivated (that is during tutorials)
         self.deleteShortcut.activated.connect(self.deleteTaskButton.click)
 
+        self.editTaskTimeShortcut = QShortcut(QKeySequence(Qt.Key.Key_E), self)
+        self.editTaskTimeShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self.editTaskTimeShortcut.activated.connect(self.editTaskTimeButton.click)
+
     def initLayout(self) -> None:
         label_size_policy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
 
@@ -266,12 +270,15 @@ class TaskListView(Ui_TaskView, QWidget):
     def editTaskTime(self) -> None:
         row = None
         task_list_model = None
+        active_list = None
         if self.todoTasksList.selectionModel().hasSelection():
             row = self.todoTasksList.selectionModel().currentIndex()
             task_list_model: TaskListModel = self.todoTasksList.model()
+            active_list = self.todoTasksList
         elif self.completedTasksList.selectionModel().hasSelection():
             row = self.completedTasksList.selectionModel().currentIndex()
             task_list_model: TaskListModel = self.completedTasksList.model()
+            active_list = self.completedTasksList
 
         if row is None:
             InfoBar.warning(
@@ -299,6 +306,13 @@ class TaskListView(Ui_TaskView, QWidget):
                 duration=3000,
                 parent=self,
             )
+
+            # focus has to be restored to the active list so that self.editTaskTimeShortcut can be used again
+            # without this manual focus restore, although focus can be restored to TaskListView as well, focus is being
+            # restored to the active list as after selecting a task initially, the corresponding taskList gets selected
+            # so setting focus back to the same taskList seems logical
+            if active_list:
+                active_list.setFocus(Qt.FocusReason.PopupFocusReason)
             return
 
         if self.editTaskTimeDialog.exec():
@@ -346,6 +360,13 @@ class TaskListView(Ui_TaskView, QWidget):
                 estimated_time = self.editTaskTimeDialog.getTargetTime()
                 if estimated_time is not None:
                     task_list_model.setData(row, estimated_time, TaskListModel.TargetTimeRole, update_db=True)
+
+        # focus has to be restored to the active list so that self.editTaskTimeShortcut can be used again
+        # without this manual focus restore, although focus can be restored to TaskListView as well, focus is being
+        # restored to the active list as after selecting a task initially, the corresponding taskList gets selected
+        # so setting focus back to the same taskList seems logical
+        if active_list:
+            active_list.setFocus(Qt.FocusReason.PopupFocusReason)
 
     def setupSelectionBehavior(self) -> None:
         """

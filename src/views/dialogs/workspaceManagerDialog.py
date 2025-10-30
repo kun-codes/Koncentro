@@ -23,6 +23,7 @@ from qfluentwidgets.components.dialog_box.mask_dialog_base import MaskDialogBase
 from models.dbTables import Workspace
 from models.workspaceListModel import WorkspaceListModel
 from models.workspaceLookup import WorkspaceLookup
+from prefabs.qtSingleApplication import QtSingleApplication
 from prefabs.roundedListItemDelegate import RoundedListItemDelegate
 from prefabs.workspaceListView import WorkspaceListView
 
@@ -37,6 +38,8 @@ class ManageWorkspaceDialog(MaskDialogBase):
 
         self.viewLayout = QVBoxLayout()
         self.buttonLayout = QVBoxLayout(self.buttonGroup)
+
+        self.lastFocusedWidget: Optional[QWidget] = None
 
         # initializing buttons
         self.deleteWorkspaceButton = PushButton()
@@ -217,3 +220,20 @@ class ManageWorkspaceDialog(MaskDialogBase):
 
     def onCurrentWorkspaceDeleted(self) -> None:
         logger.debug("Current workspace deleted")
+
+    def show(self) -> None:
+        super().show()
+
+        self.lastFocusedWidget = QtSingleApplication.focusWidget()
+
+        # focus is set to self so that keyboard shortcuts define in tasksView.py don't get activated when
+        # ManageWorkspaceDialog is shown
+        self.setFocus(Qt.FocusReason.PopupFocusReason)
+
+    def close(self) -> None:
+        super().close()
+
+        # focus is set back to the last focussed widget so that keyboard shortcuts define in tasksView.py get activated
+        # again in case any were disabled when ManageWorkspaceDialog was shown
+        self.lastFocusedWidget.setFocus()
+        self.lastFocusedWidget = None
