@@ -370,6 +370,9 @@ class TaskListView(Ui_TaskView, QWidget):
         self.todoTasksList.model().load_data()
         self.completedTasksList.model().load_data()
 
+        self.todoTasksList._restoreExpansionStateOfAllTasks()
+        self.completedTasksList._restoreExpansionStateOfAllTasks()
+
     def autoSetCurrentTaskID(self) -> None:
         model: TaskListModel = self.todoTasksList.model()
 
