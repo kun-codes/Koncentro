@@ -1,3 +1,4 @@
+import platform
 from functools import wraps
 from typing import Any, Callable, Optional, TypeVar
 
@@ -77,7 +78,7 @@ class TaskListView(Ui_TaskView, QWidget):
         # deleteTaskButton is deactivated (that is during tutorials)
         self.deleteShortcut.activated.connect(self.deleteTaskButton.click)
 
-        self.editTaskTimeShortcut = QShortcut(QKeySequence(Qt.Key.Key_E), self)
+        self.editTaskTimeShortcut = QShortcut(QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_T), self)
         self.editTaskTimeShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
         self.editTaskTimeShortcut.activated.connect(self.editTaskTimeButton.click)
 
@@ -139,7 +140,8 @@ class TaskListView(Ui_TaskView, QWidget):
         self.deleteTaskButton.installEventFilter(
             ToolTipFilter(self.deleteTaskButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
-        self.editTaskTimeButton.setToolTip("Edit Task Time (E)")
+        controlKeyText = "Cmd" if platform.system() == "Darwin" else "Ctrl"
+        self.editTaskTimeButton.setToolTip(f"Edit Task Time ({controlKeyText}+T)")
         self.editTaskTimeButton.installEventFilter(
             ToolTipFilter(self.editTaskTimeButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
