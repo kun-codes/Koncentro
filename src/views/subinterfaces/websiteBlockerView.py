@@ -1,3 +1,4 @@
+import platform
 import urllib.parse
 
 from loguru import logger
@@ -48,7 +49,8 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
         self.initTextEdits()
         self.initWebsiteBlockerComboBox()
 
-        self.saveButton.setToolTip("Save (Ctrl+S)")
+        controlKeyText = "Cmd" if platform.system() == "Darwin" else "Ctrl"
+        self.saveButton.setToolTip(f"Save ({controlKeyText}+S)")
         self.saveButton.installEventFilter(
             ToolTipFilter(self.saveButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
