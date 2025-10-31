@@ -50,6 +50,9 @@ def restoreFocus(method: Callable[..., None]) -> Callable[..., None]:
     return wrapper
 
 
+controlKeyText = "Cmd" if platform.system() == "Darwin" else "Ctrl"
+
+
 class TaskListView(Ui_TaskView, QWidget):
     """
     For tasks view of the app
@@ -82,6 +85,17 @@ class TaskListView(Ui_TaskView, QWidget):
         self.editTaskTimeShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
         self.editTaskTimeShortcut.activated.connect(self.editTaskTimeButton.click)
 
+        self.addTaskShortcut = QShortcut(QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_N), self)
+        self.addTaskShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self.addTaskShortcut.activated.connect(self.addTaskAction.trigger)
+
+        self.addSubTaskShortcut = QShortcut(
+            QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier | Qt.Key.Key_N), self
+        )
+        self.addSubTaskShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self.addSubTaskShortcut.activated.connect(self.addSubTaskAction.trigger)
+        self.addSubTaskShortcut.activated.connect(lambda: print("Add Subtask Shortcut Activated"))
+
     def initLayout(self) -> None:
         label_size_policy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
 
@@ -112,7 +126,15 @@ class TaskListView(Ui_TaskView, QWidget):
 
         self.addTaskMenu = RoundMenu(parent=self)
         self.addTaskAction = Action(icon=FluentIcon.ADD, text="Add Task")
+        self.addTaskAction.setToolTip(f"Add Task ({controlKeyText}+N)")
+        self.addTaskAction.installEventFilter(
+            ToolTipFilter(self.addTaskAction, showDelay=300, position=ToolTipPosition.RIGHT)
+        )
         self.addSubTaskAction = Action(icon=CustomFluentIcon.ADD_SUBTASK, text="Add Subtask")
+        self.addSubTaskAction.setToolTip(f"Add Subtask ({controlKeyText}+Shift+N)")
+        self.addSubTaskAction.installEventFilter(
+            ToolTipFilter(self.addSubTaskAction, showDelay=300, position=ToolTipPosition.RIGHT)
+        )
         self.addTaskMenu.addActions(
             [
                 self.addTaskAction,
@@ -128,7 +150,7 @@ class TaskListView(Ui_TaskView, QWidget):
         self.addTaskSplitButton.setFlyout(self.addTaskMenu)
         self.lastTriggeredAddTaskMenuAction = self.addTaskAction
 
-        self.addTaskSplitButton.button.setToolTip("Add Task")
+        self.addTaskSplitButton.button.setToolTip(f"Add Task ({controlKeyText}+N)")
         self.addTaskSplitButton.button.installEventFilter(
             ToolTipFilter(self.addTaskSplitButton.button, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
@@ -140,7 +162,6 @@ class TaskListView(Ui_TaskView, QWidget):
         self.deleteTaskButton.installEventFilter(
             ToolTipFilter(self.deleteTaskButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
-        controlKeyText = "Cmd" if platform.system() == "Darwin" else "Ctrl"
         self.editTaskTimeButton.setToolTip(f"Edit Task Time ({controlKeyText}+T)")
         self.editTaskTimeButton.installEventFilter(
             ToolTipFilter(self.editTaskTimeButton, showDelay=300, position=ToolTipPosition.BOTTOM)
@@ -166,7 +187,7 @@ class TaskListView(Ui_TaskView, QWidget):
     @restoreFocus
     def addTask(self) -> None:
         self.addTaskSplitButton.setIcon(FluentIcon.ADD)
-        self.addTaskSplitButton.button.setToolTip("Add Task")
+        self.addTaskSplitButton.button.setToolTip(f"Add Task ({controlKeyText}+N)")
         self.lastTriggeredAddTaskMenuAction = self.addTaskAction
 
         self.addTaskDialog = AddTaskDialog(self.window())
@@ -179,7 +200,7 @@ class TaskListView(Ui_TaskView, QWidget):
     @restoreFocus
     def addSubTask(self) -> None:
         self.addTaskSplitButton.setIcon(CustomFluentIcon.ADD_SUBTASK)
-        self.addTaskSplitButton.button.setToolTip("Add Subtask")
+        self.addTaskSplitButton.button.setToolTip(f"Add Subtask ({controlKeyText}+Shift+N)")
         self.lastTriggeredAddTaskMenuAction = self.addSubTaskAction
 
         self.addSubTaskDialog = AddSubTaskDialog(self.window())
