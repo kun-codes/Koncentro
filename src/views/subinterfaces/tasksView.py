@@ -139,7 +139,7 @@ class TaskListView(Ui_TaskView, QWidget):
         self.deleteTaskButton.installEventFilter(
             ToolTipFilter(self.deleteTaskButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
-        self.editTaskTimeButton.setToolTip("Edit Task Time")
+        self.editTaskTimeButton.setToolTip("Edit Task Time (E)")
         self.editTaskTimeButton.installEventFilter(
             ToolTipFilter(self.editTaskTimeButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
