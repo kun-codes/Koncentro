@@ -291,18 +291,16 @@ class TaskListView(Ui_TaskView, QWidget):
 
         model.deleteTask(selectedIndex.row(), parent_index)
 
+    @restoreFocus
     def editTaskTime(self) -> None:
         row = None
         task_list_model = None
-        active_list = None
         if self.todoTasksList.selectionModel().hasSelection():
             row = self.todoTasksList.selectionModel().currentIndex()
             task_list_model: TaskListModel = self.todoTasksList.model()
-            active_list = self.todoTasksList
         elif self.completedTasksList.selectionModel().hasSelection():
             row = self.completedTasksList.selectionModel().currentIndex()
             task_list_model: TaskListModel = self.completedTasksList.model()
-            active_list = self.completedTasksList
 
         if row is None:
             InfoBar.warning(
@@ -330,14 +328,6 @@ class TaskListView(Ui_TaskView, QWidget):
                 duration=3000,
                 parent=self,
             )
-
-            # focus has to be restored to the active list so that self.editTaskTimeShortcut can be used again
-            # without this manual focus restore, although focus can be restored to TaskListView as well, focus is being
-            # restored to the active list as after selecting a task initially, the corresponding taskList gets selected
-            # so setting focus back to the same taskList seems logical
-            if active_list:
-                active_list.setFocus(Qt.FocusReason.PopupFocusReason)
-            return
 
         if self.editTaskTimeDialog.exec():
             if isChildTask:
@@ -384,13 +374,6 @@ class TaskListView(Ui_TaskView, QWidget):
                 estimated_time = self.editTaskTimeDialog.getTargetTime()
                 if estimated_time is not None:
                     task_list_model.setData(row, estimated_time, TaskListModel.TargetTimeRole, update_db=True)
-
-        # focus has to be restored to the active list so that self.editTaskTimeShortcut can be used again
-        # without this manual focus restore, although focus can be restored to TaskListView as well, focus is being
-        # restored to the active list as after selecting a task initially, the corresponding taskList gets selected
-        # so setting focus back to the same taskList seems logical
-        if active_list:
-            active_list.setFocus(Qt.FocusReason.PopupFocusReason)
 
     def setupSelectionBehavior(self) -> None:
         """
