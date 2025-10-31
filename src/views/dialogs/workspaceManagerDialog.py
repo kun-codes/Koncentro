@@ -2,7 +2,7 @@ from typing import Optional
 
 from loguru import logger
 from PySide6.QtCore import QItemSelection, QItemSelectionModel, Qt
-from PySide6.QtGui import QColor, QKeyEvent, QShowEvent
+from PySide6.QtGui import QColor, QKeySequence, QShortcut, QShowEvent
 from PySide6.QtWidgets import (
     QFrame,
     QVBoxLayout,
@@ -78,6 +78,7 @@ class ManageWorkspaceDialog(MaskDialogBase):
         self.viewLayout.addWidget(self.newWorkspaceLineEdit, 1)
 
         self.__connectSignalsToSlots()
+        self.__setupShortcuts()
 
     def __initLayout(self) -> None:
         self._hBoxLayout.removeWidget(self.widget)
@@ -134,12 +135,20 @@ class ManageWorkspaceDialog(MaskDialogBase):
         self.model.current_workspace_changed.connect(self.spawnInfoBar)
         self.model.current_workspace_deleted.connect(self.onCurrentWorkspaceDeleted)
 
-    def keyPressEvent(self, event: QKeyEvent) -> None:
-        """
-        Override keyPressEvent to ignore escape key so that the dialog doesn't get closed when escape key is pressed
-        """
-        if event.key() == Qt.Key.Key_Escape:
-            event.ignore()
+    def __setupShortcuts(self) -> None:
+        # maps to escape on all platforms
+        # https://doc.qt.io/qtforpython-6/PySide6/QtGui/QKeySequence.html#standard-shortcuts
+        self.closeShortcut = QShortcut(QKeySequence.StandardKey.Cancel, self)
+        self.closeShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self.closeShortcut.activated.connect(self.close)
+
+        self.addWorkspaceShortcut = QShortcut(QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_N), self)
+        self.addWorkspaceShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self.addWorkspaceShortcut.activated.connect(self.addWorkspaceButton.click)
+
+        self.deleteWorkspaceShortcut = QShortcut(QKeySequence.StandardKey.Delete, self)
+        self.deleteWorkspaceShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self.deleteWorkspaceShortcut.activated.connect(self.deleteWorkspaceButton.click)
 
     def showEvent(self, event: QShowEvent) -> None:
         self.preselect_current_workspace()
