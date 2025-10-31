@@ -1,4 +1,5 @@
-from typing import Optional
+from functools import wraps
+from typing import Any, Callable, Optional, TypeVar
 
 from PySide6.QtCore import QModelIndex, Qt, Signal
 from PySide6.QtGui import QKeySequence, QShortcut
@@ -24,6 +25,27 @@ from ui_py.ui_tasks_list_view import Ui_TaskView
 from views.dialogs.addSubTaskDialog import AddSubTaskDialog
 from views.dialogs.addTaskDialog import AddTaskDialog
 from views.dialogs.editTaskTimeDialog import EditTaskTimeDialog
+
+T = TypeVar("T", bound="TaskListView")
+
+
+def restoreFocus(method: Callable[..., None]) -> Callable[..., None]:
+    """
+    Focus has to be restored to the TaskListView instance so that self.editTaskTimeShortcut and other similar
+    shortcuts can be used again. These shortcuts have their parent set to TaskListView and their context set to
+    Qt.ShortcutContext.WidgetWithChildrenShortcut
+    (https://doc.qt.io/qtforpython-6/PySide6/QtCore/Qt.html#PySide6.QtCore.Qt.ShortcutContext)
+    Although focus can be restored to the last used taskView since it is a child of TaskListView as well, focus is
+    being restored to the TaskListView instance as it is easier and more convenient to do so.
+    """
+
+    @wraps(method)
+    def wrapper(self: T, *args: Any, **kwargs: Any) -> None:
+        result = method(self, *args, **kwargs)
+        self.setFocus(Qt.FocusReason.PopupFocusReason)
+        return result
+
+    return wrapper
 
 
 class TaskListView(Ui_TaskView, QWidget):
@@ -138,6 +160,7 @@ class TaskListView(Ui_TaskView, QWidget):
     def addTaskSplitButtonClicked(self) -> None:
         self.lastTriggeredAddTaskMenuAction.trigger()
 
+    @restoreFocus
     def addTask(self) -> None:
         self.addTaskSplitButton.setIcon(FluentIcon.ADD)
         self.addTaskSplitButton.button.setToolTip("Add Task")
@@ -150,6 +173,7 @@ class TaskListView(Ui_TaskView, QWidget):
             row = self.todoTasksList.model().rowCount(QModelIndex())
             self.todoTasksList.model().insertRow(row, QModelIndex(), task_name=task_name, task_type=TaskType.TODO)
 
+    @restoreFocus
     def addSubTask(self) -> None:
         self.addTaskSplitButton.setIcon(CustomFluentIcon.ADD_SUBTASK)
         self.addTaskSplitButton.button.setToolTip("Add Subtask")
