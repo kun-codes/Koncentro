@@ -31,8 +31,9 @@ T = TypeVar("T", bound="TaskListView")
 
 def restoreFocus(method: Callable[..., None]) -> Callable[..., None]:
     """
-    Focus has to be restored to the TaskListView instance so that self.editTaskTimeShortcut and other similar
-    shortcuts can be used again. These shortcuts have their parent set to TaskListView and their context set to
+    Focus has to be restored to the TaskListView instance from dialogs which are children of TaskListView after they
+    are invoked (as they steal the focus) so that self.editTaskTimeShortcut and other similar shortcuts can be used
+    again. These shortcuts have their parent set to TaskListView and their context set to
     Qt.ShortcutContext.WidgetWithChildrenShortcut
     (https://doc.qt.io/qtforpython-6/PySide6/QtCore/Qt.html#PySide6.QtCore.Qt.ShortcutContext)
     Although focus can be restored to the last used taskView since it is a child of TaskListView as well, focus is
