@@ -2,6 +2,7 @@ import urllib.parse
 
 from loguru import logger
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import (
     InfoBar,
@@ -38,6 +39,7 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
         # self.model.invalidURLSignal.connect(self.onInvalidURLSignal)
 
         self.saveButton.setDisabled(True)
+        self.setupShortcuts()
 
     def initWidget(self) -> None:
         self.blockListTextEdit.setHidden(True)
@@ -46,11 +48,11 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
         self.initTextEdits()
         self.initWebsiteBlockerComboBox()
 
-        self.saveButton.setToolTip("Save")
+        self.saveButton.setToolTip("Save (Ctrl+S)")
         self.saveButton.installEventFilter(
             ToolTipFilter(self.saveButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
-        self.cancelButton.setToolTip("Cancel Changes")
+        self.cancelButton.setToolTip("Cancel Changes (Esc)")
         self.cancelButton.installEventFilter(
             ToolTipFilter(self.cancelButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
@@ -71,6 +73,19 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
 
         self.blockListTextEdit.textChanged.connect(self.checkURLs)
         self.allowListTextEdit.textChanged.connect(self.checkURLs)
+
+    def setupShortcuts(self) -> None:
+        self.saveShortcut = QShortcut(QKeySequence.StandardKey.Save, self)
+        self.saveShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        # connecting to self.saveButton.click() as the shortcut will have no effect on activation when the
+        # saveButton is deactivated (that is during tutorials)
+        self.saveShortcut.activated.connect(self.saveButton.click)
+
+        # maps to Escape on all platforms
+        # https://doc.qt.io/qtforpython-6/PySide6/QtGui/QKeySequence.html#standard-shortcuts
+        self.cancelShortcut = QShortcut(QKeySequence.StandardKey.Cancel, self)
+        self.cancelShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self.cancelShortcut.activated.connect(self.cancelButton.click)
 
     def onTextChanged(self) -> None:
         self.saveButton.setDisabled(False)
