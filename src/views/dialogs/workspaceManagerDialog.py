@@ -16,6 +16,8 @@ from qfluentwidgets import (
     PrimaryPushButton,
     PushButton,
     SubtitleLabel,
+    ToolTipFilter,
+    ToolTipPosition,
     setCustomStyleSheet,
 )
 from qfluentwidgets.components.dialog_box.mask_dialog_base import MaskDialogBase
@@ -50,6 +52,19 @@ class ManageWorkspaceDialog(MaskDialogBase):
         self.addWorkspaceButton.setDisabled(True)
         self.closeDialogButton = PrimaryPushButton()
         self.closeDialogButton.setText("Close Dialog")
+
+        self.deleteWorkspaceButton.setToolTip("Delete selected workspace (Del)")
+        self.addWorkspaceButton.setToolTip("Add new workspace (Ctrl+N)")
+        self.closeDialogButton.setToolTip("Close Dialog (Esc)")
+        self.deleteWorkspaceButton.installEventFilter(
+            ToolTipFilter(self.deleteWorkspaceButton, showDelay=300, position=ToolTipPosition.RIGHT)
+        )
+        self.addWorkspaceButton.installEventFilter(
+            ToolTipFilter(self.addWorkspaceButton, showDelay=300, position=ToolTipPosition.RIGHT)
+        )
+        self.closeDialogButton.installEventFilter(
+            ToolTipFilter(self.closeDialogButton, showDelay=300, position=ToolTipPosition.RIGHT)
+        )
 
         self.titleLabel = SubtitleLabel("Manage Workspaces", parent=None)
         self.newWorkspaceLineEdit = LineEdit()
