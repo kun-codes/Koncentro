@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from loguru import logger
 from PySide6.QtCore import QItemSelection, QItemSelectionModel, Qt
@@ -29,10 +29,16 @@ from prefabs.qtSingleApplication import QtSingleApplication
 from prefabs.roundedListItemDelegate import RoundedListItemDelegate
 from prefabs.workspaceListView import WorkspaceListView
 
+if TYPE_CHECKING:
+    from mainWindow import MainWindow
+
 
 class ManageWorkspaceDialog(MaskDialogBase):
-    def __init__(self, workspaceListModel: WorkspaceListModel, parent: Optional[QWidget] = None) -> None:
+    def __init__(
+        self, workspaceListModel: WorkspaceListModel, main_window: "MainWindow", parent: Optional[QWidget] = None
+    ) -> None:
         super().__init__(parent=parent)
+        self.main_window = main_window
         self.buttonGroup = QFrame(self.widget)
 
         # contains both self.viewLayout and self.buttonLayout
@@ -254,6 +260,8 @@ class ManageWorkspaceDialog(MaskDialogBase):
         # ManageWorkspaceDialog is shown
         self.setFocus(Qt.FocusReason.PopupFocusReason)
 
+        self.main_window.disableNavigationShortcuts()
+
     def close(self) -> None:
         super().close()
 
@@ -261,3 +269,5 @@ class ManageWorkspaceDialog(MaskDialogBase):
         # again in case any were disabled when ManageWorkspaceDialog was shown
         self.lastFocusedWidget.setFocus()
         self.lastFocusedWidget = None
+
+        self.main_window.enableNavigationShortcuts()

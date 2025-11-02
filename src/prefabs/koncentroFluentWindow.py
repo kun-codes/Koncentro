@@ -1,5 +1,6 @@
 from typing import Optional
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import FluentWindow, setCustomStyleSheet
 from qfluentwidgets.window.fluent_window import FluentWindowBase
@@ -73,6 +74,13 @@ class KoncentroFluentWindow(KoncentroFluentWindowBase, FluentWindow):
 
         # setCustomStyleSheet(self.stackedWidget, borderQss, borderQss)
         setCustomStyleSheet(self.stackedWidget, qssLight, qssDark)
+
+        # The panel's middle layout (scrollLayout)'s parent is scrollArea which is empty currently
+        # as I have not placed any sub-interface's navigation button there in MainWindow, so clicking there steals focus
+        # and makes the shortcuts defined for each sub-interface (which are non-global) not work unless I click back
+        # in the sub interface. Hence I have to disable the focus policy of the scrollArea to make the shortcuts work.
+        self.navigationInterface.panel.scrollArea.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        print(self.navigationInterface.panel.scrollLayout.count())
 
         # set focus to the current interface so the shortcuts defined inside it which aren't global become active
         # instantly without having to click on the interface first after switching to it to make it have the focus

@@ -46,6 +46,9 @@ class BottomBar(Ui_BottomBarWidget, QWidget):
         self.timerLabel.setText("Idle\n00:00:00 / 00:00:00")  # text shown by update_bottom_bar_timer_label of
         # MainWindow when timer is idle
 
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)  # this is the default but I am setting it anyway for clarity in
+        # future
+
     def initBottomBar(self, pomodoro_interface: PomodoroView, task_interface: TaskListView) -> None:
         self.pomodoro_interface: PomodoroView = pomodoro_interface
         self.task_interface: TaskListView = task_interface
