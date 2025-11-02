@@ -73,3 +73,10 @@ class KoncentroFluentWindow(KoncentroFluentWindowBase, FluentWindow):
 
         # setCustomStyleSheet(self.stackedWidget, borderQss, borderQss)
         setCustomStyleSheet(self.stackedWidget, qssLight, qssDark)
+
+        # set focus to the current interface so the shortcuts defined inside it which aren't global become active
+        # instantly without having to click on the interface first after switching to it to make it have the focus
+        self.stackedWidget.currentChanged.connect(self.setFocusToInterface)
+
+    def setFocusToInterface(self, index: int) -> None:
+        self.stackedWidget.widget(index).setFocus()
