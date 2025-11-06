@@ -120,6 +120,9 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.main_window.task_interface.editTaskTimeButton.setDisabled(True)
         self.main_window.task_interface.deleteTaskButton.setDisabled(True)
         self.main_window.task_interface.addTaskSplitButton.setDisabled(True)
+        self.main_window.task_interface.addTaskSplitButton.dropButton.setDisabled(True)
+        self.main_window.task_interface.addTaskAction.setDisabled(True)
+        self.main_window.task_interface.addSubTaskAction.setDisabled(True)
 
         # Create teaching tip targeting the first item
         self._select_first_task_step_tip = TargetClickTeachingTip.create(
@@ -256,7 +259,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
     def _invoke_add_new_task_dialog_step(self) -> None:
         self.main_window.task_interface.deleteTaskButton.setDisabled(True)
         self.main_window.task_interface.addTaskSplitButton.setDisabled(False)
-        self.main_window.task_interface.addTaskSplitButton.dropButton.setDisabled(True)
+        self.main_window.task_interface.addTaskAction.setDisabled(False)
 
         self._invoke_add_new_task_dialog_step_tip = TargetClickTeachingTip.create(
             target=self.main_window.task_interface.addTaskSplitButton.button,
@@ -349,6 +352,8 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         lastParentIndex: QModelIndex = todoTaskListModel.index(todoTaskListModel.rowCount() - 1, 0)
         lastParentIndexRect: QRect = todoTaskList.visualRect(lastParentIndex)
 
+        self.main_window.task_interface.addTaskAction.setDisabled(True)
+
         self.overlay = QWidget(todoTaskList.viewport())
         self.overlay.setGeometry(lastParentIndexRect)
         self.overlay.show()
@@ -380,6 +385,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.main_window.task_interface.editTaskTimeButton.setDisabled(True)
 
         self.main_window.task_interface.addTaskAction.setEnabled(False)
+        self.main_window.task_interface.addSubTaskAction.setEnabled(True)
 
         self._invoke_add_new_subtask_dialog_step_part_1_tip = TargetClickTeachingTip.create(
             target=self.main_window.task_interface.addTaskSplitButton.dropButton,
@@ -396,7 +402,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.teaching_tips.append(self._invoke_add_new_subtask_dialog_step_part_1_tip)
 
     def _name_new_subtask_step(self) -> None:
-        self.main_window.task_interface.addTaskAction.setEnabled(True)
+        self.main_window.task_interface.addTaskAction.setEnabled(False)
 
         if not hasattr(self.main_window.task_interface, "addSubTaskDialog"):
             logger.debug("AddSubTaskDialog not found, retrying in 100ms")
@@ -464,6 +470,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
 
     def _start_first_task_step(self) -> None:
         self.main_window.task_interface.addTaskSplitButton.setDisabled(True)
+        self.main_window.task_interface.addSubTaskAction.setDisabled(True)
 
         todoTaskList: TaskList = self.main_window.task_interface.todoTasksList
         todoTaskListModel: TaskListModel = todoTaskList.model()
@@ -566,6 +573,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.main_window.task_interface.addTaskSplitButton.dropButton.setDisabled(False)
 
         self.main_window.task_interface.addTaskAction.setEnabled(True)
+        self.main_window.task_interface.addSubTaskAction.setEnabled(True)
 
         self.next_step()
 
