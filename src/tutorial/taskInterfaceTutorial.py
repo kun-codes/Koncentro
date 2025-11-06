@@ -56,6 +56,7 @@ class TaskInterfaceTutorial(InterfaceTutorial):
 
     def _first_step(self) -> None:
         self.main_window.isSafeToShowTutorial = False  # block tutorials of other interfaces from showing
+        self.main_window.disableNavigationShortcuts()
 
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.BACK_BUTTON, False)
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.POMODORO_INTERFACE, False)
@@ -580,6 +581,8 @@ class TaskInterfaceTutorial(InterfaceTutorial):
 
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.WORKSPACE_MANAGER_DIALOG, True)
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.SETTINGS_INTERFACE, True)
+
+        self.main_window.enableNavigationShortcuts()
 
     def _scroll_todo_task_list_to_bottom(self) -> None:
         todo_task_list = self.main_window.task_interface.todoTasksList
