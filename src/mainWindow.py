@@ -898,7 +898,6 @@ class MainWindow(KoncentroFluentWindow):
         self.switchToTaskInterfaceShortcut = QShortcut(
             QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_1), self
         )
-        self.switchToTaskInterfaceShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
         self.switchToTaskInterfaceShortcut.activated.connect(
             self.navigationInterface.panel.topLayout.itemAt(NavPanelButtonPosition.TASK_INTERFACE.value[1])
             .widget()
