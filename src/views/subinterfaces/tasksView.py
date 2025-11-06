@@ -352,6 +352,7 @@ class TaskListView(Ui_TaskView, QWidget):
                 duration=3000,
                 parent=self,
             )
+            return
 
         if self.editTaskTimeDialog.exec():
             if isChildTask:
