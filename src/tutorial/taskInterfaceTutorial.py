@@ -1,10 +1,10 @@
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from loguru import logger
 from PySide6.QtCore import QItemSelection, QModelIndex, QRect, Qt, QTimer
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QStyleOptionViewItem, QWidget
-from qfluentwidgets import FluentIcon, FluentWindow, TeachingTipTailPosition
+from qfluentwidgets import FluentIcon, TeachingTipTailPosition
 
 from configValues import ConfigValues
 from constants import InterfaceType, NavPanelButtonPosition
@@ -20,9 +20,12 @@ from views.dialogs.addSubTaskDialog import AddSubTaskDialog
 from views.dialogs.addTaskDialog import AddTaskDialog
 from views.dialogs.editTaskTimeDialog import EditTaskTimeDialog
 
+if TYPE_CHECKING:
+    from mainWindow import MainWindow
+
 
 class TaskInterfaceTutorial(InterfaceTutorial):
-    def __init__(self, main_window: FluentWindow, interface_type: InterfaceType) -> None:
+    def __init__(self, main_window: "MainWindow", interface_type: InterfaceType) -> None:
         super().__init__(main_window, interface_type)
 
         self.tutorial_steps.append(self._first_step)

@@ -1,4 +1,6 @@
-from qfluentwidgets import FluentIcon, FluentWindow
+from typing import TYPE_CHECKING
+
+from qfluentwidgets import FluentIcon
 
 from configValues import ConfigValues
 from constants import InterfaceType
@@ -6,9 +8,12 @@ from models.config import app_settings
 from prefabs.transientPopupTeachingTip import TransientPopupTeachingTip
 from tutorial.interfaceTutorial import InterfaceTutorial
 
+if TYPE_CHECKING:
+    from mainWindow import MainWindow
+
 
 class WorkspaceManagerDialogTutorial(InterfaceTutorial):
-    def __init__(self, main_window: FluentWindow, interface_type: InterfaceType) -> None:
+    def __init__(self, main_window: "MainWindow", interface_type: InterfaceType) -> None:
         super().__init__(main_window, interface_type)
 
         self.tutorial_steps.append(self._first_step)

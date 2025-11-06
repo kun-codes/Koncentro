@@ -1,4 +1,6 @@
-from qfluentwidgets import FluentIcon, FluentWindow, TeachingTipTailPosition
+from typing import TYPE_CHECKING
+
+from qfluentwidgets import FluentIcon, TeachingTipTailPosition
 
 from configValues import ConfigValues
 from constants import InterfaceType, NavPanelButtonPosition, WebsiteBlockType
@@ -7,9 +9,12 @@ from prefabs.transientPopupTeachingTip import TransientPopupTeachingTip
 from tutorial.interfaceTutorial import InterfaceTutorial
 from utils.setNavButtonEnabled import setNavButtonEnabled
 
+if TYPE_CHECKING:
+    from mainWindow import MainWindow
+
 
 class WebsiteBlockerInterfaceTutorial(InterfaceTutorial):
-    def __init__(self, main_window: FluentWindow, interface_type: InterfaceType) -> None:
+    def __init__(self, main_window: "MainWindow", interface_type: InterfaceType) -> None:
         super().__init__(main_window, interface_type)
 
         self.tutorial_steps.append(self._first_step)
