@@ -898,44 +898,35 @@ class MainWindow(KoncentroFluentWindow):
         self.switchToTaskInterfaceShortcut = QShortcut(
             QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_1), self
         )
-        self.switchToTaskInterfaceShortcut.activated.connect(
-            self.navigationInterface.panel.topLayout.itemAt(NavPanelButtonPosition.TASK_INTERFACE.value[1])
-            .widget()
-            .click
-        )
+        self.switchToTaskInterfaceShortcut.activated.connect(lambda: self.switchTo(self.task_interface))
+        # using the above instead of the below as both do not respect the disabled state of the navigation button and
+        # the shortcut works anyway so I am using the simpler and more readable way of connecting shortcuts
+        #
+        # self.switchToTaskInterfaceShortcut.activated.connect(
+        #     self.navigationInterface.panel.topLayout.itemAt(NavPanelButtonPosition.TASK_INTERFACE.value[1])
+        #     .widget()
+        #     .click
+        # )
+
         self.switchToPomodoroInterfaceShortcut = QShortcut(
             QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_2), self
         )
-        self.switchToPomodoroInterfaceShortcut.activated.connect(
-            self.navigationInterface.panel.topLayout.itemAt(NavPanelButtonPosition.POMODORO_INTERFACE.value[1])
-            .widget()
-            .click
-        )
+        self.switchToPomodoroInterfaceShortcut.activated.connect(lambda: self.switchTo(self.pomodoro_interface))
         self.switchToWebsiteBlockerInterfaceShortcut = QShortcut(
             QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_3), self
         )
         self.switchToWebsiteBlockerInterfaceShortcut.activated.connect(
-            self.navigationInterface.panel.topLayout.itemAt(NavPanelButtonPosition.WEBSITE_BLOCKER_INTERFACE.value[1])
-            .widget()
-            .click
+            lambda: self.switchTo(self.website_blocker_interface)
         )
         self.switchToSettingsInterfaceShortcut = QShortcut(
             QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_0), self
         )
-        self.switchToSettingsInterfaceShortcut.activated.connect(
-            self.navigationInterface.panel.bottomLayout.itemAt(NavPanelButtonPosition.SETTINGS_INTERFACE.value[1])
-            .widget()
-            .click
-        )
+        self.switchToSettingsInterfaceShortcut.activated.connect(lambda: self.switchTo(self.settings_interface))
 
         self.openManageWorkspacesDialogShortcut = QShortcut(
             QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_M), self
         )
-        self.openManageWorkspacesDialogShortcut.activated.connect(
-            self.navigationInterface.panel.bottomLayout.itemAt(NavPanelButtonPosition.WORKSPACE_MANAGER_DIALOG.value[1])
-            .widget()
-            .click
-        )
+        self.openManageWorkspacesDialogShortcut.activated.connect(self.onWorkspaceManagerClicked)
         self.goBackShortcut = QShortcut(QKeySequence.StandardKey.Back, self)
         self.goBackShortcut.activated.connect(
             self.navigationInterface.panel.topLayout.itemAt(NavPanelButtonPosition.BACK_BUTTON.value[1]).widget().click
