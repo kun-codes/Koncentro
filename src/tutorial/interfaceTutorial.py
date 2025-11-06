@@ -1,15 +1,17 @@
 from collections.abc import Callable
-from typing import List
+from typing import TYPE_CHECKING, List
 
 from loguru import logger
 from PySide6.QtCore import QObject, QTimer
-from qfluentwidgets import FluentWindow
 
 from constants import InterfaceType
 
+if TYPE_CHECKING:
+    from mainWindow import MainWindow
+
 
 class InterfaceTutorial(QObject):
-    def __init__(self, main_window: FluentWindow, interface_type: InterfaceType) -> None:
+    def __init__(self, main_window: "MainWindow", interface_type: InterfaceType) -> None:
         self.main_window = main_window
         self.current_step = 0
         self.interface_type = interface_type

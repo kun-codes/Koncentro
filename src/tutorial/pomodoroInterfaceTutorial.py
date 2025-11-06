@@ -1,4 +1,6 @@
-from qfluentwidgets import FluentIcon, FluentWindow
+from typing import TYPE_CHECKING
+
+from qfluentwidgets import FluentIcon
 
 from configValues import ConfigValues
 from constants import InterfaceType, NavPanelButtonPosition
@@ -7,9 +9,12 @@ from prefabs.transientPopupTeachingTip import TransientPopupTeachingTip
 from tutorial.interfaceTutorial import InterfaceTutorial
 from utils.setNavButtonEnabled import setNavButtonEnabled
 
+if TYPE_CHECKING:
+    from mainWindow import MainWindow
+
 
 class PomodoroInterfaceTutorial(InterfaceTutorial):
-    def __init__(self, main_window: FluentWindow, interface_type: InterfaceType) -> None:
+    def __init__(self, main_window: "MainWindow", interface_type: InterfaceType) -> None:
         super().__init__(main_window, interface_type)
 
         self.tutorial_steps.append(self._first_step)
@@ -18,6 +23,7 @@ class PomodoroInterfaceTutorial(InterfaceTutorial):
 
     def _first_step(self) -> None:
         self.main_window.isSafeToShowTutorial = False  # block tutorials of other interfaces from showing
+        self.main_window.disableNavigationShortcuts()
 
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.BACK_BUTTON, False)
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.TASK_INTERFACE, False)
@@ -56,3 +62,5 @@ class PomodoroInterfaceTutorial(InterfaceTutorial):
 
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.WORKSPACE_MANAGER_DIALOG, True)
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.SETTINGS_INTERFACE, True)
+
+        self.main_window.enableNavigationShortcuts()

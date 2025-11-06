@@ -23,6 +23,7 @@ from constants import (
     APPLICATION_NAME,
     FIRST_RUN_DOTFILE_NAME,
     InterfaceType,
+    NavPanelButtonPosition,
     TimerState,
     UpdateCheckResult,
     URLListType,
@@ -56,6 +57,8 @@ from views.subinterfaces.settingsView import SettingsView
 from views.subinterfaces.tasksView import TaskListView
 from views.subinterfaces.websiteBlockerView import WebsiteBlockerView
 from website_blocker.websiteBlockerManager import WebsiteBlockerManager
+
+controlKeyText = "Cmd" if platform.system() == "Darwin" else "Ctrl"
 
 
 class MainWindow(KoncentroFluentWindow):
@@ -126,7 +129,7 @@ class MainWindow(KoncentroFluentWindow):
         self.remainingFontSubstitutions()
 
     def initNavigation(self) -> None:
-        # Add sub interface
+        # tooltips for the buttons for these sub-interfaces are reassigned in self.initShortcuts()
         self.addSubInterface(self.task_interface, CustomFluentIcon.TASKS_VIEW, "Tasks")
         self.addSubInterface(self.pomodoro_interface, FluentIcon.STOP_WATCH, "Pomodoro")
         self.addSubInterface(self.website_blocker_interface, CustomFluentIcon.WEBSITE_BLOCKER_VIEW, "Website Blocker")
@@ -170,7 +173,7 @@ class MainWindow(KoncentroFluentWindow):
     def onWorkspaceManagerClicked(self) -> None:
         if self.manage_workspace_dialog is None:
             self.manage_workspace_dialog = ManageWorkspaceDialog(
-                parent=self.window(), workspaceListModel=self.workplace_list_model
+                parent=self.window(), main_window=self, workspaceListModel=self.workplace_list_model
             )
 
         self.manage_workspace_dialog.show()
@@ -889,8 +892,101 @@ class MainWindow(KoncentroFluentWindow):
             self.show()
 
     def initShortcuts(self) -> None:
+        # for navigation between different sub-interfaces
+        # for logic behind linking shortcuts to buttons of navigationInterface, look at NavPanelButtonPosition Enum
+        # in constants.py
+        self.switchToTaskInterfaceShortcut = QShortcut(
+            QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_1), self
+        )
+        self.switchToTaskInterfaceShortcut.activated.connect(lambda: self.switchTo(self.task_interface))
+        # using the above instead of the below as both do not respect the disabled state of the navigation button and
+        # the shortcut works anyway so I am using the simpler and more readable way of connecting shortcuts
+        #
+        # self.switchToTaskInterfaceShortcut.activated.connect(
+        #     self.navigationInterface.panel.topLayout.itemAt(NavPanelButtonPosition.TASK_INTERFACE.value[1])
+        #     .widget()
+        #     .click
+        # )
+
+        self.switchToPomodoroInterfaceShortcut = QShortcut(
+            QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_2), self
+        )
+        self.switchToPomodoroInterfaceShortcut.activated.connect(lambda: self.switchTo(self.pomodoro_interface))
+        self.switchToWebsiteBlockerInterfaceShortcut = QShortcut(
+            QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_3), self
+        )
+        self.switchToWebsiteBlockerInterfaceShortcut.activated.connect(
+            lambda: self.switchTo(self.website_blocker_interface)
+        )
+        self.switchToSettingsInterfaceShortcut = QShortcut(
+            QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_0), self
+        )
+        self.switchToSettingsInterfaceShortcut.activated.connect(lambda: self.switchTo(self.settings_interface))
+
+        self.openManageWorkspacesDialogShortcut = QShortcut(
+            QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_M), self
+        )
+        self.openManageWorkspacesDialogShortcut.activated.connect(self.onWorkspaceManagerClicked)
+        self.goBackShortcut = QShortcut(QKeySequence.StandardKey.Back, self)
+        self.goBackShortcut.activated.connect(
+            self.navigationInterface.panel.topLayout.itemAt(NavPanelButtonPosition.BACK_BUTTON.value[1]).widget().click
+        )
+
+        self.navigationInterface.panel.topLayout.itemAt(
+            NavPanelButtonPosition.TASK_INTERFACE.value[1]
+        ).widget().setToolTip(
+            f"Tasks ({self.switchToTaskInterfaceShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+        self.navigationInterface.panel.topLayout.itemAt(
+            NavPanelButtonPosition.POMODORO_INTERFACE.value[1]
+        ).widget().setToolTip(
+            f"Pomodoro ({
+                self.switchToPomodoroInterfaceShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)
+            })"
+        )
+        self.navigationInterface.panel.topLayout.itemAt(
+            NavPanelButtonPosition.WEBSITE_BLOCKER_INTERFACE.value[1]
+        ).widget().setToolTip(
+            f"Website Blocker ({
+                self.switchToWebsiteBlockerInterfaceShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)
+            })"
+        )
+        self.navigationInterface.panel.bottomLayout.itemAt(
+            NavPanelButtonPosition.SETTINGS_INTERFACE.value[1]
+        ).widget().setToolTip(
+            f"Settings ({
+                self.switchToSettingsInterfaceShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)
+            })"
+        )
+        self.navigationInterface.panel.bottomLayout.itemAt(
+            NavPanelButtonPosition.WORKSPACE_MANAGER_DIALOG.value[1]
+        ).widget().setToolTip(
+            f"Select the workspace to work in ({
+                self.openManageWorkspacesDialogShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)
+            })"
+        )
+        self.navigationInterface.panel.topLayout.itemAt(
+            NavPanelButtonPosition.BACK_BUTTON.value[1]
+        ).widget().setToolTip(f"Back ({self.goBackShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})")
+
         # for macOS, Ctrl will work as mentioned below:
         # https://doc.qt.io/qtforpython-6/PySide6/QtGui/QKeySequence.html#detailed-description
         quit_shortcut = QKeySequence("Ctrl+Q")
 
         QShortcut(quit_shortcut, self, self.quitApplicationWithCleanup)
+
+    def disableNavigationShortcuts(self) -> None:
+        self.switchToTaskInterfaceShortcut.setEnabled(False)
+        self.switchToPomodoroInterfaceShortcut.setEnabled(False)
+        self.switchToWebsiteBlockerInterfaceShortcut.setEnabled(False)
+        self.switchToSettingsInterfaceShortcut.setEnabled(False)
+        self.openManageWorkspacesDialogShortcut.setEnabled(False)
+        self.goBackShortcut.setEnabled(False)
+
+    def enableNavigationShortcuts(self) -> None:
+        self.switchToTaskInterfaceShortcut.setEnabled(True)
+        self.switchToPomodoroInterfaceShortcut.setEnabled(True)
+        self.switchToWebsiteBlockerInterfaceShortcut.setEnabled(True)
+        self.switchToSettingsInterfaceShortcut.setEnabled(True)
+        self.openManageWorkspacesDialogShortcut.setEnabled(True)
+        self.goBackShortcut.setEnabled(True)

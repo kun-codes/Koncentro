@@ -1,3 +1,4 @@
+import platform
 from typing import Tuple
 
 from loguru import logger
@@ -10,10 +11,14 @@ from constants import TimerState
 from models.timer import PomodoroTimer
 from ui_py.ui_pomodoro_view import Ui_PomodoroView
 
+controlKeyText = "Cmd" if platform.system() == "Darwin" else "Ctrl"
+
 
 class PomodoroView(QWidget, Ui_PomodoroView):
     """
     For pomodoro view of the app
+    Shortcuts for pomodoro view are in bottomBar.py as they don't work if set here for some reason which I cannot
+    find out
     """
 
     def __init__(self) -> None:
@@ -32,15 +37,15 @@ class PomodoroView(QWidget, Ui_PomodoroView):
         self.pomodoro_timer_obj.timerStateChangedSignal.connect(self.initProgressRing)
         self.pomodoro_timer_obj.pomodoro_timer.timeout.connect(self.updateProgressRing)
 
-        self.stopButton.setToolTip("Stop")
+        self.stopButton.setToolTip(f"Stop ({controlKeyText}+R)")
         self.stopButton.installEventFilter(
             ToolTipFilter(self.stopButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
-        self.pauseResumeButton.setToolTip("Pause/Resume")
+        self.pauseResumeButton.setToolTip("Pause/Resume (Space)")
         self.pauseResumeButton.installEventFilter(
             ToolTipFilter(self.pauseResumeButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )
-        self.skipButton.setToolTip("Skip")
+        self.skipButton.setToolTip(f"Skip ({controlKeyText}+Right)")
         self.skipButton.installEventFilter(
             ToolTipFilter(self.skipButton, showDelay=300, position=ToolTipPosition.BOTTOM)
         )

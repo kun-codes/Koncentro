@@ -1,4 +1,6 @@
-from qfluentwidgets import FluentIcon, FluentWindow, TeachingTipTailPosition
+from typing import TYPE_CHECKING
+
+from qfluentwidgets import FluentIcon, TeachingTipTailPosition
 
 from configValues import ConfigValues
 from constants import InterfaceType, NavPanelButtonPosition, WebsiteBlockType
@@ -7,9 +9,12 @@ from prefabs.transientPopupTeachingTip import TransientPopupTeachingTip
 from tutorial.interfaceTutorial import InterfaceTutorial
 from utils.setNavButtonEnabled import setNavButtonEnabled
 
+if TYPE_CHECKING:
+    from mainWindow import MainWindow
+
 
 class WebsiteBlockerInterfaceTutorial(InterfaceTutorial):
-    def __init__(self, main_window: FluentWindow, interface_type: InterfaceType) -> None:
+    def __init__(self, main_window: "MainWindow", interface_type: InterfaceType) -> None:
         super().__init__(main_window, interface_type)
 
         self.tutorial_steps.append(self._first_step)
@@ -20,6 +25,7 @@ class WebsiteBlockerInterfaceTutorial(InterfaceTutorial):
 
     def _first_step(self) -> None:
         self.main_window.isSafeToShowTutorial = False
+        self.main_window.disableNavigationShortcuts()
 
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.BACK_BUTTON, False)
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.TASK_INTERFACE, False)
@@ -103,6 +109,8 @@ class WebsiteBlockerInterfaceTutorial(InterfaceTutorial):
 
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.WORKSPACE_MANAGER_DIALOG, True)
         setNavButtonEnabled(self.main_window, NavPanelButtonPosition.SETTINGS_INTERFACE, True)
+
+        self.main_window.enableNavigationShortcuts()
 
         self.teaching_tips.clear()
         self.current_step = 0

@@ -1,8 +1,8 @@
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from loguru import logger
 from PySide6.QtCore import QItemSelection, QItemSelectionModel, Qt
-from PySide6.QtGui import QColor, QKeyEvent, QShowEvent
+from PySide6.QtGui import QColor, QKeySequence, QShortcut, QShowEvent
 from PySide6.QtWidgets import (
     QFrame,
     QVBoxLayout,
@@ -16,6 +16,8 @@ from qfluentwidgets import (
     PrimaryPushButton,
     PushButton,
     SubtitleLabel,
+    ToolTipFilter,
+    ToolTipPosition,
     setCustomStyleSheet,
 )
 from qfluentwidgets.components.dialog_box.mask_dialog_base import MaskDialogBase
@@ -23,13 +25,20 @@ from qfluentwidgets.components.dialog_box.mask_dialog_base import MaskDialogBase
 from models.dbTables import Workspace
 from models.workspaceListModel import WorkspaceListModel
 from models.workspaceLookup import WorkspaceLookup
+from prefabs.qtSingleApplication import QtSingleApplication
 from prefabs.roundedListItemDelegate import RoundedListItemDelegate
 from prefabs.workspaceListView import WorkspaceListView
 
+if TYPE_CHECKING:
+    from mainWindow import MainWindow
+
 
 class ManageWorkspaceDialog(MaskDialogBase):
-    def __init__(self, workspaceListModel: WorkspaceListModel, parent: Optional[QWidget] = None) -> None:
+    def __init__(
+        self, workspaceListModel: WorkspaceListModel, main_window: "MainWindow", parent: Optional[QWidget] = None
+    ) -> None:
         super().__init__(parent=parent)
+        self.main_window = main_window
         self.buttonGroup = QFrame(self.widget)
 
         # contains both self.viewLayout and self.buttonLayout
@@ -37,6 +46,8 @@ class ManageWorkspaceDialog(MaskDialogBase):
 
         self.viewLayout = QVBoxLayout()
         self.buttonLayout = QVBoxLayout(self.buttonGroup)
+
+        self.lastFocusedWidget: Optional[QWidget] = None
 
         # initializing buttons
         self.deleteWorkspaceButton = PushButton()
@@ -75,6 +86,7 @@ class ManageWorkspaceDialog(MaskDialogBase):
         self.viewLayout.addWidget(self.newWorkspaceLineEdit, 1)
 
         self.__connectSignalsToSlots()
+        self.__setupShortcuts()
 
     def __initLayout(self) -> None:
         self._hBoxLayout.removeWidget(self.widget)
@@ -131,12 +143,41 @@ class ManageWorkspaceDialog(MaskDialogBase):
         self.model.current_workspace_changed.connect(self.spawnInfoBar)
         self.model.current_workspace_deleted.connect(self.onCurrentWorkspaceDeleted)
 
-    def keyPressEvent(self, event: QKeyEvent) -> None:
-        """
-        Override keyPressEvent to ignore escape key so that the dialog doesn't get closed when escape key is pressed
-        """
-        if event.key() == Qt.Key.Key_Escape:
-            event.ignore()
+    def __setupShortcuts(self) -> None:
+        # maps to escape on all platforms
+        # https://doc.qt.io/qtforpython-6/PySide6/QtGui/QKeySequence.html#standard-shortcuts
+        self.closeShortcut = QShortcut(QKeySequence.StandardKey.Cancel, self)
+        self.closeShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self.closeShortcut.activated.connect(self.close)
+
+        self.addWorkspaceShortcut = QShortcut(QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_N), self)
+        self.addWorkspaceShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self.addWorkspaceShortcut.activated.connect(self.addWorkspaceButton.click)
+
+        self.deleteWorkspaceShortcut = QShortcut(QKeySequence.StandardKey.Delete, self)
+        self.deleteWorkspaceShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self.deleteWorkspaceShortcut.activated.connect(self.deleteWorkspaceButton.click)
+
+        self.deleteWorkspaceButton.setToolTip(
+            f"Delete selected workspace ({
+                self.deleteWorkspaceShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)
+            })"
+        )
+        self.addWorkspaceButton.setToolTip(
+            f"Add new workspace ({self.addWorkspaceShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+        self.closeDialogButton.setToolTip(
+            f"Close Dialog ({self.closeShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+        self.deleteWorkspaceButton.installEventFilter(
+            ToolTipFilter(self.deleteWorkspaceButton, showDelay=300, position=ToolTipPosition.RIGHT)
+        )
+        self.addWorkspaceButton.installEventFilter(
+            ToolTipFilter(self.addWorkspaceButton, showDelay=300, position=ToolTipPosition.RIGHT)
+        )
+        self.closeDialogButton.installEventFilter(
+            ToolTipFilter(self.closeDialogButton, showDelay=300, position=ToolTipPosition.RIGHT)
+        )
 
     def showEvent(self, event: QShowEvent) -> None:
         self.preselect_current_workspace()
@@ -217,3 +258,24 @@ class ManageWorkspaceDialog(MaskDialogBase):
 
     def onCurrentWorkspaceDeleted(self) -> None:
         logger.debug("Current workspace deleted")
+
+    def show(self) -> None:
+        super().show()
+
+        self.lastFocusedWidget = QtSingleApplication.focusWidget()
+
+        # focus is set to self so that keyboard shortcuts define in tasksView.py don't get activated when
+        # ManageWorkspaceDialog is shown
+        self.setFocus(Qt.FocusReason.PopupFocusReason)
+
+        self.main_window.disableNavigationShortcuts()
+
+    def close(self) -> None:
+        super().close()
+
+        # focus is set back to the last focussed widget so that keyboard shortcuts define in tasksView.py get activated
+        # again in case any were disabled when ManageWorkspaceDialog was shown
+        self.lastFocusedWidget.setFocus()
+        self.lastFocusedWidget = None
+
+        self.main_window.enableNavigationShortcuts()
