@@ -59,19 +59,6 @@ class ManageWorkspaceDialog(MaskDialogBase):
         self.closeDialogButton = PrimaryPushButton()
         self.closeDialogButton.setText("Close Dialog")
 
-        self.deleteWorkspaceButton.setToolTip("Delete selected workspace (Del)")
-        self.addWorkspaceButton.setToolTip("Add new workspace (Ctrl+N)")
-        self.closeDialogButton.setToolTip("Close Dialog (Esc)")
-        self.deleteWorkspaceButton.installEventFilter(
-            ToolTipFilter(self.deleteWorkspaceButton, showDelay=300, position=ToolTipPosition.RIGHT)
-        )
-        self.addWorkspaceButton.installEventFilter(
-            ToolTipFilter(self.addWorkspaceButton, showDelay=300, position=ToolTipPosition.RIGHT)
-        )
-        self.closeDialogButton.installEventFilter(
-            ToolTipFilter(self.closeDialogButton, showDelay=300, position=ToolTipPosition.RIGHT)
-        )
-
         self.titleLabel = SubtitleLabel("Manage Workspaces", parent=None)
         self.newWorkspaceLineEdit = LineEdit()
         self.workspaceList = WorkspaceListView()
@@ -170,6 +157,27 @@ class ManageWorkspaceDialog(MaskDialogBase):
         self.deleteWorkspaceShortcut = QShortcut(QKeySequence.StandardKey.Delete, self)
         self.deleteWorkspaceShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
         self.deleteWorkspaceShortcut.activated.connect(self.deleteWorkspaceButton.click)
+
+        self.deleteWorkspaceButton.setToolTip(
+            f"Delete selected workspace ({
+                self.deleteWorkspaceShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)
+            })"
+        )
+        self.addWorkspaceButton.setToolTip(
+            f"Add new workspace ({self.addWorkspaceShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+        self.closeDialogButton.setToolTip(
+            f"Close Dialog ({self.closeShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+        self.deleteWorkspaceButton.installEventFilter(
+            ToolTipFilter(self.deleteWorkspaceButton, showDelay=300, position=ToolTipPosition.RIGHT)
+        )
+        self.addWorkspaceButton.installEventFilter(
+            ToolTipFilter(self.addWorkspaceButton, showDelay=300, position=ToolTipPosition.RIGHT)
+        )
+        self.closeDialogButton.installEventFilter(
+            ToolTipFilter(self.closeDialogButton, showDelay=300, position=ToolTipPosition.RIGHT)
+        )
 
     def showEvent(self, event: QShowEvent) -> None:
         self.preselect_current_workspace()

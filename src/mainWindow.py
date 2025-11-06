@@ -934,23 +934,40 @@ class MainWindow(KoncentroFluentWindow):
 
         self.navigationInterface.panel.topLayout.itemAt(
             NavPanelButtonPosition.TASK_INTERFACE.value[1]
-        ).widget().setToolTip(f"Tasks ({controlKeyText}+1)")
+        ).widget().setToolTip(
+            f"Tasks ({self.switchToTaskInterfaceShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
         self.navigationInterface.panel.topLayout.itemAt(
             NavPanelButtonPosition.POMODORO_INTERFACE.value[1]
-        ).widget().setToolTip(f"Pomodoro ({controlKeyText}+2)")
+        ).widget().setToolTip(
+            f"Pomodoro ({
+                self.switchToPomodoroInterfaceShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)
+            })"
+        )
         self.navigationInterface.panel.topLayout.itemAt(
             NavPanelButtonPosition.WEBSITE_BLOCKER_INTERFACE.value[1]
-        ).widget().setToolTip(f"Website Blocker ({controlKeyText}+3)")
+        ).widget().setToolTip(
+            f"Website Blocker ({
+                self.switchToWebsiteBlockerInterfaceShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)
+            })"
+        )
         self.navigationInterface.panel.bottomLayout.itemAt(
             NavPanelButtonPosition.SETTINGS_INTERFACE.value[1]
-        ).widget().setToolTip(f"Settings ({controlKeyText}+0)")
+        ).widget().setToolTip(
+            f"Settings ({
+                self.switchToSettingsInterfaceShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)
+            })"
+        )
         self.navigationInterface.panel.bottomLayout.itemAt(
             NavPanelButtonPosition.WORKSPACE_MANAGER_DIALOG.value[1]
-        ).widget().setToolTip(f"Select the workspace to work in ({controlKeyText}+M)")
-        backShortcut = "Alt+Left" if platform.system() != "Darwin" else "Cmd+["
+        ).widget().setToolTip(
+            f"Select the workspace to work in ({
+                self.openManageWorkspacesDialogShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)
+            })"
+        )
         self.navigationInterface.panel.topLayout.itemAt(
             NavPanelButtonPosition.BACK_BUTTON.value[1]
-        ).widget().setToolTip(f"Back ({backShortcut})")
+        ).widget().setToolTip(f"Back ({self.goBackShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})")
 
         # for macOS, Ctrl will work as mentioned below:
         # https://doc.qt.io/qtforpython-6/PySide6/QtGui/QKeySequence.html#detailed-description

@@ -96,6 +96,42 @@ class TaskListView(Ui_TaskView, QWidget):
         self.addSubTaskShortcut.activated.connect(self.addSubTaskAction.trigger)
         self.addSubTaskShortcut.activated.connect(lambda: print("Add Subtask Shortcut Activated"))
 
+        self.addTaskSplitButton.button.setToolTip(
+            f"Add Task ({self.addTaskShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+        self.addTaskSplitButton.button.installEventFilter(
+            ToolTipFilter(self.addTaskSplitButton.button, showDelay=300, position=ToolTipPosition.BOTTOM)
+        )
+        self.addTaskSplitButton.dropButton.setToolTip("More actions")
+        self.addTaskSplitButton.dropButton.installEventFilter(
+            ToolTipFilter(self.addTaskSplitButton.dropButton, showDelay=300, position=ToolTipPosition.BOTTOM)
+        )
+        self.deleteTaskButton.setToolTip(
+            f"Delete Task ({self.deleteShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+        self.deleteTaskButton.installEventFilter(
+            ToolTipFilter(self.deleteTaskButton, showDelay=300, position=ToolTipPosition.BOTTOM)
+        )
+        self.editTaskTimeButton.setToolTip(
+            f"Edit Task Time ({self.editTaskTimeShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+        self.editTaskTimeButton.installEventFilter(
+            ToolTipFilter(self.editTaskTimeButton, showDelay=300, position=ToolTipPosition.BOTTOM)
+        )
+
+        self.addTaskAction.setToolTip(
+            f"Add Task ({self.addTaskShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+        self.addTaskAction.installEventFilter(
+            ToolTipFilter(self.addTaskAction, showDelay=300, position=ToolTipPosition.RIGHT)
+        )
+        self.addSubTaskAction.setToolTip(
+            f"Add Subtask ({self.addSubTaskShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+        self.addSubTaskAction.installEventFilter(
+            ToolTipFilter(self.addSubTaskAction, showDelay=300, position=ToolTipPosition.RIGHT)
+        )
+
     def initLayout(self) -> None:
         label_size_policy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
 
@@ -126,15 +162,8 @@ class TaskListView(Ui_TaskView, QWidget):
 
         self.addTaskMenu = RoundMenu(parent=self)
         self.addTaskAction = Action(icon=FluentIcon.ADD, text="Add Task")
-        self.addTaskAction.setToolTip(f"Add Task ({controlKeyText}+N)")
-        self.addTaskAction.installEventFilter(
-            ToolTipFilter(self.addTaskAction, showDelay=300, position=ToolTipPosition.RIGHT)
-        )
         self.addSubTaskAction = Action(icon=CustomFluentIcon.ADD_SUBTASK, text="Add Subtask")
-        self.addSubTaskAction.setToolTip(f"Add Subtask ({controlKeyText}+Shift+N)")
-        self.addSubTaskAction.installEventFilter(
-            ToolTipFilter(self.addSubTaskAction, showDelay=300, position=ToolTipPosition.RIGHT)
-        )
+
         self.addTaskMenu.addActions(
             [
                 self.addTaskAction,
@@ -149,23 +178,6 @@ class TaskListView(Ui_TaskView, QWidget):
 
         self.addTaskSplitButton.setFlyout(self.addTaskMenu)
         self.lastTriggeredAddTaskMenuAction = self.addTaskAction
-
-        self.addTaskSplitButton.button.setToolTip(f"Add Task ({controlKeyText}+N)")
-        self.addTaskSplitButton.button.installEventFilter(
-            ToolTipFilter(self.addTaskSplitButton.button, showDelay=300, position=ToolTipPosition.BOTTOM)
-        )
-        self.addTaskSplitButton.dropButton.setToolTip("More actions")
-        self.addTaskSplitButton.dropButton.installEventFilter(
-            ToolTipFilter(self.addTaskSplitButton.dropButton, showDelay=300, position=ToolTipPosition.BOTTOM)
-        )
-        self.deleteTaskButton.setToolTip("Delete Task (Del)")
-        self.deleteTaskButton.installEventFilter(
-            ToolTipFilter(self.deleteTaskButton, showDelay=300, position=ToolTipPosition.BOTTOM)
-        )
-        self.editTaskTimeButton.setToolTip(f"Edit Task Time ({controlKeyText}+T)")
-        self.editTaskTimeButton.installEventFilter(
-            ToolTipFilter(self.editTaskTimeButton, showDelay=300, position=ToolTipPosition.BOTTOM)
-        )
 
     def connectSignalsToSlots(self) -> None:
         self.addTaskSplitButton.clicked.connect(self.addTaskSplitButtonClicked)
@@ -187,7 +199,9 @@ class TaskListView(Ui_TaskView, QWidget):
     @restoreFocus
     def addTask(self) -> None:
         self.addTaskSplitButton.setIcon(FluentIcon.ADD)
-        self.addTaskSplitButton.button.setToolTip(f"Add Task ({controlKeyText}+N)")
+        self.addTaskSplitButton.button.setToolTip(
+            f"Add Task ({self.addTaskShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
         self.lastTriggeredAddTaskMenuAction = self.addTaskAction
 
         self.addTaskDialog = AddTaskDialog(self.window())
@@ -200,7 +214,9 @@ class TaskListView(Ui_TaskView, QWidget):
     @restoreFocus
     def addSubTask(self) -> None:
         self.addTaskSplitButton.setIcon(CustomFluentIcon.ADD_SUBTASK)
-        self.addTaskSplitButton.button.setToolTip(f"Add Subtask ({controlKeyText}+Shift+N)")
+        self.addTaskSplitButton.button.setToolTip(
+            f"Add Subtask ({self.addSubTaskShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
         self.lastTriggeredAddTaskMenuAction = self.addSubTaskAction
 
         self.addSubTaskDialog = AddSubTaskDialog(self.window())

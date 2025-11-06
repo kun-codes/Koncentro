@@ -3,7 +3,7 @@ from typing import Optional
 
 from loguru import logger
 from PySide6.QtCore import QModelIndex, Qt
-from PySide6.QtGui import QShortcut
+from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon, ToolTipFilter, ToolTipPosition
 
@@ -33,15 +33,6 @@ class BottomBar(Ui_BottomBarWidget, QWidget):
         self.pauseResumeButton.setCheckable(True)
         self.pauseResumeButton.setChecked(False)  # Changed from True to False to match PLAY icon
         self.skipButton.setCheckable(False)
-
-        self.stopButton.setToolTip(f"Stop ({controlKeyText}+R)")
-        self.stopButton.installEventFilter(ToolTipFilter(self.stopButton, showDelay=300, position=ToolTipPosition.TOP))
-        self.pauseResumeButton.setToolTip("Pause/Resume (Space)")
-        self.pauseResumeButton.installEventFilter(
-            ToolTipFilter(self.pauseResumeButton, showDelay=300, position=ToolTipPosition.TOP)
-        )
-        self.skipButton.setToolTip(f"Skip {controlKeyText}+Right")
-        self.skipButton.installEventFilter(ToolTipFilter(self.skipButton, showDelay=300, position=ToolTipPosition.TOP))
 
         self.timerLabel.setText("Idle\n00:00:00 / 00:00:00")  # text shown by update_bottom_bar_timer_label of
         # MainWindow when timer is idle
@@ -99,3 +90,18 @@ class BottomBar(Ui_BottomBarWidget, QWidget):
 
         self.skipTimerShortcut = QShortcut(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_Right, self)
         self.skipTimerShortcut.activated.connect(self.skipButton.click)
+
+        self.stopButton.setToolTip(
+            f"Stop ({self.stopTimerShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+        self.stopButton.installEventFilter(ToolTipFilter(self.stopButton, showDelay=300, position=ToolTipPosition.TOP))
+        self.pauseResumeButton.setToolTip(
+            f"Pause/Resume ({self.playPauseTimerShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+        self.pauseResumeButton.installEventFilter(
+            ToolTipFilter(self.pauseResumeButton, showDelay=300, position=ToolTipPosition.TOP)
+        )
+        self.skipButton.setToolTip(
+            f"Skip ({self.skipTimerShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+        self.skipButton.installEventFilter(ToolTipFilter(self.skipButton, showDelay=300, position=ToolTipPosition.TOP))

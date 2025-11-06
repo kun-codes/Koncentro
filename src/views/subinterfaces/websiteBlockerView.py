@@ -1,4 +1,3 @@
-import platform
 import urllib.parse
 
 from loguru import logger
@@ -49,15 +48,6 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
         self.initTextEdits()
         self.initWebsiteBlockerComboBox()
 
-        controlKeyText = "Cmd" if platform.system() == "Darwin" else "Ctrl"
-        self.saveButton.setToolTip(f"Save ({controlKeyText}+S)")
-        self.saveButton.installEventFilter(
-            ToolTipFilter(self.saveButton, showDelay=300, position=ToolTipPosition.BOTTOM)
-        )
-        self.cancelButton.setToolTip("Cancel Changes (Esc)")
-        self.cancelButton.installEventFilter(
-            ToolTipFilter(self.cancelButton, showDelay=300, position=ToolTipPosition.BOTTOM)
-        )
         self.blockTypeComboBox.setToolTip("Select Block Type")
         self.blockTypeComboBox.installEventFilter(
             ToolTipFilter(self.blockTypeComboBox, showDelay=300, position=ToolTipPosition.BOTTOM)
@@ -88,6 +78,17 @@ class WebsiteBlockerView(Ui_WebsiteBlockView, QWidget):
         self.cancelShortcut = QShortcut(QKeySequence.StandardKey.Cancel, self)
         self.cancelShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
         self.cancelShortcut.activated.connect(self.cancelButton.click)
+
+        self.saveButton.setToolTip(f"Save ({self.saveShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})")
+        self.saveButton.installEventFilter(
+            ToolTipFilter(self.saveButton, showDelay=300, position=ToolTipPosition.BOTTOM)
+        )
+        self.cancelButton.setToolTip(
+            f"Cancel Changes ({self.cancelShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+        self.cancelButton.installEventFilter(
+            ToolTipFilter(self.cancelButton, showDelay=300, position=ToolTipPosition.BOTTOM)
+        )
 
     def onTextChanged(self) -> None:
         self.saveButton.setDisabled(False)
