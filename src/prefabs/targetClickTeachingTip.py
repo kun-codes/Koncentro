@@ -10,10 +10,10 @@ from qfluentwidgets import (
     FlyoutViewBase,
     TeachingTip,
     TeachingTipTailPosition,
-    TeachingTipView,
 )
 
 from constants import InterfaceType
+from prefabs.skipTutorialTeachingTipView import SkipTutorialTeachingTipView
 
 if TYPE_CHECKING:
     from mainWindow import MainWindow
@@ -136,7 +136,7 @@ class TargetClickTeachingTip(TeachingTip):
                                 customSignalToDestroy signal values. If provided,
                                 _fadeOut() is only called when signal values match these parameters.
         """
-        view = TeachingTipView(title, content, icon, image, False, tailPosition)
+        view = SkipTutorialTeachingTipView(title, content, icon, image, False, tailPosition)
         tip = cls(view, target, tailPosition, parent, True)
 
         tip.mainWindow = mainWindow
