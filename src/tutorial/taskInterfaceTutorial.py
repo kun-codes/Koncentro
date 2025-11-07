@@ -49,7 +49,6 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.tutorial_steps.append(self._start_first_task_step)
         self.tutorial_steps.append(self._move_to_completed_task_list_step)
         self.tutorial_steps.append(self._stop_timer_step)
-        self.tutorial_steps.append(self._enable_buttons)
         self.tutorial_steps.append(self._last_step)
 
         self.overlay: Optional[QWidget] = None
@@ -565,7 +564,9 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         else:
             self.next_step()
 
-    def _enable_buttons(self) -> None:
+    def _last_step(self) -> None:
+        app_settings.set(app_settings.has_completed_task_view_tutorial, True)
+
         self.main_window.task_interface.editTaskTimeButton.setDisabled(False)
         self.main_window.task_interface.deleteTaskButton.setDisabled(False)
         self.main_window.task_interface.addTaskSplitButton.setDisabled(False)
@@ -575,11 +576,6 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.main_window.task_interface.addTaskAction.setEnabled(True)
         self.main_window.task_interface.addSubTaskAction.setEnabled(True)
 
-        self.next_step()
-
-    def _last_step(self) -> None:
-        # this is the last step
-        app_settings.set(app_settings.has_completed_task_view_tutorial, True)
         ConfigValues.HAS_COMPLETED_TASK_VIEW_TUTORIAL = True
         self.main_window.isSafeToShowTutorial = True  # allow other tutorials to show
 
