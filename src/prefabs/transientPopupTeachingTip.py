@@ -10,10 +10,10 @@ from qfluentwidgets import (
     FlyoutViewBase,
     PopupTeachingTip,
     TeachingTipTailPosition,
-    TeachingTipView,
 )
 
 from constants import InterfaceType
+from prefabs.skipTutorialTeachingTipView import SkipTutorialTeachingTipView
 
 if TYPE_CHECKING:
     from mainWindow import MainWindow
@@ -90,7 +90,7 @@ class TransientPopupTeachingTip(PopupTeachingTip):
         isDeleteOnClose: bool = True,
     ) -> "TransientPopupTeachingTip":
         """Create a temporary popup teaching tip."""
-        view = TeachingTipView(title, content, icon, image, isClosable, tailPosition)
+        view = SkipTutorialTeachingTipView(title, content, icon, image, isClosable, tailPosition)
         tip = cls(view, target, duration, tailPosition, parent, isDeleteOnClose)
 
         tip.mainWindow = mainWindow
