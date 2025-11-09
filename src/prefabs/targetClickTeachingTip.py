@@ -37,10 +37,23 @@ class TargetClickTeachingTip(TeachingTip):
         # Qt.ToolTip and Qt.FramelessWindowHint to fix to ensure TargetClickTeachingTip is positioned correctly on
         # wayland after this fix, TeachingTipTailPosition.RIGHT doesn't position correctly on wayland
         # however TOP, BOTTOM and LEFT work fine
-        # Qt.Window.WindowTransparentForInput is used to ensure that the teaching tip does not block input events
-        # at the corner of buttons because of overlap between its invisible border and the button on all platforms
-        # the invisibile border is visible on flatpak wayland sessions
-        self.setWindowFlags(Qt.WindowType.WindowTransparentForInput | Qt.ToolTip | Qt.FramelessWindowHint)
+
+        # TODO: find out a way to make the teaching tip be transparent for input while still making the button clickable
+        # TODO: or make the background (which obstructs the input) smaller
+        # 2nd todo is a bug of the PySide6-Fluent-Widgets which makes the background much bigger than needed which is
+        # invisible but obstructs the input.
+        # TargetClickTeachingTip's background is visible on flatpak wayland due to my implementation. This isn't a bug
+        # of PySide6-Fluent-Widgets
+        #
+        # a comment like the below one means that it has been commented out with the below code and is kept for
+        # reference in the future when the bug is fixed
+        # # Qt.Window.WindowTransparentForInput is used to ensure that the teaching tip does not block input events
+        # # at the corner of buttons because of overlap between its invisible border and the button on all platforms
+        # # the invisibile border is visible on flatpak wayland sessions
+        # self.setWindowFlags(Qt.WindowType.WindowTransparentForInput | Qt.ToolTip | Qt.FramelessWindowHint)
+
+        # Had to remove Qt.WindowType.WindowTransparentForInput to make the view.skipButton clickable
+        self.setWindowFlags(Qt.ToolTip | Qt.FramelessWindowHint)
 
         # installing event filter on target to detect clicks
         self.target.installEventFilter(self)

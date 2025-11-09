@@ -555,7 +555,10 @@ class TaskInterfaceTutorial(InterfaceTutorial):
                 content="",
                 mainWindow=self.main_window,
                 interface_type=InterfaceType.TASK_INTERFACE,
-                tailPosition=TeachingTipTailPosition.BOTTOM,
+                # had to be changed from TeachingTipTailPosition.BOTTOM because it was blocking a lot of the stopButton
+                # also cannot use Qt.Window.WindowTransparentForInput on targetClickTeachingTip because
+                # skipButton of the teaching tip will also become unclickable
+                tailPosition=TeachingTipTailPosition.LEFT_BOTTOM,
                 icon=CustomFluentIcon.CLICK,
                 parent=self.main_window,
             )
