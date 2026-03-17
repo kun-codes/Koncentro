@@ -30,6 +30,7 @@ class TeachingTipList(list):
 
 class InterfaceTutorial(QObject):
     def __init__(self, main_window: "MainWindow", interface_type: InterfaceType) -> None:
+        super().__init__()
         self.main_window = main_window
         self.current_step = 0
         self.interface_type = interface_type
