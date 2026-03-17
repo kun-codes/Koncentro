@@ -34,6 +34,11 @@ class TargetClickTeachingTip(TeachingTip):
             view, target, duration=-1, tailPosition=tailPosition, parent=parent, isDeleteOnClose=isDeleteOnClose
         )
 
+        self.mainWindow: Optional[FluentWindow] = None
+        self.interface_type: Optional[InterfaceType] = None
+        self.customSignalToDestroy: Optional[Signal] = None
+        self.expectedSignalParams: Optional[tuple] = None
+
         # Qt.ToolTip and Qt.FramelessWindowHint to fix to ensure TargetClickTeachingTip is positioned correctly on
         # wayland after this fix, TeachingTipTailPosition.RIGHT doesn't position correctly on wayland
         # however TOP, BOTTOM and LEFT work fine
@@ -44,11 +49,6 @@ class TargetClickTeachingTip(TeachingTip):
 
         # installing event filter on target to detect clicks
         self.target.installEventFilter(self)
-
-        self.mainWindow: Optional[FluentWindow] = None
-        self.interface_type: Optional[InterfaceType] = None
-        self.customSignalToDestroy: Optional[Signal] = None
-        self.expectedSignalParams: Optional[tuple] = None
 
     def connectSignalsToSlots(self) -> None:
         logger.debug(f"Inside connectSignalsToSlots of {self.__class__.__name__}")
