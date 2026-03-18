@@ -579,6 +579,22 @@ class TaskInterfaceTutorial(InterfaceTutorial):
         self.main_window.task_interface.addTaskAction.setEnabled(True)
         self.main_window.task_interface.addSubTaskAction.setEnabled(True)
 
+        edit_task_time_dialogs: list[EditTaskTimeDialog] = self.main_window.task_interface.window().findChildren(
+            EditTaskTimeDialog, options=Qt.FindChildOption.FindChildrenRecursively
+        )
+        for edit_task_time_dialog in edit_task_time_dialogs:
+            edit_task_time_dialog.cancelButton.setDisabled(False)
+            edit_task_time_dialog.yesButton.setDisabled(False)
+
+        # covers AddTaskDialog and AddSubTaskDialog as AddSubTaskDialog is a child of AddTaskDialog
+        add_task_dialogs: list[AddTaskDialog] = self.main_window.task_interface.window().findChildren(
+            AddTaskDialog, options=Qt.FindChildOption.FindChildrenRecursively
+        )
+        for add_task_dialog in add_task_dialogs:
+            add_task_dialog.cancelButton.setDisabled(False)
+            if add_task_dialog.taskEdit.text().strip() != "":
+                add_task_dialog.yesButton.setDisabled(False)
+
         ConfigValues.HAS_COMPLETED_TASK_VIEW_TUTORIAL = True
         self.main_window.isSafeToShowTutorial = True  # allow other tutorials to show
 
