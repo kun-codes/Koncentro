@@ -72,4 +72,11 @@
             <url type="details">https://github.com/kun-codes/Koncentro/releases/tag/v1.1.0</url>
         </release>
     </releases>
+    <keywords>
+        <keyword>productivity app</keyword>
+        <keyword>pomodoro timer</keyword>
+        <keyword>website blocker</keyword>
+        <keyword>focus tool</keyword>
+        <keyword>task management</keyword>
+    </keywords>
 </component>

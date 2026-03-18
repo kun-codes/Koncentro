@@ -15,7 +15,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                os: [ ubuntu-22.04, ubuntu-24.04-arm, windows-latest, macos-13, macos-latest ]  # using older x86
+                os: [ ubuntu-22.04, ubuntu-24.04-arm, windows-latest, macos-15-intel, macos-latest ]  # using older x86
                 # ubuntu for compatibility with older linux distros
                 # not using ubuntu-22.04-arm64 as it is not supported by shiboken6 likely due to glibc compatibility
                 # https://nuitka.net/user-documentation/common-issue-solutions.html#linux-standalone
@@ -55,7 +55,7 @@ jobs:
                 run: |
                     if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
                         echo "artifact-name=macOS_arm64-build" >> $GITHUB_OUTPUT
-                    elif [[ "${{ matrix.os }}" == "macos-13" ]]; then
+                    elif [[ "${{ matrix.os }}" == "macos-15-intel" ]]; then
                         echo "artifact-name=macOS_x86_64-build" >> $GITHUB_OUTPUT
                     elif [[ "${{ matrix.os }}" == "ubuntu-22.04" || "${{ matrix.os }}" == "ubuntu-24.04-arm" ]]; then
                         echo "artifact-name=Linux_${{ env.ARCHITECTURE }}-build" >> $GITHUB_OUTPUT
@@ -85,7 +85,7 @@ jobs:
                     path: artifacts
 
             -   name: Get app version (macOS and Linux)
-                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13' || matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
+                if: matrix.os == 'macos-latest' || matrix.os == 'macos-15-intel' || matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
                 run: |
                     # Read version from pyproject.toml
                     version=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
@@ -130,7 +130,7 @@ jobs:
                 shell: bash
 
             -   name: Create Installer (macOS)
-                if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+                if: matrix.os == 'macos-latest' || matrix.os == 'macos-15-intel'
                 run: |
                     # has to be done else the binaries in final dmg is not executable
                     chmod +x ./artifacts/Koncentro.app/Contents/MacOS/mitmdump
@@ -209,7 +209,7 @@ jobs:
 
 
             -  name: Upload Installer (macOS)
-               if: matrix.os == 'macos-latest' || matrix.os == 'macos-13'
+               if: matrix.os == 'macos-latest' || matrix.os == 'macos-15-intel'
                uses: actions/upload-artifact@v4
                with:
                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-macOS-${{ env.ARCHITECTURE }}-Installer
