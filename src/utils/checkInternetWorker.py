@@ -11,6 +11,8 @@ class CheckInternetWorker(QThread):
         super().__init__()
 
         # privacy-friendly dns providers. Sourced from https://www.privacyguides.org/en/dns/
+        # I tested this in about 70 countries, Mullvad connected first in almost all
+        # only country with no connection from any was Russia
         self.endpoints = [
             ("194.242.2.2", 53),  # Mullvad, https://mullvad.net/en/help/dns-over-https-and-dns-over-tls#specifications
             ("76.76.2.0", 53),  # Control D, Unfiltered config from https://controld.com/free-dns#quick-setups
