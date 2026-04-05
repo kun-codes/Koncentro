@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Optional
 
 from loguru import logger
-from PySide6.QtCore import QModelIndex, QSize, Qt
-from PySide6.QtGui import QCloseEvent, QFont, QIcon, QKeySequence, QMouseEvent, QShortcut, QShowEvent
+from PySide6.QtCore import QModelIndex, QSize, Qt, QTimer
+from PySide6.QtGui import QCloseEvent, QFont, QIcon, QKeySequence, QMouseEvent, QShortcut
 from PySide6.QtWidgets import QApplication
 from qfluentwidgets import (
     FluentIcon,
@@ -64,10 +64,6 @@ controlKeyText = "Cmd" if platform.system() == "Darwin" else "Ctrl"
 class MainWindow(KoncentroFluentWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.initial_launch = True  # this keeps track of whether the window is showing for the first time or not
-        # when app is un-minimized after minimizing the app, self.showEvent() will still be called which will trigger
-        # the dialogs mentioned in self.showEvent() to show again which is an undesirable behaviour. So, to prevent
-        # this, self.initial_launch is set to False when self.showEvent() is called for the first time
 
         self.is_first_run = self.check_first_run()
         # self.checkForUpdates()
@@ -539,9 +535,9 @@ class MainWindow(KoncentroFluentWindow):
         self.pomodoro_interface.pomodoro_timer_obj.waitForUserInputSignal.connect(self.setPauseResumeButtonsToPlayIcon)
         self.pomodoro_interface.pomodoro_timer_obj.durationSkippedSignal.connect(self.setPauseResumeButtonsToPauseIcon)
         self.task_interface.todoTasksList.itemDelegate().pauseResumeButtonClicked.connect(
-            lambda task_id, checked: self.setPauseResumeButtonsToPauseIcon(True)
-            if checked
-            else self.setPauseResumeButtonsToPlayIcon(True)
+            lambda task_id, checked: (
+                self.setPauseResumeButtonsToPauseIcon(True) if checked else self.setPauseResumeButtonsToPlayIcon(True)
+            )
         )
 
         self.settings_interface.setup_app_card.clicked.connect(lambda: self.preSetupMitmproxy(False))
@@ -744,11 +740,13 @@ class MainWindow(KoncentroFluentWindow):
                 lambda: self.handleUpdates() if ConfigValues.CHECK_FOR_UPDATES_ON_START else None
             )
             self.setupAppConfirmationDialog.rejected.connect(self.onSetupAppConfirmationDialogRejected)
-            self.setupAppConfirmationDialog.show()
+            # using singleShot to ensure dialog is shown after main window is shown
+            QTimer.singleShot(0, self.setupAppConfirmationDialog.show)
         else:
             self.setupAppDialog = SetupAppDialog(self.window(), False)  # skip setupAppConfirmationDialog as user
             # gave permission already
-            self.setupAppDialog.show()
+            # using singleShot to ensure dialog is shown after main window is shown
+            QTimer.singleShot(0, self.setupAppDialog.show)
 
     def onSetupAppConfirmationDialogRejected(self) -> None:
         # delete the first run file so that the setup dialog is shown again when the app is started next time
@@ -779,14 +777,14 @@ class MainWindow(KoncentroFluentWindow):
             self.updateDialog = UpdateDialog(parent=self.window())
 
             # for first run, the control flow is like this
-            # self.setupMitmproxy() ---MainWindow is show---> self.setupAppDialog.show() ---
+            # self.setupMitmproxy() ---MainWindow is shown---> self.setupAppDialog.show() ---
             # ---setupAppDialog is closed---> self.handleUpdates()
 
-            # for runs which aren't first run, self.setupMitmproxy() is not run, so self.updateDialog is shown
-            # when MainWindow is shown, in self.showEvent()
+            # The update dialog is shown after the background update check completes
+            # using singleShot to ensure dialog is shown after main window is shown
             if self.updateDialog is not None:
                 self.updateDialog.finished.connect(lambda: self.showTutorial(InterfaceType.TASK_INTERFACE.value))
-                self.updateDialog.show()
+                QTimer.singleShot(0, self.updateDialog.show)
         elif result == UpdateCheckResult.UP_TO_DATE:
             self.showTutorial(InterfaceType.TASK_INTERFACE.value)
         elif result == UpdateCheckResult.NETWORK_UNREACHABLE:
@@ -802,19 +800,6 @@ class MainWindow(KoncentroFluentWindow):
             self.showTutorial(InterfaceType.TASK_INTERFACE.value)
         elif result == UpdateCheckResult.UPDATE_URL_DOES_NOT_EXIST or UpdateCheckResult.RATE_LIMITED:
             self.showTutorial(InterfaceType.TASK_INTERFACE.value)
-
-    def showEvent(self, event: QShowEvent) -> None:
-        logger.debug("MainWindow showEvent")
-        super().showEvent(event)
-
-        if not self.initial_launch:
-            return
-
-        self.initial_launch = False
-        if self.is_first_run and self.setupAppConfirmationDialog is not None:
-            self.setupAppConfirmationDialog.show()
-        elif self.updateDialog is not None:
-            self.updateDialog.show()
 
     def closeEvent(self, event: QCloseEvent) -> None:
         # Check if minimize to system tray is enabled
