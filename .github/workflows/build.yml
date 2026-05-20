@@ -9,5 +9,4 @@ jobs:
         uses: ./.github/workflows/reusable-build-app.yml
         with:
             deployment: false
-            mitmproxy-version: ${{ needs.check-mitmproxy-version.outputs.mitmproxy-version }}
         secrets: inherit
