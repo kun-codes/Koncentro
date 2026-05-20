@@ -36,7 +36,6 @@ class WebsiteBlockerManager(QObject):
         listening_port: int,
         joined_addresses: str,
         block_type: str,
-        mitmdump_bin_path: Optional[str] = None,
     ) -> None:
         """
         starts mitmproxy + join system proxy in a background thread (non-blocking).
