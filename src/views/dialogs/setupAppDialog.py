@@ -15,7 +15,6 @@ from constants import (
     CHECK_CERTIFICATE_WINDOWS_COMMAND,
     InstallMitmproxyCertificateResult,
 )
-from utils.findMitmdumpExecutable import get_mitmdump_path
 from views.dialogs.postSetupVerificationDialog import PostSetupVerificationDialog
 from website_blocker.websiteBlockerManager import WebsiteBlockerManager
 
@@ -239,7 +238,6 @@ class SetupAppDialog(MessageBoxBase):
             listening_port=ConfigValues.PROXY_PORT,
             joined_addresses="example.com",
             block_type="blocklist",
-            mitmdump_bin_path=get_mitmdump_path(),
         )
 
     def onCertificateInstallFinished(self, result: InstallMitmproxyCertificateResult) -> None:

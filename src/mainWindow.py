@@ -45,7 +45,6 @@ from tutorial.websiteBlockerInterfaceTutorial import WebsiteBlockerInterfaceTuto
 from tutorial.workspaceManagerDialogTutorial import WorkspaceManagerDialogTutorial
 from utils.checkForUpdates import UpdateChecker
 from utils.checkInternetWorker import CheckInternetWorker
-from utils.findMitmdumpExecutable import get_mitmdump_path
 from utils.isMitmdumpRunning import isMitmdumpRunningWorker
 from utils.timeConversion import convert_ms_to_hh_mm_ss
 from views.dialogs.preSetupConfirmationDialog import PreSetupConfirmationDialog
@@ -266,8 +265,7 @@ class MainWindow(KoncentroFluentWindow):
         if urls is not None:  # find what to do when there are no urls registered
             joined_urls = ",".join(urls)
 
-        mitmdump_path = get_mitmdump_path()
-        self.website_blocker_manager.start_blocking(ConfigValues.PROXY_PORT, joined_urls, block_type, mitmdump_path)
+        self.website_blocker_manager.start_blocking(ConfigValues.PROXY_PORT, joined_urls, block_type)
 
     def stop_website_blocking(self) -> None:
         """Stop website blocking"""
