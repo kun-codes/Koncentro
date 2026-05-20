@@ -5,13 +5,8 @@ on:
     workflow_dispatch:
 
 jobs:
-    check-mitmproxy-version:
-        uses: ./.github/workflows/reusable-check-mitmproxy-version.yml
-        secrets: inherit
-
     build:
         uses: ./.github/workflows/reusable-build-app.yml
-        needs: check-mitmproxy-version
         with:
             deployment: false
             mitmproxy-version: ${{ needs.check-mitmproxy-version.outputs.mitmproxy-version }}

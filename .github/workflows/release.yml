@@ -7,13 +7,8 @@ on:
             - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
-    check-mitmproxy-version:
-        uses: ./.github/workflows/reusable-check-mitmproxy-version.yml
-        secrets: inherit
-
     build:
         uses: ./.github/workflows/reusable-build-app.yml
-        needs: check-mitmproxy-version
         with:
             deployment: ${{github.event_name == 'push' }}  # will be set to true if the tag is of release tag format
             # push is only allowed for release tags
