@@ -38,12 +38,12 @@ jobs:
                 shell: bash
 
             -   name: Set up Python ${{ matrix.python-version }}
-                uses: actions/setup-python@v5
+                uses: actions/setup-python@v6
                 with:
                     python-version: ${{ matrix.python-version }}
 
             -   name: Checkout repository
-                uses: actions/checkout@v4
+                uses: actions/checkout@v6
 
             -   name: tree command (Windows)
                 if: matrix.os == 'windows-latest'
@@ -79,7 +79,7 @@ jobs:
                 id: download-artifacts
                 if: ${{ !(matrix.os == 'windows-latest' && inputs.deployment) }} # for release build,
                 # artifacts would be downloaded directly from github by signpath signing step
-                uses: actions/download-artifact@v5
+                uses: actions/download-artifact@v8
                 with:
                     artifact-ids: ${{ steps.get-artifact-id.outputs.artifact-id }}
                     path: artifacts
@@ -102,7 +102,7 @@ jobs:
                     Write-Output "Koncentro version: $version"
 
             -   name: Release-sign artifacts (Windows)
-                uses: signpath/github-action-submit-signing-request@v1
+                uses: signpath/github-action-submit-signing-request@v2
                 if: matrix.os == 'windows-latest' && inputs.deployment
                 with:
                     api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
@@ -176,13 +176,13 @@ jobs:
             -   name: Upload Unsigned Installer (Windows)
                 if: matrix.os == 'windows-latest'
                 id: upload-unsigned-artifact-windows
-                uses: actions/upload-artifact@v4
+                uses: actions/upload-artifact@v7
                 with:
                     name: Koncentro-${{ env.KONCENTRO_VERSION }}-Windows-x86_64-Installer
                     path: dist/Koncentro-${{ env.KONCENTRO_VERSION }}-Installer.exe
 
             -   name: Release-sign installer (Windows)
-                uses: signpath/github-action-submit-signing-request@v1
+                uses: signpath/github-action-submit-signing-request@v2
                 if: matrix.os == 'windows-latest' && inputs.deployment
                 with:
                     api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
@@ -196,13 +196,13 @@ jobs:
 
             -   name: Delete unsigned installer artifact (Windows)
                 if: matrix.os == 'windows-latest' && inputs.deployment
-                uses: geekyeggo/delete-artifact@v5
+                uses: geekyeggo/delete-artifact@v6
                 with:
                     name: Koncentro-${{ env.KONCENTRO_VERSION }}-Windows-x86_64-Installer
 
             -   name: Upload Signed Installer (Windows)
                 if: matrix.os == 'windows-latest' && inputs.deployment
-                uses: actions/upload-artifact@v4
+                uses: actions/upload-artifact@v7
                 with:
                     name: Koncentro-${{ env.KONCENTRO_VERSION }}-Windows-x86_64-Installer
                     path: dist/Koncentro-${{ env.KONCENTRO_VERSION }}-Installer-signed.exe
@@ -210,28 +210,28 @@ jobs:
 
             -  name: Upload Installer (macOS)
                if: matrix.os == 'macos-latest' || matrix.os == 'macos-15-intel'
-               uses: actions/upload-artifact@v4
+               uses: actions/upload-artifact@v7
                with:
                    name: Koncentro-${{ env.KONCENTRO_VERSION }}-macOS-${{ env.ARCHITECTURE }}-Installer
                    path: dist/*
 
             -   name: Upload DEB Installer (Linux)
                 if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
-                uses: actions/upload-artifact@v4
+                uses: actions/upload-artifact@v7
                 with:
                     name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-DEB
                     path: dist/*.deb
 
             -   name: Upload Fedora RPM Installer (Linux)
                 if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
-                uses: actions/upload-artifact@v4
+                uses: actions/upload-artifact@v7
                 with:
                     name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-Fedora-RPM
                     path: dist/*Fedora.rpm
 
             -   name: Upload openSUSE RPM Installer (Linux)
                 if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm'
-                uses: actions/upload-artifact@v4
+                uses: actions/upload-artifact@v7
                 with:
                     name: Koncentro-${{ env.KONCENTRO_VERSION }}-Linux-${{ env.ARCHITECTURE }}-openSUSE-RPM
                     path: dist/*openSUSE.rpm
