@@ -16,7 +16,7 @@ jobs:
         steps:
             -   name: Get latest mitmproxy release
                 id: get_latest_release
-                uses: octokit/request-action@v2.x
+                uses: octokit/request-action@v3.x
                 with:
                     route: GET /repos/{owner}/{repo}/releases/latest
                     owner: mitmproxy
@@ -34,7 +34,7 @@ jobs:
 
             -   name: Get latest mitmproxy nuitka binary version
                 id: get_nuitka_release
-                uses: octokit/request-action@v2.x
+                uses: octokit/request-action@v3.x
                 with:
                     route: GET /repos/{owner}/{repo}/releases/latest
                     owner: kun-codes
