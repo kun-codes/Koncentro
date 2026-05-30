@@ -11,10 +11,10 @@ jobs:
             contents: write  # Required to create releases
         steps:
             -   name: Checkout repository
-                uses: actions/checkout@v4
+                uses: actions/checkout@v6
 
             -   name: Set up Python
-                uses: actions/setup-python@v5
+                uses: actions/setup-python@v6
                 with:
                     python-version: '3.12'
 
@@ -26,7 +26,7 @@ jobs:
                     echo "Koncentro version: $KONCENTRO_VERSION"
 
             -   name: Download all artifacts
-                uses: actions/download-artifact@v4
+                uses: actions/download-artifact@v8
                 with:
                     pattern: Koncentro*
                     path: release-artifacts
