@@ -104,8 +104,8 @@ class WebsiteBlockerManager(QObject):
         if os.name == "nt":
             args: List[str] = [
                 mitmdump_bin_path,
-                "--set",
-                "allow_remote=true",
+                "--listen-host",
+                "127.0.0.1",
                 "-p",
                 str(listening_port),
                 "--showhost",
@@ -147,8 +147,8 @@ class WebsiteBlockerManager(QObject):
 
             args = [
                 mitmdump_bin_path,
-                "--set",
-                "allow_remote=true",
+                "--listen-host",
+                "127.0.0.1",
                 "-p",
                 str(listening_port),
                 "--showhost",
