@@ -331,23 +331,27 @@ class TaskListView(Ui_TaskView, QWidget):
 
         model.deleteTask(selectedIndex.row(), parent_index)
 
-    def markTaskAsCompleted(self) -> None:
+    def toggleTaskCompletion(self) -> None:
         """
-        marks the task in todo task list as completed by simulating a drag and drop programmatically
-        moves it to the last of the completed task list
+        toggle completion state for the selected root task by simulating a drag and drop programmatically.
         """
-        if not self.todoTasksList.selectionModel().hasSelection():
+        if self.todoTasksList.selectionModel().hasSelection():
+            source_list = self.todoTasksList
+            target_list = self.completedTasksList
+        elif self.completedTasksList.selectionModel().hasSelection():
+            source_list = self.completedTasksList
+            target_list = self.todoTasksList
+        else:
             return
 
-        index = self.todoTasksList.selectionModel().currentIndex()
+        index = source_list.selectionModel().currentIndex()
+        source_model: TaskListModel = source_list.model()
+        target_model: TaskListModel = target_list.model()
         task_id = index.data(TaskListModel.IDRole)
-        task_node = self.todoTasksList.model().getTaskNodeById(task_id)
+        task_node = source_model.getTaskNodeById(task_id)
 
         if task_node is None or not task_node.is_root():
             return
-
-        source_model: TaskListModel = self.todoTasksList.model()
-        target_model: TaskListModel = self.completedTasksList.model()
 
         try:
             mime_data = source_model.mimeData([index])

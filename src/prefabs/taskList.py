@@ -236,10 +236,14 @@ class TaskList(TreeView):
             menu.addTaskAction.triggered.connect(parent_view.addTaskAction.trigger)
             menu.addSubTaskAction.triggered.connect(parent_view.addSubTaskAction.trigger)
             menu.editTimeAction.triggered.connect(parent_view.editTaskTimeButton.click)
-            menu.markTaskAsCompletedAction.triggered.connect(parent_view.markTaskAsCompleted)
 
-            if self.objectName() == "completedTasksList":
-                menu.markTaskAsCompletedAction.setDisabled(True)
+            menu.markTaskAsIncompleteAction.triggered.connect(parent_view.toggleTaskCompletion)
+            menu.markTaskAsCompletedAction.triggered.connect(parent_view.toggleTaskCompletion)
+
+            if self.objectName() == "todoTasksList":
+                menu.removeAction(menu.markTaskAsIncompleteAction)
+            elif self.objectName() == "completedTasksList":
+                menu.removeAction(menu.markTaskAsCompletedAction)
 
             menu.deleteTaskAction.triggered.connect(parent_view.deleteTaskButton.click)
 
