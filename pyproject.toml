@@ -22,7 +22,7 @@ dependencies = [
 package-mode = false
 
 [tool.poetry.group.build.dependencies]
-nuitka = "^2.5.9"
+nuitka = "^4.1.2"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^4.2.0"
