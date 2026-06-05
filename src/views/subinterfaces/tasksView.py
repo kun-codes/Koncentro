@@ -331,6 +331,36 @@ class TaskListView(Ui_TaskView, QWidget):
 
         model.deleteTask(selectedIndex.row(), parent_index)
 
+    def markTaskAsCompleted(self) -> None:
+        """
+        marks the task in todo task list as completed by simulating a drag and drop programmatically
+        moves it to the last of the completed task list
+        """
+        if not self.todoTasksList.selectionModel().hasSelection():
+            return
+
+        index = self.todoTasksList.selectionModel().currentIndex()
+        task_id = index.data(TaskListModel.IDRole)
+        task_node = self.todoTasksList.model().getTaskNodeById(task_id)
+
+        if task_node is None or not task_node.is_root():
+            return
+
+        source_model: TaskListModel = self.todoTasksList.model()
+        target_model: TaskListModel = self.completedTasksList.model()
+
+        try:
+            mime_data = source_model.mimeData([index])
+            ok = target_model.dropMimeData(mime_data, Qt.DropAction.MoveAction, -1, 0, QModelIndex())
+            if not ok:
+                return
+
+            source_model.finishDrag()
+            source_model.removeRows(index.row(), 1, QModelIndex())
+        finally:
+            source_model.finishDrag()
+            target_model.finishDrag()
+
     @restoreFocus
     def editTaskTime(self) -> None:
         row = None

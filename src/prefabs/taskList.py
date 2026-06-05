@@ -17,6 +17,7 @@ from qfluentwidgets import TreeView, isDarkTheme
 from models.taskListModel import TaskListModel, TaskNode
 from prefabs.subTaskMenu import SubTaskMenu
 from prefabs.taskListItemDelegate import TaskListItemDelegate
+from prefabs.taskMenu import TaskMenu
 from ui_py.ui_tasks_list_view import Ui_TaskView
 
 if TYPE_CHECKING:
@@ -228,4 +229,18 @@ class TaskList(TreeView):
             menu.addSubTaskAction.triggered.connect(parent_view.addSubTaskAction.trigger)
             menu.editTimeAction.triggered.connect(parent_view.editTaskTimeButton.click)
             menu.deleteSubTaskAction.triggered.connect(parent_view.deleteTaskButton.click)
+            menu.exec(e.globalPos())
+        else:
+            menu = TaskMenu()
+
+            menu.addTaskAction.triggered.connect(parent_view.addTaskAction.trigger)
+            menu.addSubTaskAction.triggered.connect(parent_view.addSubTaskAction.trigger)
+            menu.editTimeAction.triggered.connect(parent_view.editTaskTimeButton.click)
+            menu.markTaskAsCompletedAction.triggered.connect(parent_view.markTaskAsCompleted)
+
+            if self.objectName() == "completedTasksList":
+                menu.markTaskAsCompletedAction.setDisabled(True)
+
+            menu.deleteTaskAction.triggered.connect(parent_view.deleteTaskButton.click)
+
             menu.exec(e.globalPos())
