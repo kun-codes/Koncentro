@@ -16,4 +16,5 @@ class SubTaskMenu(RoundMenu):
 
         self.addAction(self.addSubTaskAction)
         self.addAction(self.editTimeAction)
+        self.addSeparator()
         self.addAction(self.deleteSubTaskAction)
