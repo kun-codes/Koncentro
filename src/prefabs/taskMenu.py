@@ -13,8 +13,8 @@ class TaskMenu(RoundMenu):
         self.addTaskAction = Action(FluentIcon.ADD, "Add Task")
         self.addSubTaskAction = Action(CustomFluentIcon.ADD_SUBTASK, "Add Subtask")
         self.editTimeAction = Action(FluentIcon.EDIT, "Edit Time")
-        self.markTaskAsIncompleteAction = Action(FluentIcon.VPN, "Mark as Incomplete")
-        self.markTaskAsCompletedAction = Action(FluentIcon.VPN, "Mark as Completed")
+        self.markTaskAsIncompleteAction = Action(FluentIcon.CANCEL, "Mark as Incomplete")
+        self.markTaskAsCompletedAction = Action(FluentIcon.ACCEPT, "Mark as Completed")
         self.deleteTaskAction = Action(FluentIcon.DELETE, "Delete Subtask")
 
         self.addAction(self.addTaskAction)
