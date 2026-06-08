@@ -1,13 +1,27 @@
-from typing import Optional
+from typing import TYPE_CHECKING, Optional, cast
 
 from PySide6.QtCore import QModelIndex, Qt
-from PySide6.QtGui import QColor, QDragEnterEvent, QDropEvent, QPainter, QPaintEvent, QPen, QResizeEvent
+from PySide6.QtGui import (
+    QColor,
+    QContextMenuEvent,
+    QDragEnterEvent,
+    QDropEvent,
+    QPainter,
+    QPaintEvent,
+    QPen,
+    QResizeEvent,
+)
 from PySide6.QtWidgets import QAbstractItemView, QProxyStyle, QStyle, QStyleOption, QWidget
 from qfluentwidgets import TreeView, isDarkTheme
 
-from models.taskListModel import TaskListModel
+from models.taskListModel import TaskListModel, TaskNode
+from prefabs.subTaskMenu import SubTaskMenu
 from prefabs.taskListItemDelegate import TaskListItemDelegate
+from prefabs.taskMenu import TaskMenu
 from ui_py.ui_tasks_list_view import Ui_TaskView
+
+if TYPE_CHECKING:
+    from views.subinterfaces.tasksView import TaskListView
 
 
 # from: https://www.qtcentre.org/threads/35443-Customize-drop-indicator-in-QTreeView?p=167572#post167572
@@ -193,3 +207,44 @@ class TaskList(TreeView):
         model: TaskListModel = self.model()
         if model:
             model.setData(index, False, model.IsExpandedRole)
+
+    def contextMenuEvent(self, e: QContextMenuEvent) -> None:
+        index: QModelIndex = self.indexAt(e.pos())
+        task_id: int = self.model().data(index, TaskListModel.IDRole)
+        task_node: TaskNode = self.model().getTaskNodeById(task_id)
+        is_root_task: bool = task_node.is_root()
+
+        parent_view = self.parentWidget()
+        while parent_view is not None:
+            if parent_view.objectName() == "task_interface":
+                break
+            parent_view = parent_view.parentWidget()
+
+        assert parent_view is not None
+        parent_view = cast("TaskListView", parent_view)
+
+        if not is_root_task:
+            menu = SubTaskMenu()
+
+            menu.addSubTaskAction.triggered.connect(parent_view.addSubTaskAction.trigger)
+            menu.editTimeAction.triggered.connect(parent_view.editTaskTimeButton.click)
+            menu.deleteSubTaskAction.triggered.connect(parent_view.deleteTaskButton.click)
+            menu.exec(e.globalPos())
+        else:
+            menu = TaskMenu()
+
+            menu.addTaskAction.triggered.connect(parent_view.addTaskAction.trigger)
+            menu.addSubTaskAction.triggered.connect(parent_view.addSubTaskAction.trigger)
+            menu.editTimeAction.triggered.connect(parent_view.editTaskTimeButton.click)
+
+            menu.markTaskAsIncompleteAction.triggered.connect(parent_view.toggleTaskCompletion)
+            menu.markTaskAsCompletedAction.triggered.connect(parent_view.toggleTaskCompletion)
+
+            if self.objectName() == "todoTasksList":
+                menu.removeAction(menu.markTaskAsIncompleteAction)
+            elif self.objectName() == "completedTasksList":
+                menu.removeAction(menu.markTaskAsCompletedAction)
+
+            menu.deleteTaskAction.triggered.connect(parent_view.deleteTaskButton.click)
+
+            menu.exec(e.globalPos())

@@ -331,6 +331,40 @@ class TaskListView(Ui_TaskView, QWidget):
 
         model.deleteTask(selectedIndex.row(), parent_index)
 
+    def toggleTaskCompletion(self) -> None:
+        """
+        toggle completion state for the selected root task by simulating a drag and drop programmatically.
+        """
+        if self.todoTasksList.selectionModel().hasSelection():
+            source_list = self.todoTasksList
+            target_list = self.completedTasksList
+        elif self.completedTasksList.selectionModel().hasSelection():
+            source_list = self.completedTasksList
+            target_list = self.todoTasksList
+        else:
+            return
+
+        index = source_list.selectionModel().currentIndex()
+        source_model: TaskListModel = source_list.model()
+        target_model: TaskListModel = target_list.model()
+        task_id = index.data(TaskListModel.IDRole)
+        task_node = source_model.getTaskNodeById(task_id)
+
+        if task_node is None or not task_node.is_root():
+            return
+
+        try:
+            mime_data = source_model.mimeData([index])
+            ok = target_model.dropMimeData(mime_data, Qt.DropAction.MoveAction, -1, 0, QModelIndex())
+            if not ok:
+                return
+
+            source_model.finishDrag()
+            source_model.removeRows(index.row(), 1, QModelIndex())
+        finally:
+            source_model.finishDrag()
+            target_model.finishDrag()
+
     @restoreFocus
     def editTaskTime(self) -> None:
         row = None
