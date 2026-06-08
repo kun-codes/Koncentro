@@ -84,6 +84,12 @@ def check_desktop_environment() -> bool:
 
 
 if __name__ == "__main__":
+    if "--blocking-subprocess" in sys.argv:
+        from website_blocker.blocking_process import main
+
+        main()
+        sys.exit(0)
+
     if platform.system().lower() == "linux":
         check_desktop_environment()
         check_init_service()

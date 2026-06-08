@@ -142,6 +142,7 @@ jobs:
                     deployment: ${{ inputs.deployment }}
                     include-module: |
                         logging.config
+                        website_blocker.blocking_process
                         ${{ (matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-24.04-arm') && 'mitmproxy_linux' || '' }}
                         ${{ (matrix.os == 'macos-latest' || matrix.os == 'macos-15-intel') && 'mitmproxy_macos' || '' }}
                     nofollow-import-to: |

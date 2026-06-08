@@ -9,7 +9,7 @@ from typing import Set
 import mitmproxy.addonmanager
 from mitmproxy import ctx, http
 
-from website_blocker.constants import BLOCK_HTML_MESSAGE, MITMDUMP_CHECK_URL
+from website_blocker.constants import BLOCK_HTML_MESSAGE, MITMDUMP_CHECK_URL, MITMDUMP_SHUTDOWN_URL
 
 
 class BlockAddon:
@@ -20,6 +20,13 @@ class BlockAddon:
         loader.add_option("block_type", str, "", "Allowlist or blocklist.")
 
     def request(self, flow: mitmproxy.http.HTTPFlow) -> None:
+        # Respond to shutdown requests
+        if flow.request.pretty_url == MITMDUMP_SHUTDOWN_URL:
+            print("Shutting down mitmproxy...")
+            flow.response = http.Response.make(200, b"Shutting down mitmproxy...\n", {"Content-Type": "text/plain"})
+            ctx.master.shutdown()
+            return
+
         # Respond to health-check requests
         if flow.request.pretty_url == MITMDUMP_CHECK_URL:
             print("Mitmdump is running, sending back confirmation response.")
