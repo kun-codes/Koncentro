@@ -85,6 +85,8 @@ def check_desktop_environment() -> bool:
 
 if __name__ == "__main__":
     if "--blocking-subprocess" in sys.argv:
+        # Strip the wrapper flag before handing off to blocking_process's own argparse
+        sys.argv = [a for a in sys.argv if a != "--blocking-subprocess"]
         from website_blocker.blocking_process import main
 
         main()
