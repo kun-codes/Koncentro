@@ -2,8 +2,25 @@ from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from sqlite3 import Connection as SQLiteConnection
+from typing import Optional
 
-from sqlalchemy import URL, Boolean, Column, DateTime, Engine, ForeignKey, Integer, String, create_engine, event
+from PySide6.QtCore import QBuffer, QIODevice
+from PySide6.QtGui import QPixmap
+from sqlalchemy import (
+    URL,
+    Boolean,
+    Column,
+    DateTime,
+    Dialect,
+    Engine,
+    ForeignKey,
+    Integer,
+    LargeBinary,
+    String,
+    TypeDecorator,
+    create_engine,
+    event,
+)
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.pool.base import _ConnectionRecord
@@ -49,6 +66,41 @@ class TaskType(Enum):
     COMPLETED = "COMPLETED"
 
 
+class PathType(TypeDecorator[Path]):
+    impl = String
+    cache_ok = True
+
+    def process_bind_param(self, value: Optional[Path], dialect: Dialect) -> Optional[str]:
+        if value is None:
+            return None
+        return str(value)
+
+    def process_result_value(self, value: Optional[str], dialect: Dialect) -> Optional[Path]:
+        if value is None:
+            return None
+        return Path(value)
+
+
+class IconType(TypeDecorator[QPixmap]):
+    impl = LargeBinary
+    cache_ok = True
+
+    def process_bind_param(self, value: Optional[QPixmap], dialect: Dialect) -> Optional[bytes]:
+        if value is None:
+            return None
+        buffer = QBuffer()
+        buffer.open(QIODevice.OpenModeFlag.WriteOnly)
+        value.save(buffer, "PNG")
+        return bytes(buffer.data())
+
+    def process_result_value(self, value: Optional[bytes], dialect: Dialect) -> Optional[QPixmap]:
+        if value is None:
+            return None
+        pixmap = QPixmap()
+        pixmap.loadFromData(value)
+        return pixmap
+
+
 class Version(Base):
     """Stores application and database schema version"""
 
@@ -86,6 +138,18 @@ class Task(Base):
     workspace = relationship("Workspace", back_populates="tasks")
 
 
+class BlocklistApp(Base):
+    __tablename__ = "blocklist_apps"
+
+    id = Column(Integer, primary_key=True)
+    workspace_id = Column(Integer, ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False)
+    app_name = Column(String, nullable=False)
+    app_path = Column(PathType, nullable=False)
+    app_icon = Column(IconType)
+
+    workspace = relationship("Workspace", back_populates="blocklist_apps")
+
+
 class Workspace(Base):
     """
     Represents a table named "workspaces" in the database
@@ -114,6 +178,8 @@ class Workspace(Base):
     )
 
     tasks = relationship("Task", back_populates="workspace", cascade="all, delete-orphan")
+
+    blocklist_apps = relationship("BlocklistApp", back_populates="workspace", cascade="all, delete-orphan")
 
 
 class CurrentWorkspace(Base):
