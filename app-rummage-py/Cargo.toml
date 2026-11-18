@@ -1,0 +1,12 @@
+[package]
+name = "app-rummage-py"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "app_rummage_py"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.30", features = ["extension-module"] }
+app-rummage = "1.2"
