@@ -66,21 +66,6 @@ class TaskType(Enum):
     COMPLETED = "COMPLETED"
 
 
-class PathType(TypeDecorator[Path]):
-    impl = String
-    cache_ok = True
-
-    def process_bind_param(self, value: Optional[Path], dialect: Dialect) -> Optional[str]:
-        if value is None:
-            return None
-        return str(value)
-
-    def process_result_value(self, value: Optional[str], dialect: Dialect) -> Optional[Path]:
-        if value is None:
-            return None
-        return Path(value)
-
-
 class IconType(TypeDecorator[QPixmap]):
     impl = LargeBinary
     cache_ok = True
@@ -144,7 +129,7 @@ class BlocklistApp(Base):
     id = Column(Integer, primary_key=True)
     workspace_id = Column(Integer, ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False)
     app_name = Column(String, nullable=False)
-    app_path = Column(PathType, nullable=False)
+    app_path = Column(String, nullable=False)
     app_icon = Column(IconType)
 
     workspace = relationship("Workspace", back_populates="blocklist_apps")

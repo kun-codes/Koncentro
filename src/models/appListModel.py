@@ -1,5 +1,4 @@
 from bisect import bisect_right
-from pathlib import Path
 from typing import List, Optional, Union
 
 from PySide6.QtCore import QAbstractListModel, QModelIndex, Qt
@@ -12,7 +11,7 @@ from utils.db_utils import get_session
 
 
 class AppItem:
-    def __init__(self, app_id: int, app_name: str, app_path: Path, app_icon: Optional[QPixmap] = None) -> None:
+    def __init__(self, app_id: int, app_name: str, app_path: str, app_icon: Optional[QPixmap] = None) -> None:
         self.app_id = app_id
         self.app_name = app_name
         self.app_path = app_path
@@ -53,7 +52,7 @@ class AppListModel(QAbstractListModel):
 
         self.layoutChanged.emit()
 
-    def data(self, index: QModelIndex, role: Qt.ItemDataRole) -> Optional[Union[int, str, Path, QPixmap]]:
+    def data(self, index: QModelIndex, role: Qt.ItemDataRole) -> Optional[Union[int, str, QPixmap]]:
         if not index.isValid():
             return None
 
