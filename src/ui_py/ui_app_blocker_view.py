@@ -19,7 +19,8 @@ from PySide6.QtWidgets import (QApplication, QHBoxLayout, QSizePolicy, QVBoxLayo
     QWidget)
 
 from qfluentwidgets import (BodyLabel, CardWidget, ListView, PrimaryPushButton,
-    PushButton, SimpleCardWidget, SingleDirectionScrollArea, TitleLabel)
+    PushButton, SimpleCardWidget, SingleDirectionScrollArea, TitleLabel,
+    ToolButton)
 
 class Ui_AppBlockView(object):
     def setupUi(self, AppBlockView):
@@ -67,6 +68,11 @@ class Ui_AppBlockView(object):
         self.addAppsButton.setSizePolicy(sizePolicy1)
 
         self.horizontalLayout_2.addWidget(self.addAppsButton)
+
+        self.deleteAppButton = ToolButton(self.scrollAreaWidgetContents)
+        self.deleteAppButton.setObjectName(u"deleteAppButton")
+
+        self.horizontalLayout_2.addWidget(self.deleteAppButton)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout_2)

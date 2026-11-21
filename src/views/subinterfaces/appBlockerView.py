@@ -1,7 +1,7 @@
 from loguru import logger
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QAbstractItemView, QWidget
-from qfluentwidgets import FluentIcon, InfoBar, InfoBarPosition
+from qfluentwidgets import FluentIcon, InfoBar, InfoBarPosition, ToolTipFilter, ToolTipPosition
 
 from models.appListModel import AppListModel
 from models.dbTables import BlocklistApp
@@ -22,6 +22,11 @@ class AppBlockerView(Ui_AppBlockView, QWidget):
     def initWidget(self) -> None:
         self.addAppsButton.setIcon(FluentIcon.VPN)
 
+        self.deleteAppButton.setIcon(FluentIcon.DELETE)
+        self.deleteAppButton.setToolTip("Delete App")
+        self.deleteAppButton.installEventFilter(ToolTipFilter(self.deleteAppButton, 300, ToolTipPosition.BOTTOM))
+        self.deleteAppButton.setEnabled(False)
+
         self.appListModel = AppListModel(self)
         self.appListModel.load_data()
 
@@ -32,9 +37,21 @@ class AppBlockerView(Ui_AppBlockView, QWidget):
 
     def onCurrentWorkspaceChanged(self) -> None:
         self.appListModel.load_data()
+        self.onSelectionChanged()
 
     def connectSignalsToSlots(self) -> None:
         self.addAppsButton.clicked.connect(self.addApps)
+        self.deleteAppButton.clicked.connect(self.deleteApp)
+        self.blockedAppsListView.selectionModel().selectionChanged.connect(self.onSelectionChanged)
+
+    def onSelectionChanged(self) -> None:
+        self.deleteAppButton.setEnabled(self.blockedAppsListView.currentIndex().isValid())
+
+    def deleteApp(self) -> None:
+        index = self.blockedAppsListView.currentIndex()
+        if not index.isValid():
+            return
+        self.appListModel.delete_app(index.row())
 
     def addApps(self) -> None:
         current_workspace_id = WorkspaceLookup.get_current_workspace_id()

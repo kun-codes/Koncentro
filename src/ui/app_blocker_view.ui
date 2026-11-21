@@ -97,6 +97,9 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="ToolButton" name="deleteAppButton"/>
+         </item>
         </layout>
        </item>
        <item>
@@ -126,6 +129,11 @@
   <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
+   <header>qfluentwidgets</header>
+  </customwidget>
+  <customwidget>
+   <class>ToolButton</class>
+   <extends>QToolButton</extends>
    <header>qfluentwidgets</header>
   </customwidget>
   <customwidget>
