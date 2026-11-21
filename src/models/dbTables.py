@@ -30,6 +30,7 @@ from constants import (
     DEFAULT_AUTOSTART_BREAK,
     DEFAULT_AUTOSTART_WORK,
     DEFAULT_BREAK_DURATION,
+    DEFAULT_ENABLE_APP_BLOCKER,
     DEFAULT_ENABLE_WEBSITE_BLOCKER,
     DEFAULT_LONG_BREAK_DURATION,
     DEFAULT_WORK_DURATION,
@@ -151,6 +152,7 @@ class Workspace(Base):
     autostart_work = Column(Boolean, default=DEFAULT_AUTOSTART_WORK)
     autostart_break = Column(Boolean, default=DEFAULT_AUTOSTART_BREAK)
     enable_website_blocker = Column(Boolean, default=DEFAULT_ENABLE_WEBSITE_BLOCKER)
+    enable_app_blocker = Column(Boolean, default=DEFAULT_ENABLE_APP_BLOCKER)
     website_block_type = Column(SQLEnum(WebsiteBlockType), default=WebsiteBlockType.BLOCKLIST)
 
     blocklist_urls = relationship("BlocklistURL", back_populates="workspace", cascade="all, delete-orphan")
