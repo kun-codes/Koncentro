@@ -20,6 +20,7 @@ from app_blocker.appBlockerBackend import AppKind, InstalledApp
 from app_blocker.backendFactory import get_app_blocker_backend
 from models.appPickerListModel import AppFilterProxyModel, AppPickerListModel, AppPickerModelItem
 from prefabs.appPickerItemDelegate import AppPickerItemDelegate
+from utils.checkFlatpakSandbox import is_flatpak_sandbox
 
 
 class BlockAppDialog(MessageBoxBase):
@@ -91,10 +92,13 @@ class BlockAppDialog(MessageBoxBase):
     def onBrowseClicked(self) -> None:
         # as per https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch04s04.html most user commands should live here
         # if it doesnt exist then fall back to home directory
+        # the is_dir check is skipped under flatpak as the sandbox sees only the runtime's /usr/bin, the actual
+        # dialog is opened host-side by xdg-desktop-portal, where /usr/bin refers to the host's directory
+        # in the edge case when Koncentro is in a flatpak and the host linux distro doesnt have /usr/bin
+        # most likely the file picker will fallback to the home directory
         start_dir = str(Path.home())
-        if platform == "linux":
-            if Path("/usr/bin").is_dir():
-                start_dir = "/usr/bin"
+        if platform == "linux" and (is_flatpak_sandbox() or Path("/usr/bin").is_dir()):
+            start_dir = "/usr/bin"
 
         path, _ = QFileDialog.getOpenFileName(self, "Choose an application", start_dir, "All files (*)")
         if not path:
