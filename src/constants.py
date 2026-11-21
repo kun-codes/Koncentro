@@ -82,6 +82,7 @@ class NavPanelButtonPosition(Enum):
     TASK_INTERFACE = (0, 2)
     POMODORO_INTERFACE = (0, 3)
     WEBSITE_BLOCKER_INTERFACE = (0, 4)
+    APP_BLOCKER_INTERFACE = (0, 5)
 
     # 1 = Scroll Layout of Panel of Navigation Panel
 

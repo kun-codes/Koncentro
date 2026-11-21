@@ -963,6 +963,10 @@ class MainWindow(KoncentroFluentWindow):
         self.switchToWebsiteBlockerInterfaceShortcut.activated.connect(
             lambda: self.switchTo(self.website_blocker_interface)
         )
+        self.switchToAppBlockerInterfaceShortcut = QShortcut(
+            QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_4), self
+        )
+        self.switchToAppBlockerInterfaceShortcut.activated.connect(lambda: self.switchTo(self.app_blocker_interface))
         self.switchToSettingsInterfaceShortcut = QShortcut(
             QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_0), self
         )
@@ -994,6 +998,13 @@ class MainWindow(KoncentroFluentWindow):
         ).widget().setToolTip(
             f"Website Blocker ({
                 self.switchToWebsiteBlockerInterfaceShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)
+            })"
+        )
+        self.navigationInterface.panel.topLayout.itemAt(
+            NavPanelButtonPosition.APP_BLOCKER_INTERFACE.value[1]
+        ).widget().setToolTip(
+            f"App Blocker ({
+                self.switchToAppBlockerInterfaceShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)
             })"
         )
         self.navigationInterface.panel.bottomLayout.itemAt(

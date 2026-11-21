@@ -3,6 +3,7 @@ from sys import platform
 from typing import Optional
 
 from PySide6.QtCore import QModelIndex, QSize, Qt
+from PySide6.QtGui import QKeyEvent, QKeySequence, QShortcut, QShowEvent
 from PySide6.QtWidgets import QAbstractItemView, QFileDialog, QWidget
 from qfluentwidgets import (
     BodyLabel,
@@ -53,7 +54,11 @@ class BlockAppDialog(MessageBoxBase):
         self.appListView.setMinimumSize(QSize(0, 320))
 
         self.browseButton = PushButton(FluentIcon.FOLDER_ADD, "Browse…", self)
-        self.browseButton.setToolTip("Block an app by its executable path, if it is not in the list")
+        self.browseShortcut = QShortcut(QKeySequence(QKeySequence.StandardKey.Open), self)
+        self.browseShortcut.activated.connect(self.browseButton.click)
+        self.browseButton.setToolTip(
+            f"Block an app by its path ({self.browseShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
         self.browseButton.installEventFilter(ToolTipFilter(self.browseButton, 300, ToolTipPosition.BOTTOM))
 
         self.viewLayout.addWidget(self.titleLabel)
@@ -64,6 +69,15 @@ class BlockAppDialog(MessageBoxBase):
 
         self.yesButton.setText("Block")
         self.cancelButton.setText("Cancel")
+
+        self.yesButton.setToolTip(
+            f"Add apps ({QKeySequence(Qt.Key.Key_Enter).toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+        self.yesButton.installEventFilter(ToolTipFilter(self.yesButton, 300, ToolTipPosition.TOP))
+        self.cancelButton.setToolTip(
+            f"Close dialog ({QKeySequence(Qt.Key.Key_Escape).toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+        self.cancelButton.installEventFilter(ToolTipFilter(self.cancelButton, 300, ToolTipPosition.TOP))
 
         # 715 is the app window's minimum width (mainWindow.initWindow)
         dialog_width = min(max(420, int(parent.width() * 0.5)), 715) if parent else 420
@@ -128,3 +142,15 @@ class BlockAppDialog(MessageBoxBase):
 
     def selected_apps(self) -> list[InstalledApp]:
         return self.appListModel.checked_apps()
+
+    def showEvent(self, event: QShowEvent) -> None:
+        super().showEvent(event)
+        self.searchEdit.setFocus()
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        if event.key() in [Qt.Key.Key_Return, Qt.Key.Key_Enter] and self.yesButton.isEnabled():
+            self.yesButton.click()
+        elif event.key() == Qt.Key.Key_Escape:
+            self.cancelButton.click()
+        else:
+            super().keyPressEvent(event)

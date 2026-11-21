@@ -1,5 +1,6 @@
 from loguru import logger
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QAbstractItemView, QWidget
 from qfluentwidgets import FluentIcon, InfoBar, InfoBarPosition, ToolTipFilter, ToolTipPosition
 
@@ -18,15 +19,12 @@ class AppBlockerView(Ui_AppBlockView, QWidget):
 
         self.initWidget()
         self.connectSignalsToSlots()
+        self.setupShortcuts()
 
     def initWidget(self) -> None:
         self.addAppsButton.setIcon(FluentIcon.VPN)
-        self.addAppsButton.setToolTip("Add App")
-        self.addAppsButton.installEventFilter(ToolTipFilter(self.addAppsButton, 300, ToolTipPosition.BOTTOM))
 
         self.deleteAppButton.setIcon(FluentIcon.DELETE)
-        self.deleteAppButton.setToolTip("Delete App")
-        self.deleteAppButton.installEventFilter(ToolTipFilter(self.deleteAppButton, 300, ToolTipPosition.BOTTOM))
         self.deleteAppButton.setEnabled(False)
 
         self.appListModel = AppListModel(self)
@@ -40,6 +38,25 @@ class AppBlockerView(Ui_AppBlockView, QWidget):
     def onCurrentWorkspaceChanged(self) -> None:
         self.appListModel.load_data()
         self.onSelectionChanged()
+
+    def setupShortcuts(self) -> None:
+        self.addAppsShortcut = QShortcut(QKeySequence(Qt.KeyboardModifier.ControlModifier | Qt.Key.Key_N), self)
+        self.addAppsShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self.addAppsShortcut.activated.connect(self.addAppsButton.click)
+
+        self.deleteShortcut = QShortcut(QKeySequence(Qt.Key.Key_Delete), self)
+        self.deleteShortcut.setContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        self.deleteShortcut.activated.connect(self.deleteAppButton.click)
+
+        self.addAppsButton.setToolTip(
+            f"Add App ({self.addAppsShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+        self.deleteAppButton.setToolTip(
+            f"Delete App ({self.deleteShortcut.key().toString(QKeySequence.SequenceFormat.NativeText)})"
+        )
+
+        self.addAppsButton.installEventFilter(ToolTipFilter(self.addAppsButton, 300, ToolTipPosition.BOTTOM))
+        self.deleteAppButton.installEventFilter(ToolTipFilter(self.deleteAppButton, 300, ToolTipPosition.BOTTOM))
 
     def connectSignalsToSlots(self) -> None:
         self.addAppsButton.clicked.connect(self.addApps)
