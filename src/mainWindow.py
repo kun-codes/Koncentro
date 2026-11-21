@@ -17,6 +17,7 @@ from qfluentwidgets import (
     SystemThemeListener,
 )
 
+from app_blocker.appBlockerManager import AppBlockerManager
 from configPaths import settings_dir
 from configValues import ConfigValues
 from constants import (
@@ -52,6 +53,7 @@ from views.dialogs.preSetupConfirmationDialog import PreSetupConfirmationDialog
 from views.dialogs.setupAppDialog import SetupAppDialog
 from views.dialogs.updateDialog import UpdateDialog
 from views.dialogs.workspaceManagerDialog import ManageWorkspaceDialog
+from views.subinterfaces.appBlockerView import AppBlockerView
 from views.subinterfaces.pomodoroView import PomodoroView
 from views.subinterfaces.settingsView import SettingsView
 from views.subinterfaces.tasksView import TaskListView
@@ -87,11 +89,15 @@ class MainWindow(KoncentroFluentWindow):
         self.website_blocker_interface = WebsiteBlockerView(self.workplace_list_model)
         self.website_blocker_interface.setObjectName("website_blocker_interface")
 
+        self.app_blocker_interface = AppBlockerView()
+        self.app_blocker_interface.setObjectName("app_blocker_interface")
+
         self.setObjectName("main_window")
 
         self.manage_workspace_dialog = None
 
         self.website_blocker_manager = WebsiteBlockerManager()
+        self.app_blocker_manager = AppBlockerManager()
 
         self.themeListener = SystemThemeListener(self)
         self.themeListener.start()
@@ -109,6 +115,7 @@ class MainWindow(KoncentroFluentWindow):
         self.initShortcuts()
 
         self.website_blocker_interface.setEnabled(ConfigValues.ENABLE_WEBSITE_BLOCKER)
+        self.app_blocker_interface.setEnabled(ConfigValues.ENABLE_APP_BLOCKER)
 
         self.navigationInterface.panel.setFixedHeight(48)
 
@@ -129,6 +136,7 @@ class MainWindow(KoncentroFluentWindow):
         self.addSubInterface(self.task_interface, CustomFluentIcon.TASKS_VIEW, "Tasks")
         self.addSubInterface(self.pomodoro_interface, FluentIcon.STOP_WATCH, "Pomodoro")
         self.addSubInterface(self.website_blocker_interface, CustomFluentIcon.WEBSITE_BLOCKER_VIEW, "Website Blocker")
+        self.addSubInterface(self.app_blocker_interface, FluentIcon.VPN, "App Blocker")
 
         # Add sub interface at bottom
         self.navigationInterface.addItem(
@@ -204,6 +212,7 @@ class MainWindow(KoncentroFluentWindow):
         current_timer_state = self.pomodoro_interface.pomodoro_timer_obj.getTimerState()
         if current_timer_state == TimerState.WORK and not ConfigValues.AUTOSTART_WORK:
             logger.debug("Work session resumed and autostart work is off, checking if mitmdump is running...")
+            self.start_app_blocking()
 
             # clean up any existing worker
             if self.mitmdump_check_worker and self.mitmdump_check_worker.isRunning():
@@ -224,20 +233,24 @@ class MainWindow(KoncentroFluentWindow):
         elif current_timer_state in [TimerState.BREAK, TimerState.LONG_BREAK] and not ConfigValues.AUTOSTART_BREAK:
             logger.debug("Break session resumed and autostart break is off, stopping website blocking")
             self.stop_website_blocking()
+            self.stop_app_blocking()
 
     def on_timer_state_changed(self, timerState: TimerState, _: bool) -> None:
         """For cases when autostart work/break is enabled"""
         if timerState == TimerState.WORK and ConfigValues.AUTOSTART_WORK:
             logger.debug("Work session started and autostart work is on, starting website blocking")
             self.start_website_blocking()
+            self.start_app_blocking()
         elif timerState in [TimerState.BREAK, TimerState.LONG_BREAK] and ConfigValues.AUTOSTART_BREAK:
             logger.debug("Break session started and autostart break is on, stopping website blocking")
             self.stop_website_blocking()
+            self.stop_app_blocking()
 
     def on_session_stopped(self) -> None:
         """Handle session stopped signal - stop website blocking"""
         logger.debug("Session stopped, stopping website blocking")
         self.stop_website_blocking()
+        self.stop_app_blocking()
 
     def start_website_blocking(self) -> None:
         """Start website blocking with current settings"""
@@ -273,6 +286,32 @@ class MainWindow(KoncentroFluentWindow):
         """Stop website blocking"""
         logger.debug("Stopping website blocking")
         self.website_blocker_manager.stop_blocking(delete_proxy=True)
+
+    def start_app_blocking(self) -> None:
+        if not ConfigValues.ENABLE_APP_BLOCKER:
+            logger.debug("App blocking is disabled, so not starting app blocking")
+            return
+
+        logger.debug("Starting app blocking")
+
+        targets = {app.app_path for app in self.app_blocker_interface.appListModel.apps}
+        self.app_blocker_manager.start_blocking(targets)
+
+    def stop_app_blocking(self) -> None:
+        logger.debug("Stopping app blocking")
+        self.app_blocker_manager.stop_blocking()
+
+    def handle_app_blocker_settings_change(self) -> None:
+        current_timer_state = self.pomodoro_interface.pomodoro_timer_obj.getTimerState()
+        is_timer_running = self.pomodoro_interface.pomodoro_timer_obj.pomodoro_timer.isActive()
+
+        if current_timer_state == TimerState.WORK and is_timer_running:
+            logger.debug("App blocker setting changed during active work session, updating app blocking")
+            self.stop_app_blocking()
+            self.start_app_blocking()
+        else:
+            logger.debug("App blocker setting changed, stopping app blocking")
+            self.stop_app_blocking()
 
     def handle_website_blocker_settings_change(self) -> None:
         """Handle changes to website blocker settings - restart blocking if currently in a work session"""
@@ -493,6 +532,9 @@ class MainWindow(KoncentroFluentWindow):
         self.workplace_list_model.current_workspace_changed.connect(
             self.task_interface.onCurrentWorkspaceChanged  # update task list when workspace is changed
         )
+        self.workplace_list_model.current_workspace_changed.connect(
+            self.app_blocker_interface.onCurrentWorkspaceChanged  # update blocked apps list when workspace is changed
+        )
         self.pomodoro_interface.pomodoro_timer_obj.pomodoro_timer.timeout.connect(self.updateTimerStatusLabels)
         self.pomodoro_interface.pomodoro_timer_obj.timerStateChangedSignal.connect(self.updateTimerStatusLabels)
         workspace_specific_settings.enable_website_blocker.valueChanged.connect(
@@ -500,6 +542,10 @@ class MainWindow(KoncentroFluentWindow):
         )
         workspace_specific_settings.enable_website_blocker.valueChanged.connect(
             lambda: self.handle_website_blocker_settings_change()
+        )
+        workspace_specific_settings.enable_app_blocker.valueChanged.connect(self.on_app_block_enabled_setting_changed)
+        workspace_specific_settings.enable_app_blocker.valueChanged.connect(
+            lambda: self.handle_app_blocker_settings_change()
         )
         self.stackedWidget.mousePressEvent = self.onStackedWidgetClicked
         self.settings_interface.proxy_port_card.valueChanged.connect(self.update_proxy_port)
@@ -665,12 +711,25 @@ class MainWindow(KoncentroFluentWindow):
 
         self.website_blocker_interface.setEnabled(enable_website_block_setting_value)
 
+    def on_app_block_enabled_setting_changed(self) -> None:
+        self.app_blocker_interface.setEnabled(ConfigValues.ENABLE_APP_BLOCKER)
+
     def onStackedWidgetClicked(self, _event: QMouseEvent) -> None:
         if self.stackedWidget.currentIndex() == 2 and not self.website_blocker_interface.isEnabled():
             # show an infobar to inform the user that website blocker is disabled and how it can be enabled
             InfoBar.warning(
                 title="Website Blocker is Disabled",
                 content="You can enable the website blocker from the settings view",
+                orient=Qt.Orientation.Vertical,
+                isClosable=True,
+                position=InfoBarPosition.TOP_RIGHT,
+                duration=5000,
+                parent=self,
+            )
+        elif self.stackedWidget.currentIndex() == 3 and not self.app_blocker_interface.isEnabled():
+            InfoBar.warning(
+                title="App Blocker is Disabled",
+                content="You can enable the app blocker from the settings view",
                 orient=Qt.Orientation.Vertical,
                 isClosable=True,
                 position=InfoBarPosition.TOP_RIGHT,
@@ -834,6 +893,7 @@ class MainWindow(KoncentroFluentWindow):
             self.updateTaskTimeDB()
             self.website_blocker_manager.stop_blocking(delete_proxy=True)
             self.website_blocker_manager.cleanup()
+            self.app_blocker_manager.stop_blocking()
             self.themeListener.terminate()
             self.themeListener.deleteLater()
             logger.debug("Cleanup tasks completed successfully.")
