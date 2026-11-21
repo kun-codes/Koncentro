@@ -47,7 +47,7 @@ class AppBlockerView(Ui_AppBlockView, QWidget):
         self.blockedAppsListView.selectionModel().selectionChanged.connect(self.onSelectionChanged)
 
     def onSelectionChanged(self) -> None:
-        self.deleteAppButton.setEnabled(self.blockedAppsListView.currentIndex().isValid())
+        self.deleteAppButton.setEnabled(self.blockedAppsListView.selectionModel().hasSelection())
 
     def deleteApp(self) -> None:
         index = self.blockedAppsListView.currentIndex()
