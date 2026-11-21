@@ -117,6 +117,16 @@ class SettingsView(QWidget, Ui_SettingsView):
             self.website_blocker_settings_group,
         )
 
+        # App Blocker Settings
+        self.app_blocker_settings_group = SettingCardGroup("App Blocker", self.scrollArea)
+        self.enable_app_blocker_card = SwitchSettingCardSQL(
+            FluentIcon.VPN,
+            "Enable App Blocker",
+            "Enable app blocking",
+            workspace_specific_settings.enable_app_blocker,
+            self.app_blocker_settings_group,
+        )
+
         # Personalization Settings
         self.personalization_settings_group = SettingCardGroup(self.tr("Personalization"), self.scrollArea)
         self.theme_card = OptionsSettingCard(
@@ -234,6 +244,10 @@ class SettingsView(QWidget, Ui_SettingsView):
         self.proxy_port_card.spinBox.setMinimumWidth(150)
         self.scrollAreaWidgetContents.layout().addWidget(self.website_blocker_settings_group)
 
+        # App Blocker Settings
+        self.app_blocker_settings_group.addSettingCard(self.enable_app_blocker_card)
+        self.scrollAreaWidgetContents.layout().addWidget(self.app_blocker_settings_group)
+
         # Personalization Settings
         self.personalization_settings_group.addSettingCard(self.theme_card)
         self.personalization_settings_group.addSettingCard(self.theme_color_card)
@@ -282,6 +296,7 @@ class SettingsView(QWidget, Ui_SettingsView):
         workspace_specific_settings.autostart_work.valueChanged.connect(self.updateAutostartWork)
         workspace_specific_settings.autostart_break.valueChanged.connect(self.updateAutostartBreak)
         workspace_specific_settings.enable_website_blocker.valueChanged.connect(self.updateEnableWebsiteBlocker)
+        workspace_specific_settings.enable_app_blocker.valueChanged.connect(self.updateEnableAppBlocker)
 
         app_settings.proxy_port.valueChanged.connect(self.updateProxyPort)
         app_settings.check_for_updates_on_start.valueChanged.connect(self.updateCheckForUpdatesOnStart)
@@ -335,6 +350,14 @@ class SettingsView(QWidget, Ui_SettingsView):
             f"Enable Website Blocker: {
                 workspace_specific_settings.get(workspace_specific_settings.enable_website_blocker)
             }"
+        )
+
+    def updateEnableAppBlocker(self) -> None:
+        ConfigValues.ENABLE_APP_BLOCKER = workspace_specific_settings.get(
+            workspace_specific_settings.enable_app_blocker
+        )
+        logger.debug(
+            f"Enable App Blocker: {workspace_specific_settings.get(workspace_specific_settings.enable_app_blocker)}"
         )
 
     def updateProxyPort(self) -> None:

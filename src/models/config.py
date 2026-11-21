@@ -7,6 +7,7 @@ from constants import (
     DEFAULT_AUTOSTART_BREAK,
     DEFAULT_AUTOSTART_WORK,
     DEFAULT_BREAK_DURATION,
+    DEFAULT_ENABLE_APP_BLOCKER,
     DEFAULT_ENABLE_WEBSITE_BLOCKER,
     DEFAULT_LONG_BREAK_DURATION,
     DEFAULT_WORK_DURATION,
@@ -42,6 +43,9 @@ class WorkspaceSettings(QConfigSQL):
     autostart_break = ConfigItemSQL(Workspace, Workspace.autostart_break, DEFAULT_AUTOSTART_BREAK, BoolValidator())
     enable_website_blocker = ConfigItemSQL(
         Workspace, Workspace.enable_website_blocker, DEFAULT_ENABLE_WEBSITE_BLOCKER, BoolValidator()
+    )
+    enable_app_blocker = ConfigItemSQL(
+        Workspace, Workspace.enable_app_blocker, DEFAULT_ENABLE_APP_BLOCKER, BoolValidator()
     )
 
 

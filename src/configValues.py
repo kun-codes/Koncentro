@@ -9,6 +9,7 @@ class ConfigValues:
     AUTOSTART_WORK = workspace_specific_settings.get(workspace_specific_settings.autostart_work)
     AUTOSTART_BREAK = workspace_specific_settings.get(workspace_specific_settings.autostart_break)
     ENABLE_WEBSITE_BLOCKER = workspace_specific_settings.get(workspace_specific_settings.enable_website_blocker)
+    ENABLE_APP_BLOCKER = workspace_specific_settings.get(workspace_specific_settings.enable_app_blocker)
     PROXY_PORT = app_settings.get(app_settings.proxy_port)
     CHECK_FOR_UPDATES_ON_START = app_settings.get(app_settings.check_for_updates_on_start)
     HAS_COMPLETED_TASK_VIEW_TUTORIAL = app_settings.get(app_settings.has_completed_task_view_tutorial)
