@@ -21,6 +21,8 @@ class AppBlockerView(Ui_AppBlockView, QWidget):
 
     def initWidget(self) -> None:
         self.addAppsButton.setIcon(FluentIcon.VPN)
+        self.addAppsButton.setToolTip("Add App")
+        self.addAppsButton.installEventFilter(ToolTipFilter(self.addAppsButton, 300, ToolTipPosition.BOTTOM))
 
         self.deleteAppButton.setIcon(FluentIcon.DELETE)
         self.deleteAppButton.setToolTip("Delete App")
