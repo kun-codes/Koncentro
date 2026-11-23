@@ -75,7 +75,7 @@ cd Koncentro
 ```sh
 poetry env use 3.12
 ```
-- Install the dependencies using Poetry
+- Install the dependencies using Poetry (on Linux the [Rust toolchain](https://www.rust-lang.org/tools/install) has to be installed)
 ```sh
 poetry install --no-root
 ```
