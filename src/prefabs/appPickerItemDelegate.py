@@ -1,13 +1,13 @@
 from typing import Optional
 
 from PySide6.QtCore import QModelIndex, QRect, QSize, Qt
-from PySide6.QtGui import QColor, QFontMetrics, QPainter, QPixmap
+from PySide6.QtGui import QColor, QFontMetrics, QPainter
 from PySide6.QtWidgets import QListView, QStyle, QStyleOptionViewItem
 from qfluentwidgets import FluentIcon, ListItemDelegate, drawIcon, isDarkTheme
 from qfluentwidgets.common.color import autoFallbackThemeColor, themeColor
 from qfluentwidgets.common.font import getFont
 
-from app_blocker.appBlockerBackend import AppKind
+from app_blocker.appBlockerBackend import AppKind, InstalledApp
 from models.appPickerListModel import AppPickerListModel, AppPickerModelItem
 
 
@@ -97,10 +97,12 @@ class AppPickerItemDelegate(ListItemDelegate):
 
         painter.restore()
 
-    def _paintIcon(self, painter: QPainter, icon_rect: QRect, pixmap: Optional[QPixmap]) -> None:
+    def _paintIcon(self, painter: QPainter, icon_rect: QRect, app: InstalledApp) -> None:
         painter.save()
-        if pixmap is not None and not pixmap.isNull():
-            painter.drawPixmap(icon_rect, pixmap)
+        # app_icon validates the file decodes (and warms the engine's base pixmap), the icon is then
+        # painted through its engine so dpr scaling and pixmap caching (QPixmapCache) are Qt's job
+        if app.app_icon is not None:
+            app.app_qicon.paint(painter, icon_rect)
         else:
             # draw a rounded placeholder with an application icon when the app has no icon
             c = 255 if isDarkTheme() else 0
@@ -196,7 +198,7 @@ class AppPickerItemDelegate(ListItemDelegate):
         self._paintBackgroundAndIndicator(painter, option, index)
         self._paintCheckbox(painter, option, item)
 
-        self._paintIcon(painter, self._getIconRect(option), item.app.app_icon)
+        self._paintIcon(painter, self._getIconRect(option), item.app)
 
         badge_word = "Blocked" if item.already_blocked else item.app.kind.value.capitalize()
         text_rect = self._getTextRect(option)
