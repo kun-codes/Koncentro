@@ -21,6 +21,21 @@ typing-extensions = ">=4.12"
 tz = ["tzdata"]
 
 [[package]]
+name = "app-rummage-py"
+version = "0.1.0"
+description = ""
+optional = false
+python-versions = ">=3.12"
+groups = ["build"]
+markers = "sys_platform == \"linux\""
+files = []
+develop = false
+
+[package.source]
+type = "directory"
+url = "app-rummage-py"
+
+[[package]]
 name = "certifi"
 version = "2026.5.20"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -4762,4 +4777,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.13"
-content-hash = "a49756b73d9f3980169e741f6383f3ef75867b1210f0dec6cf98c54e827a86e0"
+content-hash = "6ad34bcc17f9e5ee9e7ec40285908a6c881eab6c410b8a9bd0660938e15fd566"
