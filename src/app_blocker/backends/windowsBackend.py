@@ -1,8 +1,10 @@
+from typing import Callable
+
 from app_blocker.appBlockerBackend import AppBlockerBackend, InstalledApp
 
 
 class WindowsAppBlockerBackend(AppBlockerBackend):
-    def list_installed_apps(self) -> list[InstalledApp]:
+    def _enumeration_sources(self) -> list[Callable[[], list[InstalledApp]]]:
         raise NotImplementedError("App blocking is not implemented on windows yet")
 
     def find_blocked_pids(self, targets: set[str]) -> list[tuple[str, int]]:

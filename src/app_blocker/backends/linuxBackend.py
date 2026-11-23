@@ -3,13 +3,12 @@ import signal
 import subprocess
 from os.path import realpath
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 import app_rummage_py
 import psutil
 from loguru import logger
-from PySide6.QtCore import QSize
-from PySide6.QtGui import QGuiApplication, QIcon, QPixmap
+from PySide6.QtGui import QIcon
 from xdg import xdg_data_dirs, xdg_data_home
 
 from app_blocker.appBlockerBackend import AppBlockerBackend, AppKind, InstalledApp
@@ -22,12 +21,31 @@ class LinuxAppBlockerBackend(AppBlockerBackend):
     FLATPAK_PREFIX = "flatpak:"
     SNAP_PREFIX = "snap:"
 
-    def list_installed_apps(self) -> list[InstalledApp]:
-        apps: list[InstalledApp] = []
-        apps += self._installed_natives()
-        apps += self._installed_flatpaks()
-        apps += self._installed_snaps()
-        return apps
+    def setup_icon_theme(self) -> None:
+        search_paths = list(
+            dict.fromkeys(
+                [
+                    *QIcon.themeSearchPaths(),
+                    "/usr/share/icons",
+                    str(xdg_data_home() / "icons"),
+                    *[str(base / "icons") for base in xdg_data_dirs()],
+                    str(xdg_data_home() / "flatpak" / "exports" / "share" / "icons"),
+                    "/var/lib/flatpak/exports/share/icons",
+                ]
+            )
+        )
+        QIcon.setThemeSearchPaths(search_paths)
+        QIcon.setFallbackThemeName("hicolor")
+
+    def _enumeration_sources(self) -> list[Callable[[], list[InstalledApp]]]:
+        # the desktop file index is built once here and shared read-only by the native and flatpak
+        # sources; one listing per applications dir beats per-id exists() probing
+        desktop_files = self._desktop_files_by_id()
+        return [
+            lambda: self._installed_natives(desktop_files),
+            lambda: self._installed_flatpaks(desktop_files),
+            self._installed_snaps,
+        ]
 
     def find_blocked_pids(self, targets: set[str]) -> list[tuple[str, int]]:
         native_ids, paths, flatpak_ids, snap_names = self._group_targets(targets)
@@ -193,19 +211,19 @@ class LinuxAppBlockerBackend(AppBlockerBackend):
             apps.setdefault(snap_name, []).append(int(entry))
         return apps
 
-    def _installed_natives(self) -> list[InstalledApp]:
+    def _installed_natives(self, desktop_files: dict[str, Path]) -> list[InstalledApp]:
         return [
             InstalledApp(
                 app_id=desktop_id,
                 app_name=name,
                 target=desktop_id,
                 kind=AppKind.NATIVE,
-                app_icon=self._icon_for_desktop_id(desktop_id),
+                app_icon_name=self._icon_value_from_map(desktop_files, desktop_id),
             )
             for desktop_id, name in app_rummage_py.installed().items()
         ]
 
-    def _installed_flatpaks(self) -> list[InstalledApp]:
+    def _installed_flatpaks(self, desktop_files: dict[str, Path]) -> list[InstalledApp]:
         try:
             out = subprocess.run(
                 self._flatpak_command("list", "--app", "--columns=application,name"),
@@ -231,7 +249,7 @@ class LinuxAppBlockerBackend(AppBlockerBackend):
                     app_name=parts[1].strip(),
                     target=f"{self.FLATPAK_PREFIX}{app_id}",
                     kind=AppKind.FLATPAK,
-                    app_icon=self._icon_for_desktop_id(app_id),
+                    app_icon_name=self._icon_value_from_map(desktop_files, app_id),
                 )
             )
         return apps
@@ -260,7 +278,7 @@ class LinuxAppBlockerBackend(AppBlockerBackend):
                     app_name=snap_name,
                     target=f"{self.SNAP_PREFIX}{snap_name}",
                     kind=AppKind.SNAP,
-                    app_icon=self._icon_for_snap(snap_name),
+                    app_icon_name=self._icon_value_for_snap(snap_name),
                 )
             )
         return apps
@@ -274,20 +292,25 @@ class LinuxAppBlockerBackend(AppBlockerBackend):
         dirs.append(Path("/var/lib/snapd/desktop/applications"))
         return list(dict.fromkeys(dirs))  # dedupe, keeping insertion order
 
-    def _find_desktop_file(self, desktop_id: str) -> Optional[Path]:
+    def _desktop_files_by_id(self) -> dict[str, Path]:
+        """Index of desktop file name -> path; setdefault keeps the first hit in directories order,
+        matching the search precedence of the per-id probing this replaces"""
+        files: dict[str, Path] = {}
         for applications_dir in self._desktop_file_dirs():
-            candidate = applications_dir / f"{desktop_id}.desktop"
-            if candidate.is_file():
-                return candidate
-        return None
+            if not applications_dir.is_dir():
+                continue
+            for desktop_file in applications_dir.glob("*.desktop"):
+                if desktop_file.is_file():
+                    files.setdefault(desktop_file.name, desktop_file)
+        return files
 
-    def _icon_for_desktop_id(self, desktop_id: str) -> Optional[QPixmap]:
-        desktop_file = self._find_desktop_file(desktop_id)
+    def _icon_value_from_map(self, desktop_files: dict[str, Path], desktop_id: str) -> Optional[str]:
+        desktop_file = desktop_files.get(f"{desktop_id}.desktop")
         if desktop_file is None:
             return None
-        return self._resolve_icon(self._parse_icon_key(desktop_file))
+        return self._parse_icon_key(desktop_file)
 
-    def _icon_for_snap(self, snap_name: str) -> Optional[QPixmap]:
+    def _icon_value_for_snap(self, snap_name: str) -> Optional[str]:
         snapd_dir = Path("/var/lib/snapd/desktop/applications")
         if not snapd_dir.is_dir():
             return None
@@ -295,9 +318,9 @@ class LinuxAppBlockerBackend(AppBlockerBackend):
         # snapd exports them as DesktopPrefix() (the snap name) + "_" + sanitized basename
         # https://github.com/canonical/snapd/blob/90c6da1b63bb/snap/info.go#L1069
         for desktop_file in sorted(snapd_dir.glob(f"{snap_name}_*.desktop")):
-            icon = self._resolve_icon(self._parse_icon_key(desktop_file))
-            if icon is not None:
-                return icon
+            icon_value = self._parse_icon_key(desktop_file)
+            if icon_value is not None:
+                return icon_value
         return None
 
     def _parse_icon_key(self, desktop_file: Path) -> Optional[str]:
@@ -312,30 +335,3 @@ class LinuxAppBlockerBackend(AppBlockerBackend):
         except OSError:
             return None
         return None
-
-    def _resolve_icon(self, icon_value: Optional[str]) -> Optional[QPixmap]:
-        if not icon_value or QGuiApplication.instance() is None:
-            return None
-
-        if icon_value.startswith("/"):
-            icon = QIcon(icon_value)
-        else:
-            # flatpak export dirs are not part of Qt's default icon search paths
-            QIcon.setThemeSearchPaths(self._icon_search_paths())
-            QIcon.setThemeName("hicolor")
-            icon = QIcon.fromTheme(icon_value)
-
-        if icon.isNull():
-            return None
-
-        pixmap = icon.pixmap(QSize(48, 48))
-        return None if pixmap.isNull() else pixmap
-
-    def _icon_search_paths(self) -> list[str]:
-        paths = [str(base / "icons") for base in (xdg_data_home(), *xdg_data_dirs())]
-        paths += [
-            "/usr/share/icons",
-            str(xdg_data_home() / "flatpak/exports/share/icons"),
-            "/var/lib/flatpak/exports/share/icons",
-        ]
-        return list(dict.fromkeys(paths))  # dedupe, keeping insertion order
