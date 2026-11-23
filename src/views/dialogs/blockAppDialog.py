@@ -18,7 +18,6 @@ from qfluentwidgets import (
 )
 
 from app_blocker.appBlockerBackend import AppKind, InstalledApp
-from app_blocker.backendFactory import get_app_blocker_backend
 from models.appPickerListModel import AppFilterProxyModel, AppPickerListModel, AppPickerModelItem
 from prefabs.appPickerItemDelegate import AppPickerItemDelegate
 from utils.checkFlatpakSandbox import is_flatpak_sandbox
@@ -29,7 +28,9 @@ class BlockAppDialog(MessageBoxBase):
     For the app picker dialog in the app blocker view
     """
 
-    def __init__(self, blocked_targets: set[str], parent: Optional[QWidget] = None) -> None:
+    def __init__(
+        self, blocked_targets: set[str], installed_apps: list[InstalledApp], parent: Optional[QWidget] = None
+    ) -> None:
         super().__init__(parent)
 
         self.blocked_targets = blocked_targets
@@ -84,7 +85,7 @@ class BlockAppDialog(MessageBoxBase):
         self.widget.setMinimumWidth(dialog_width)
         self.widget.setMinimumHeight(480)
 
-        self.appListModel.populate(get_app_blocker_backend().list_installed_apps(), blocked_targets)
+        self.appListModel.populate(installed_apps, blocked_targets)
 
         self.searchEdit.textChanged.connect(self.onSearchTextChanged)
         self.appListView.clicked.connect(self.onItemClicked)

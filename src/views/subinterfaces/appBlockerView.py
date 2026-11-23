@@ -4,6 +4,7 @@ from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QAbstractItemView, QWidget
 from qfluentwidgets import FluentIcon, InfoBar, InfoBarPosition, ToolTipFilter, ToolTipPosition
 
+from app_blocker.backendFactory import get_app_blocker_backend
 from models.appListModel import AppListModel
 from models.dbTables import BlocklistApp
 from models.workspaceLookup import WorkspaceLookup
@@ -22,6 +23,8 @@ class AppBlockerView(Ui_AppBlockView, QWidget):
         self.setupShortcuts()
 
     def initWidget(self) -> None:
+        get_app_blocker_backend().setup_icon_theme()
+
         self.addAppsButton.setIcon(FluentIcon.VPN)
 
         self.deleteAppButton.setIcon(FluentIcon.DELETE)
@@ -78,8 +81,10 @@ class AppBlockerView(Ui_AppBlockView, QWidget):
             logger.debug("No current workspace selected, not opening the app picker")
             return
 
+        installed_apps = get_app_blocker_backend().list_installed_apps()
+
         blocked_targets = {app.app_path for app in self.appListModel.apps}
-        dialog = BlockAppDialog(blocked_targets, self.window())
+        dialog = BlockAppDialog(blocked_targets, installed_apps, self.window())
 
         if not dialog.exec():
             return
